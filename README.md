@@ -55,8 +55,6 @@ trueflag-ai/
 └── requirements.txt   # Python dependencies
 ```
 
-See [CLAUDE.md](CLAUDE.md) for full architecture details, database schema, security requirements, and build roadmap.
-
 ## Team
 
 - Het Patel
