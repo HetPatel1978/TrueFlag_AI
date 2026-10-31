@@ -7,7 +7,7 @@ Initialization provides a foundation, not five completed weeks. Checkboxes below
 - **Objective:** one secure service, persisted domain and usable local environment.
 - **Tasks:**
   - [ ] Accept setup evidence, license boundary and product scope.
-  - [ ] Add validated/idempotent synthetic alert ingestion and case creation in one transaction.
+  - [x] Add validated/idempotent synthetic alert ingestion and case creation in one transaction (API, strict 27-field contract, durable receipts, creation audit; see API_ALERT_INGESTION.md).
   - [ ] Add authenticated case reads with assignment-aware access rules.
   - [ ] Extend frontend authentication from identity verification to in-memory application session handling.
   - [ ] Add failure logging, request correlation and login abuse controls.
@@ -21,7 +21,7 @@ Initialization provides a foundation, not five completed weeks. Checkboxes below
 - **Objective:** integrate the unchanged RF reference and policy semantics.
 - **Tasks:**
   - [ ] Verify local baseline manifest before trusted loading in compatible ML runtime.
-  - [ ] Implement strict 27-predictor validation, including missing versus zero income and unsupported KYC.
+  - [x] Implement strict 27-predictor validation at the ingestion boundary, including missing versus zero income and unsupported KYC (Week 1); worker input conversion remains part of inference integration.
   - [ ] Persist model/input/policy identities, failures and separate routing records.
   - [ ] Integrate verified TreeSHAP with timeout/failure isolation.
   - [ ] Add bounded background execution and idempotent score requests.

@@ -8,9 +8,9 @@ Scope: synthetic local demonstration. A passing foundation test is not a penetra
 | Authentication | Implemented | Short-lived JWT; signature, issuer, audience, required expiry; invalid-token tests |
 | Server RBAC | Implemented for available endpoints | Admin audit endpoint checks current DB role; missing auth/analyst rejection and deactivation tests |
 | Case/tenant authorization | Pending | No case endpoints yet; assignment/organization policies before exposing evidence |
-| Strict request validation | Implemented for login | Extra role field rejected; exact predictor validation belongs to Week 2 |
+| Strict request validation | Implemented for login and single-alert ingestion | Extra actor/role/predictor fields rejected; exact 27 fields, finite numbers, supported KYC and nullable income; validation errors omit submitted values |
 | Secrets | Local implementation | Generated ignored .env; no displayed credential values; production secret manager/rotation pending |
-| Audit | Limited implementation | Auth/bootstrap events; no passwords/tokens recorded; tamper-resistant storage, denied actions and case events pending |
+| Audit | Limited implementation | Auth/bootstrap and transaction-linked alert creation events; no passwords/tokens/features recorded; tamper-resistant storage, denied actions and review events pending |
 | Transport | Local loopback only | TLS at trusted deployment ingress required before network exposure; no claim of local HTTPS |
 | Database | Partial | Named-volume PostgreSQL, readiness and constraints; Compose initialization account is not a least-privilege runtime role |
 | Sensitive content | Boundary implemented | No private assets in build contexts/Git; synthetic-only alert DB constraint; external AI data policy pending |

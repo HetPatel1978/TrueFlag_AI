@@ -34,6 +34,7 @@ def test_health_and_migrated_readiness(platform):
         "model_scores",
         "decisions",
         "audit_events",
+        "alert_ingestions",
     }
 
 

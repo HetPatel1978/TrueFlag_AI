@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from app.core.config import Settings
 from app.core.database import make_engine
+from app.core.schema import EXPECTED_SCHEMA_REVISION
 from app.models import AuditEvent
 from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
@@ -17,8 +18,8 @@ def main() -> None:
             raise RuntimeError("This check requires real PostgreSQL, not SQLite")
         with engine.connect() as connection:
             revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
-            if revision != "0001_foundation":
-                raise RuntimeError("Apply the foundation migration first")
+            if revision != EXPECTED_SCHEMA_REVISION:
+                raise RuntimeError("Apply the current service migration first")
         tables = set(inspect(engine).get_table_names())
         expected = {
             "users",
@@ -28,6 +29,7 @@ def main() -> None:
             "model_scores",
             "decisions",
             "audit_events",
+            "alert_ingestions",
         }
         if not expected <= tables:
             raise RuntimeError("Missing domain tables")

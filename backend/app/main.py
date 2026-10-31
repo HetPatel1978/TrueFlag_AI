@@ -1,14 +1,17 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import Engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.api.alerts import router as alerts_router
 from app.api.routes import router
 from app.core.config import Settings
 from app.core.database import make_engine
+from app.core.schema import EXPECTED_SCHEMA_REVISION
 
 
 def create_app(settings: Settings | None = None, engine: Engine | None = None) -> FastAPI:
@@ -35,7 +38,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_methods=["GET", "POST"],
-        allow_headers=["Authorization", "Content-Type"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
     )
 
     @app.middleware("http")
@@ -50,6 +53,15 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     async def unavailable(request: Request, error: SQLAlchemyError):
         return JSONResponse({"detail": "Database operation unavailable"}, status_code=503)
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request: Request, error: RequestValidationError):
+        # Do not reflect submitted feature values, credentials or non-finite JSON into errors.
+        detail = [
+            {"type": item["type"], "loc": item["loc"], "msg": item["msg"]}
+            for item in error.errors()
+        ]
+        return JSONResponse({"detail": detail}, status_code=422)
+
     @app.get("/health")
     def health() -> dict:
         return {"status": "ok", "service": "trueflag-ai", "version": "0.1.0"}
@@ -59,11 +71,12 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         try:
             with database.connect() as connection:
                 revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
-            if revision != "0001_foundation":
+            if revision != EXPECTED_SCHEMA_REVISION:
                 raise ValueError("Migration required")
         except (SQLAlchemyError, ValueError):
             return JSONResponse({"status": "not_ready"}, status_code=503)
         return {"status": "ready"}
 
     app.include_router(router)
+    app.include_router(alerts_router)
     return app

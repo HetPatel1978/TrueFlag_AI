@@ -1,5 +1,7 @@
 # Initialization verification — 2026-10-30
 
+For subsequent ingestion development and current test counts, see [Week 1 ingestion verification](WEEK1_INGESTION_VERIFICATION.md). The records below describe initialization, not the latest feature set.
+
 This records checks actually executed during initialization. It does not mark the five-week roadmap complete. Commands assume repository root; credential values and personal runtime state are excluded.
 
 | Check | Result | Evidence / scope |

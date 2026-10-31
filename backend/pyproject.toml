@@ -22,6 +22,7 @@ include = ["app*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["postgres: requires opt-in real PostgreSQL in disposable schemas"]
 
 [tool.ruff]
 target-version = "py311"

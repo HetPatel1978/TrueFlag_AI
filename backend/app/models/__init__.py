@@ -1,3 +1,23 @@
-from app.models.domain import Alert, AuditEvent, Base, Case, Decision, Evidence, ModelScore, User
+from app.models.domain import (
+    Alert,
+    AlertIngestion,
+    AuditEvent,
+    Base,
+    Case,
+    Decision,
+    Evidence,
+    ModelScore,
+    User,
+)
 
-__all__ = ["Alert", "AuditEvent", "Base", "Case", "Decision", "Evidence", "ModelScore", "User"]
+__all__ = [
+    "Alert",
+    "AlertIngestion",
+    "AuditEvent",
+    "Base",
+    "Case",
+    "Decision",
+    "Evidence",
+    "ModelScore",
+    "User",
+]

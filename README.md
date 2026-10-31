@@ -7,10 +7,11 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - FastAPI liveness (`GET /health`) and migration-aware readiness (`GET /ready`).
 - Explicit account provisioning, Argon2 password hashes, expiring JWTs, current database-backed roles, protected identity and administrator audit endpoints.
 - PostgreSQL domain schema and Alembic migration for users, alerts, cases, evidence, model scores, decisions and audit events.
+- Admin-only `POST /api/v1/alerts`: strict 27-predictor synthetic inputs, durable idempotency, atomic alert/case/audit creation and concurrency-safe duplicate handling. See [API contract](docs/API_ALERT_INGESTION.md).
 - React/TypeScript account-verification screen, real health check, tests, linting and build.
 - Docker Compose, CI, local private-baseline staging and publication boundary checks.
 
-**Not implemented:** incoming alert APIs, RF inference service, SHAP service, case transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account; it does not yet maintain an application session.
+**Not implemented:** batch/CSV ingestion, RF inference service, SHAP service, case reads/transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account; it does not yet maintain an application session or an ingestion form.
 
 ## Local setup (PowerShell)
 
@@ -66,7 +67,7 @@ npm.cmd run format:check
 npm.cmd run build
 ```
 
-Backend unit tests migrate disposable SQLite files; they are not PostgreSQL equivalence claims. `verify_postgres.py` verifies actual PostgreSQL connectivity/revision, migration consistency is checked separately, and CI provisions PostgreSQL. Protected endpoint tests verify 401/403, invalid/expired JWTs, role changes, account deactivation, and audit behavior.
+Backend unit tests migrate disposable SQLite files; they are not PostgreSQL equivalence claims. `verify_postgres.py` verifies actual PostgreSQL connectivity/revision, migration consistency is checked separately, and CI provisions PostgreSQL. CI also reruns the suite with `TRUEFLAG_TEST_POSTGRES_URL`, using per-test disposable schemas for real concurrent ingestion and trigger-rollback checks. Optional private-fixture checks skip when baseline files are absent. Protected endpoint tests verify 401/403, invalid/expired JWTs, role changes, account deactivation, and audit behavior.
 
 ## Reuse the private baseline locally
 
@@ -87,5 +88,6 @@ The stager verifies both matching delivery manifests and every main private asse
 - [Technology](docs/TECH_STACK.md) · [Reuse](docs/REUSE_MANIFEST.md)
 - [Security](docs/SECURITY_PLAN.md) · [Decisions](docs/DECISIONS.md)
 - [Actual setup evidence and blockers](docs/SETUP_STATUS.md)
+- [Week 1 ingestion verification](docs/WEEK1_INGESTION_VERIFICATION.md)
 
 Before network exposure: rate limiting, organization/case authorization, least-privilege database roles, TLS, security review, and operational acceptance remain required. SAR labels are synthetic source dispositions, not evidence of criminality. Human decisions must remain distinct from labels and model routing.

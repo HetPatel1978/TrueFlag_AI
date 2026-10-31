@@ -32,6 +32,10 @@ jobs:
       - run: python -m ruff check backend scripts
       - run: python -m ruff format --check backend scripts
       - run: python -m pytest backend/tests -q
+      - name: PostgreSQL integration and concurrency tests
+        env:
+          TRUEFLAG_TEST_POSTGRES_URL: ${{ env.DATABASE_URL }}
+        run: python -m pytest backend/tests -q
       - run: alembic -c backend/alembic.ini upgrade head
       - run: alembic -c backend/alembic.ini check
       - run: python scripts/verify_postgres.py

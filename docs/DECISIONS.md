@@ -16,6 +16,14 @@
 | ADR-012 | Patched frontend tooling and minimatch 11 override | Initial dependency audit exposed vulnerable test/glob tooling; updated compatible lint/test versions and verified matcher override with lint, tests and build; remove override once upstream ranges are patched |
 | ADR-013 | Host ports 8010 / 8088, configurable through .env | Port 8000 was already occupied; preserve the existing listener rather than stopping another project |
 
+## ADR-014 — Single-alert ingestion (2026-10-31)
+
+- Current server-verified admin role required; analysts cannot submit, and request actor/role fields are forbidden.
+- Required idempotency key is hashed in a durable receipt; global source identity independently prevents duplicate cases under a changed key. Changed key/source content conflicts with 409.
+- Alert, unassigned open case, creation audit and receipt commit atomically. Database constraints arbitrate concurrent writers; no process-local lock or score/dismissal side effect.
+- Preserve the exact 27 predictor names and numeric/missingness semantics. The new transport version maps JSON null to missing income without imputation; no ML dependency or model is loaded.
+- Reject invalid requests rather than persist untrusted raw payloads into a newly invented quarantine. Batch ingestion, assignment-aware reads and operational telemetry remain separate tasks.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

@@ -6,7 +6,7 @@
 
 | Capability | Intended behavior | Initialization status |
 |---|---|---|
-| Alert ingestion | Validate synthetic alert envelopes and exactly the approved predictors; deduplicate inputs; quarantine failures | Schema only; Week 1 API work pending |
+| Alert ingestion | Validate synthetic alert envelopes and exactly the approved predictors; deduplicate inputs; reject invalid requests | Admin-only single-alert API, atomic alert/case/audit persistence and durable idempotency implemented; batch/quarantine workflows remain future work |
 | RF scoring | Load trusted fitted preprocessing/RF in isolated runtime; preserve full-precision positive-class score | Baseline staged privately; Week 2 integration pending |
 | Routing | Versioned Efficiency/Balanced/Coverage semantics; failed cases require review | Original policies staged; service pending |
 | Explainability | Verified model-score contributions plus separate deterministic routing rationale | Reference code staged; service pending |

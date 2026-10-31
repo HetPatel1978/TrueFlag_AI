@@ -1,7 +1,17 @@
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from sqlalchemy import JSON, Boolean, CheckConstraint, DateTime, Float, ForeignKey, String, Uuid
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    String,
+    UniqueConstraint,
+    Uuid,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -107,3 +117,16 @@ class AuditEvent(Identity, Base):
     action: Mapped[str] = mapped_column(String(100))
     resource_id: Mapped[str | None] = mapped_column(String(128))
     details: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class AlertIngestion(Identity, Base):
+    """Durable creation receipt; store a hash rather than the raw request key."""
+
+    __tablename__ = "alert_ingestions"
+    __table_args__ = (UniqueConstraint("key_sha256", name="uq_alert_ingestions_key"),)
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    request_sha256: Mapped[str] = mapped_column(String(64))
+    alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"), index=True)
+    case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"))
+    created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    response_json: Mapped[dict] = mapped_column(JSON)
