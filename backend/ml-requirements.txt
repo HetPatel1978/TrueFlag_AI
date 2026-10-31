@@ -1,0 +1,12 @@
+# Separate Python 3.11 worker environment. Never silently substitute baseline versions.
+numpy==2.3.5
+pandas==3.0.1
+scikit-learn==1.9.0
+scipy==1.17.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+shap==0.51.0
+numba==0.68.1
+llvmlite==0.50.0
+slicer==0.0.8
+cloudpickle==3.1.2
