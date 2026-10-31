@@ -15,7 +15,7 @@ from app.security.auth import password_hash
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--username", required=True)
-    parser.add_argument("--role", choices=["analyst", "admin"], default="analyst")
+    parser.add_argument("--role", choices=["analyst", "supervisor", "admin"], default="analyst")
     args = parser.parse_args()
     username = args.username.strip().lower()
     if not 3 <= len(username) <= 100 or not username.isascii() or not username.isalnum():

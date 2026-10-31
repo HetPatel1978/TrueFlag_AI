@@ -4,6 +4,20 @@ import { currentUser, health, signIn } from './api';
 afterEach(() => vi.unstubAllGlobals());
 
 describe('API boundary', () => {
+  it('accepts the server-assigned supervisor role', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: '1',
+          username: 'supervisor',
+          role: 'supervisor',
+        }),
+      }),
+    );
+    expect((await currentUser('test-token')).role).toBe('supervisor');
+  });
   it('reports actual backend liveness', async () => {
     vi.stubGlobal(
       'fetch',

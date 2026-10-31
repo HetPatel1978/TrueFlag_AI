@@ -2,29 +2,46 @@
 
 Scope: synthetic local demonstration. A passing foundation test is not a penetration test, regulatory approval or production acceptance.
 
-| Control | Initialization status | Evidence / remaining work |
+| Control | Verified Phase 1 status | Evidence / remaining work |
 |---|---|---|
 | Password storage | Implemented | Argon2 hash; explicit CLI provisioning; no default accounts; hash and login tests |
 | Authentication | Implemented | Short-lived JWT; signature, issuer, audience, required expiry; invalid-token tests |
-| Server RBAC | Implemented for available endpoints | Admin audit endpoint checks current DB role; missing auth/analyst rejection and deactivation tests |
-| Case/tenant authorization | Pending | No case endpoints yet; assignment/organization policies before exposing evidence |
+| Server RBAC | Implemented for available endpoints | Analyst/supervisor/admin roles from current DB state; supervisor cannot ingest or read global admin audit; client role claims never grant authority |
+| Case authorization | Implemented, single workspace | SQL-scoped list/count/detail; analysts only their assignments, supervisors/admins oversight; hidden/nonexistent case 404; reassignment removes previous access |
+| Tenant/team authorization | Pending enterprise scope | No team/organization data model; supervisor scope is explicitly this workspace, not an invented team hierarchy |
 | Strict request validation | Implemented for login and single-alert ingestion | Extra actor/role/predictor fields rejected; exact 27 fields, finite numbers, supported KYC and nullable income; validation errors omit submitted values |
 | Secrets | Local implementation | Generated ignored .env; no displayed credential values; production secret manager/rotation pending |
-| Audit | Limited implementation | Auth/bootstrap and transaction-linked alert creation events; no passwords/tokens/features recorded; tamper-resistant storage, denied actions and review events pending |
+| Audit | Foundation implementation | Auth/bootstrap, ingestion and atomic assignment-change events; actual actor, before/after assignee UUID/version; protected/tamper-resistant retention and review events pending |
 | Transport | Local loopback only | TLS at trusted deployment ingress required before network exposure; no claim of local HTTPS |
 | Database | Partial | Named-volume PostgreSQL, readiness and constraints; Compose initialization account is not a least-privilege runtime role |
 | Sensitive content | Boundary implemented | No private assets in build contexts/Git; synthetic-only alert DB constraint; external AI data policy pending |
 | Prompt injection/leakage | Planned Week 3 | Treat evidence as untrusted data, enforce tool permissions before retrieval, validate citations, bound tokens/time/cost; test adversarial passages |
-| Human approval | Planned domain/workflow | Separate scores/routes/dispositions; no consequential business endpoint enabled yet |
-| Abuse protection | Pending Week 1 | Login rate limit, request-size limits and operational monitoring before network exposure |
-| Browser protection | Partial | In-memory account verification, no token localStorage; container CSP; full workbench/XSS and browser acceptance pending |
+| Human approval | Review workflow pending | Assignment changes preserve status/disposition; no automatic closure, dismissal or filing; review approvals remain a later phase |
+| Abuse protection | Implemented foundation | Persistent atomic login window per HMAC client key, shared across workers/restarts; 429/Retry-After; declared and streamed request bodies bounded before parsing/DB work |
+| Safe observability | Implemented foundation | Server-generated X-Request-ID, bounded event fields, no body/query/credentials/customer values/exception text; own logger configuration does not enable SQL parameter logging |
+| Browser protection | Partial | Account verification including supervisor; no token localStorage; container CSP/no-store; full workbench/XSS and browser acceptance pending |
+
+## Implemented permissions and concurrency
+
+See API_CASES for the exact matrix. Case data and active role/assignment predicates are evaluated together in SQL. Lists project metadata; authorized details allowlist the 27 predictors. No raw stored JSON, passwords, SAR labels, idempotency keys or private paths are projected.
+
+Assignment requires an active supervisor/admin, an eligible active analyst or explicit null, and a strict expected version. PostgreSQL shared locks retain actor/target eligibility until commit; an atomic version predicate protects actual changes and no-ops. Case/version/audit changes roll back together. Closed cases cannot be reassigned. Manager/analyst role changes and deactivation affect subsequent requests immediately.
+
+## Foundation limits and defaults
+
+- `MAX_REQUEST_BYTES=65536`: actual streamed bytes and Content-Length checked; overflow gets 413 with no parsing/database side effects. No file upload/large batch contract is implied.
+- `LOGIN_ATTEMPT_LIMIT=10`, `LOGIN_WINDOW_SECONDS=60`: fixed window counts **all** sign-in attempts per transport client, including success. Unknown usernames and failures share the same policy; active sessions are not revoked by throttling.
+- Client keys use domain-separated HMAC; no raw address is stored. Arbitrary X-Forwarded-For is not parsed by the application. Trusted reverse-proxy configuration is a deployment responsibility; a shared proxy/NAT can share a bucket. This is not account lockout or distributed bot mitigation.
+- Request IDs are generated by the server, never taken from arbitrary caller input. Application logs contain only event, ID, route name, method, status and error class. Supplied Uvicorn/nginx access logs are disabled to avoid raw URL/query logging; external infrastructure logging also needs approved redaction.
+- Expired throttle keys reset on reuse; a retention/cleanup policy for inactive keys remains operational work. No credentials, private data or existing application state are copied into test reports.
+- PostgreSQL is the persistent deployment target. SQLite files are disposable unit fixtures; PostgreSQL concurrency/rollback tests are required acceptance evidence.
 
 ## Required gates
 
-- Week 1: authentication negative tests, permission tests, account provisioning procedure, login abuse controls and safe logs.
+- Phase 1 local-demo gate verified: authentication negatives, IDOR/cross-analyst tests, strict query/body validation, role provisioning, login/body limits, safe logs, atomic assignment and real PostgreSQL races/rollback.
 - Week 2: trusted artifacts only; never deserialize user-supplied pickle/joblib; unsupported inputs fail to review without successful-capture or dismissal credit.
 - Week 3: approved provider/data boundary; source permissions, institution/jurisdiction/as-of filtering; fabricated citations and provider failures cause abstention.
-- Week 4: case ownership, optimistic concurrency, approval permissions, authorized export, transactional actor audit, runtime DB roles, browser tests.
+- Later workbench/security gate: review approval permissions, authorized export, protected audit retention, runtime DB roles and browser tests. Case ownership/assignment concurrency are already implemented.
 - Week 5: TLS, dependency review, backup/restore, rollback, rotation, bounded load and explicit deployment acceptance.
 
 New data sources, public hosting, institutional use and actual customer data require separately agreed scope. No automatic filing, model promotion or retraining is authorized by a review action.

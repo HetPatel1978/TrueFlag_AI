@@ -1,3 +1,3 @@
 """Expected migration for this service release; shared by readiness and verification."""
 
-EXPECTED_SCHEMA_REVISION = "0002_alert_ingestion"
+EXPECTED_SCHEMA_REVISION = "0003_case_security"

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_session
 from app.models import AuditEvent, User
 from app.security.auth import current_user, issue_token, password_hash, require_admin
+from app.security.throttle import consume_login_attempt
 
 router = APIRouter(prefix="/api/v1")
 # Equal password-verification work for an unknown username; never an account credential.
@@ -20,13 +21,21 @@ class LoginInput(BaseModel):
 
 @router.post("/auth/token")
 def login(body: LoginInput, request: Request, session: Session = Depends(get_session)) -> dict:
+    settings = request.app.state.settings
+    client = request.client.host if request.client else "unknown"
+    if not consume_login_attempt(session, client, settings):
+        raise HTTPException(
+            429,
+            "Too many sign-in attempts",
+            headers={"Retry-After": str(settings.login_window_seconds)},
+        )
     user = session.scalar(select(User).where(User.username == body.username.lower()))
     valid = password_hash.verify(body.password, user.password_hash if user else dummy_hash)
     if user is None or not valid or not user.active:
         session.add(AuditEvent(action="auth.login_failed"))
         session.commit()
         raise HTTPException(401, "Invalid credentials", headers={"WWW-Authenticate": "Bearer"})
-    token = issue_token(user, request.app.state.settings)
+    token = issue_token(user, settings)
     session.add(AuditEvent(actor_id=user.id, action="auth.login", resource_id=str(user.id)))
     session.commit()
     return {"access_token": token, "token_type": "bearer"}

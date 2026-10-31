@@ -6,6 +6,7 @@ from app.models.domain import (
     Case,
     Decision,
     Evidence,
+    LoginThrottle,
     ModelScore,
     User,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "Case",
     "Decision",
     "Evidence",
+    "LoginThrottle",
     "ModelScore",
     "User",
 ]

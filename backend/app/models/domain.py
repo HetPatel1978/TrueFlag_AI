@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     String,
     UniqueConstraint,
     Uuid,
@@ -30,7 +31,9 @@ class Identity:
 
 class User(Identity, Base):
     __tablename__ = "users"
-    __table_args__ = (CheckConstraint("role IN ('analyst','admin')", name="ck_user_role"),)
+    __table_args__ = (
+        CheckConstraint("role IN ('analyst','supervisor','admin')", name="ck_user_role"),
+    )
     username: Mapped[str] = mapped_column(String(100), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(20))
@@ -63,6 +66,9 @@ class Case(Identity, Base):
         CheckConstraint(
             "disposition IS NULL OR disposition IN ('close','recommend')", name="ck_disposition"
         ),
+        CheckConstraint("version >= 1", name="ck_case_version"),
+        Index("ix_cases_assigned_created_id", "assigned_to", "created_at", "id"),
+        Index("ix_cases_status_created_id", "status", "created_at", "id"),
     )
 
 
@@ -130,3 +136,11 @@ class AlertIngestion(Identity, Base):
     case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"))
     created_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     response_json: Mapped[dict] = mapped_column(JSON)
+
+
+class LoginThrottle(Base):
+    __tablename__ = "login_throttles"
+    __table_args__ = (CheckConstraint("attempt_count >= 1", name="ck_login_attempt_count"),)
+    key_sha256: Mapped[str] = mapped_column(String(64), primary_key=True)
+    window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempt_count: Mapped[int] = mapped_column()

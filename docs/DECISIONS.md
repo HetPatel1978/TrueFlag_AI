@@ -7,7 +7,7 @@
 | ADR-003 | Modular FastAPI service plus isolated RF worker | Avoid premature microservices and incompatible scientific/service dependencies |
 | ADR-004 | API package `app`; retain serialized `trueflag` names privately | Resolve regular-package collision without renaming serialized classes |
 | ADR-005 | PostgreSQL source of truth, explicit Alembic migrations | Preserve cases/evidence/scores/decisions/audit separately; no auto create_all in application startup |
-| ADR-006 | Locally provisioned Argon2/JWT accounts for demonstration | No public registration/default admin; role from database; OIDC and abuse controls remain deployment work |
+| ADR-006 | Locally provisioned Argon2/JWT accounts for demonstration | No public registration/default admin; role from database; foundation abuse controls added in ADR-016; production identity remains deployment work |
 | ADR-007 | Exact RF/preprocessing/policies stay immutable | No training/tuning or silent feature changes; replay is identity validation, not independent performance |
 | ADR-008 | Teammate source remains ignored/local until redistribution rights clarified | No supplied license; copy only selected artifacts and references; never publish private data/models |
 | ADR-009 | One provider-neutral investigation interface | Week 3 implementation; no mock endpoint, autonomous actions or mandatory multi-agent framework |
@@ -24,11 +24,30 @@
 - Preserve the exact 27 predictor names and numeric/missingness semantics. The new transport version maps JSON null to missing income without imputation; no ML dependency or model is loaded.
 - Reject invalid requests rather than persist untrusted raw payloads into a newly invented quarantine. Batch ingestion, assignment-aware reads and operational telemetry remain separate tasks.
 
+## ADR-015 — Phase 1 case scope and assignment
+
+- Single workspace: analysts see only assigned cases; supervisors/admins oversee all cases. Neither supervisor nor analyst gains existing admin-only ingestion/global-audit permissions.
+- Apply active role and assignment predicates in SQL for detail, list and counts. Hidden/nonexistent cases share 404. Lists project metadata only; details allowlist the 27 predictors after authorization.
+- Supervisors/admins may assign/reassign/unassign active analysts. Strict expected version required; stale/closed cases conflict. Even no-op assignment executes a version predicate. Mutation and actor-attributed change audit commit together.
+- PostgreSQL shared locks protect manager/assignee eligibility during the transaction; compare-and-set updates arbitrate case races. No source label, case disposition, score or routing changes occur.
+
+## ADR-016 — Foundation abuse controls and observability
+
+- Persist fixed-window login limits per HMAC-protected transport client, shared across workers/restarts; count valid and failed attempts alike. Do not trust arbitrary forwarded headers or persist raw client addresses.
+- Bound both declared and actual streamed body sizes (default 64 KiB), before parsing/DB work. Generate request IDs server-side; logs contain route name/method/status/error class, not body, query, credentials, customer values or exception text.
+- This is local-demo protection, not distributed bot mitigation. Approved proxy identity forwarding, production identity, TLS, database least privilege and retention remain deployment gates.
+
+## ADR-017 — Phase 2 acceptance boundary
+
+- Preserve the exact RF artifact, preprocessing, contract and frozen policy values. Current API has no ML imports or assessment endpoint.
+- Document trusted worker loading, input snapshots, recommendations, explanation verification and 4000-score/12000-route regression before implementation. Original UI-bound SHAP loaders require an explicit live-case adapter.
+- A future below-threshold recommendation must not dismiss/close/hide a case automatically. Do not continue Phase 2 code until separately requested.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.
 - External LLM provider and allowed data boundary.
-- Domain authorization/approval matrix and permitted workflow transitions.
+- Approval matrix and permitted review/filing transitions beyond the implemented case-read/assignment role matrix.
 - Hosting/TLS/identity strategy and performance envelope.
 - Publication rights for teammate code and eventual repository license.
 

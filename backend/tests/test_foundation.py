@@ -35,6 +35,7 @@ def test_health_and_migrated_readiness(platform):
         "decisions",
         "audit_events",
         "alert_ingestions",
+        "login_throttles",
     }
 
 

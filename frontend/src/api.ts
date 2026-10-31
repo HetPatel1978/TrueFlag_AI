@@ -1,4 +1,8 @@
-export type User = { id: string; username: string; role: 'analyst' | 'admin' };
+export type User = {
+  id: string;
+  username: string;
+  role: 'analyst' | 'supervisor' | 'admin';
+};
 
 async function request(path: string, init?: RequestInit): Promise<unknown> {
   const response = await fetch(path, {
@@ -58,7 +62,7 @@ export async function currentUser(token: string): Promise<User> {
     !('username' in result) ||
     typeof result.username !== 'string' ||
     !('role' in result) ||
-    !['analyst', 'admin'].includes(String(result.role))
+    !['analyst', 'supervisor', 'admin'].includes(String(result.role))
   ) {
     throw new Error('Invalid account response.');
   }

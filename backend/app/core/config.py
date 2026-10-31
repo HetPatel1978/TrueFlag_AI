@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     jwt_audience: str = "trueflag-api"
     access_token_minutes: int = 15
     cors_origins: list[str] = ["http://127.0.0.1:5173", "http://localhost:5173"]
+    max_request_bytes: int = Field(default=65536, ge=1024, le=1048576)
+    login_attempt_limit: int = Field(default=10, ge=1, le=100)
+    login_window_seconds: int = Field(default=60, ge=1, le=3600)
 
     @field_validator("jwt_secret")
     @classmethod

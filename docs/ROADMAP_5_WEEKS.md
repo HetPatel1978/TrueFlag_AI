@@ -2,15 +2,17 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
+Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md). Phase 2 remains [design only](PHASE2_INTEGRATION_PLAN.md); no live inference implementation is authorized by this roadmap update.
+
 ## Week 1 — Foundation and integration
 
 - **Objective:** one secure service, persisted domain and usable local environment.
 - **Tasks:**
   - [ ] Accept setup evidence, license boundary and product scope.
   - [x] Add validated/idempotent synthetic alert ingestion and case creation in one transaction (API, strict 27-field contract, durable receipts, creation audit; see API_ALERT_INGESTION.md).
-  - [ ] Add authenticated case reads with assignment-aware access rules.
+  - [x] Add authenticated case reads with assignment-aware access rules, supervisor oversight, protected assignment/reassignment and atomic version/audit updates (Phase 1).
   - [ ] Extend frontend authentication from identity verification to in-memory application session handling.
-  - [ ] Add failure logging, request correlation and login abuse controls.
+  - [x] Add safe failure logging, server-generated request correlation, bounded request bodies and database-backed cross-worker login throttling (Phase 1).
 - **Dependencies:** Python 3.11, Docker/PostgreSQL, accounts, agreed input envelope; no model needed for foundation tests.
 - **Deliverables:** backend/frontend foundation, migrations, authentication/RBAC, CI and first ingestion vertical slice.
 - **Acceptance:** valid alert persists; invalid/extra fields fail; same retry is idempotent; unauthorized access fails; restart preserves state; health differs from database readiness.
@@ -48,7 +50,8 @@ Initialization provides a foundation, not five completed weeks. Checkboxes below
 
 - **Objective:** complete case handling with auditable human control.
 - **Tasks:**
-  - [ ] Implement assignment, evidence inspection, notes, optimistic concurrency and review history.
+  - [x] Implement backend assignment/reassignment, case authorization and optimistic concurrency (completed in Phase 1).
+  - [ ] Implement evidence inspection, notes, review history and frontend case/session workflows.
   - [ ] Implement approval-gated consequential transitions and report/export authorization.
   - [ ] Add actor-attributed audit events in the same transaction as state changes.
   - [ ] Restrict runtime database privileges; establish migrations versus application roles.

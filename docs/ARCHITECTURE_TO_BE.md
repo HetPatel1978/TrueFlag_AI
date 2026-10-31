@@ -2,6 +2,16 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
+Current acceptance and seven-phase mapping are in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phase 1 backend foundation/security is implemented and tested for a local synthetic demonstration. Phase 2 is [design-only](PHASE2_INTEGRATION_PLAN.md); all model/SHAP/retrieval/job flows below remain proposed.
+
+| Boundary | Implemented now | Pending |
+|---|---|---|
+| API/security | JWT/Argon2, analyst/supervisor/admin, per-case SQL scope, body limits, request IDs, persistent login throttle | Enterprise IAM, tenant isolation, perimeter controls |
+| Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
+| Data | Synthetic ingestion, durable idempotency, linked cases, nine domain tables | Assessment/job/explanation persistence and new data sources |
+| UI | React account verification, including supervisor identities | Case/session/assignment workbench |
+| Scientific worker | Private artifact/contract/method references retained, identities inspected | All live integration; no model is loaded by the current API |
+
 ```mermaid
 flowchart TB
   subgraph Frontend[React + TypeScript frontend]
@@ -9,13 +19,13 @@ flowchart TB
     Review[Human review / approval / report]
   end
   subgraph Boundary[Security and API boundary]
-    Auth[Authentication + server-enforced RBAC]
+    Auth[JWT + server RBAC + body limits + persistent login throttle]
     API[Versioned FastAPI APIs]
   end
   subgraph Backend[Modular backend services]
     Ingest[Alert ingestion / validation / idempotency]
     Prepare[Customer references / exact feature contract]
-    Cases[Case workflow / concurrency / permissions]
+    Cases[Scoped case reads + versioned assignment; review workflow pending]
     Policy[Deterministic policy and prioritization]
     Investigate[Bounded AI draft coordinator]
     Retrieve[Permission-aware evidence retrieval]
@@ -71,7 +81,7 @@ Solid arrows represent intended MVP flows; dashed arrows are future integrations
 | Ingestion/preparation | Validate exact contract, classify synthetic data, preserve missingness and source identity; never manufacture transaction history |
 | RF/XAI | Produce versioned scores and independently checked explanations; no policy/filing authority |
 | Policy | Thresholds, supported KYC and explicit processing failures; deterministic versioned decisions |
-| Cases/review | Assignment, state transitions, optimistic concurrency, approvals and authorized reporting |
+| Cases/review | Scoped reads, assignment and optimistic concurrency implemented; state transitions, approvals and authorized reporting pending |
 | Retrieval/corpus | Evidence IDs, permissions, jurisdiction, institution scope, source hashes and as-of context |
 | AI coordinator | One bounded provider workflow, source-cited draft or abstention; no autonomous consequential write |
 | Audit/storage | Separate observations, scores, decisions, reviews and source labels with transactional linkage |

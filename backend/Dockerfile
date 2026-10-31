@@ -7,4 +7,4 @@ COPY . .
 RUN pip install --no-cache-dir --no-deps . && useradd --create-home --uid 10001 trueflag
 USER trueflag
 EXPOSE 8000
-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]

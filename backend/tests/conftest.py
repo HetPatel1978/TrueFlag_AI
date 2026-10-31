@@ -1,7 +1,8 @@
 import os
 import secrets
+from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from alembic.config import Config
@@ -14,7 +15,7 @@ from alembic import command
 from app.core.config import Settings
 from app.core.database import make_engine
 from app.main import create_app
-from app.models import User
+from app.models import Case, User
 from app.security.auth import password_hash
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -83,3 +84,59 @@ def admin_headers(platform):
     from test_foundation import headers
 
     return {**headers(platform), "Idempotency-Key": str(uuid4())}
+
+
+@pytest.fixture
+def case_team(platform, alert_payload):
+    from copy import deepcopy
+
+    from sqlalchemy import select
+    from test_foundation import headers
+
+    client, engine, _, password = platform
+    with Session(engine) as session, session.begin():
+        session.add_all(
+            [
+                User(
+                    username="analysttwo",
+                    role="analyst",
+                    password_hash=password_hash.hash(password),
+                ),
+                User(
+                    username="supervisor",
+                    role="supervisor",
+                    password_hash=password_hash.hash(password),
+                ),
+                User(
+                    username="inactive",
+                    role="analyst",
+                    active=False,
+                    password_hash=password_hash.hash(password),
+                ),
+            ]
+        )
+    with Session(engine) as session:
+        users = {user.username: str(user.id) for user in session.scalars(select(User))}
+    auth = {
+        name: headers(platform, name) for name in ["admin", "analyst", "analysttwo", "supervisor"]
+    }
+    receipts = []
+    for index in range(4):
+        payload = deepcopy(alert_payload)
+        payload["source_id"] = f"phase1-synthetic-{index}"
+        payload["features"]["income"] = (index + 1) * 1001
+        response = client.post(
+            "/api/v1/alerts",
+            json=payload,
+            headers={**auth["admin"], "Idempotency-Key": str(uuid4())},
+        )
+        assert response.status_code == 201
+        receipts.append(response.json())
+    with Session(engine) as session, session.begin():
+        for index, assignee in enumerate(["analyst", "analysttwo", None, "analyst"]):
+            case = session.get(Case, UUID(receipts[index]["case_id"]))
+            case.assigned_to = UUID(users[assignee]) if assignee else None
+            case.created_at = datetime(2026, 10, 31, 12, tzinfo=timezone.utc)
+            if index == 3:
+                case.status = "in_review"
+    return {"auth": auth, "users": users, "ids": [r["case_id"] for r in receipts]}

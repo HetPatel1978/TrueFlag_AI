@@ -12,8 +12,8 @@
 | Explainability | Verified model-score contributions plus separate deterministic routing rationale | Reference code staged; service pending |
 | Investigation | Evidence-grounded, source-cited drafts; explicit abstention; human confirmation | Provider protocol only; Week 3 |
 | Regulatory RAG | Approved jurisdiction/institution/as-of corpus; versioned passages and access filters | Planned; no corpus/provider configured |
-| Case management | Assignment, notes, state transitions, approval, evidence links, reproducible reports | Initial relational schema; Week 4 |
-| Security | Authentication, server RBAC, input validation, audit records, deployment controls | Account verification/RBAC implemented; hardening progressive |
+| Case management | Assignment, notes, state transitions, approval, evidence links, reproducible reports | Scoped case list/detail, pagination/filtering/sorting and protected versioned assignment implemented; review/approval/report workflows pending |
+| Security | Authentication, server RBAC, input validation, audit records, deployment controls | Three-role case authorization, persistent login throttle, bounded bodies, safe request/failure logs and transactional assignment audit verified; deployment hardening pending |
 | Monitoring/feedback | Health, readiness, failures, queue metrics and reviewed outcomes | Liveness/readiness implemented; remaining work pending |
 
 ## Boundaries

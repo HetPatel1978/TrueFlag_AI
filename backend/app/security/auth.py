@@ -65,3 +65,15 @@ def require_admin(user: User = Depends(current_user)) -> User:
     if user.role != "admin":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Administrator permission required")
     return user
+
+
+def require_case_reader(user: User = Depends(current_user)) -> User:
+    if user.role not in {"analyst", "supervisor", "admin"}:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Case access is not permitted")
+    return user
+
+
+def require_case_manager(user: User = Depends(current_user)) -> User:
+    if user.role not in {"supervisor", "admin"}:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Case assignment permission required")
+    return user

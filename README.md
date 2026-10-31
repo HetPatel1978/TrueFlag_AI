@@ -8,10 +8,12 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Explicit account provisioning, Argon2 password hashes, expiring JWTs, current database-backed roles, protected identity and administrator audit endpoints.
 - PostgreSQL domain schema and Alembic migration for users, alerts, cases, evidence, model scores, decisions and audit events.
 - Admin-only `POST /api/v1/alerts`: strict 27-predictor synthetic inputs, durable idempotency, atomic alert/case/audit creation and concurrency-safe duplicate handling. See [API contract](docs/API_ALERT_INGESTION.md).
+- Scoped `GET /api/v1/cases` and `GET /api/v1/cases/{case_id}`, filtered/bounded pagination and sorting, supervisor/admin `PUT /api/v1/cases/{case_id}/assignment`, version conflicts and atomic assignment audit. See [case API](docs/API_CASES.md).
+- Persistent login throttle, streamed-body limits and safe server-generated request correlation; current roles and per-case access are enforced in the database query.
 - React/TypeScript account-verification screen, real health check, tests, linting and build.
 - Docker Compose, CI, local private-baseline staging and publication boundary checks.
 
-**Not implemented:** batch/CSV ingestion, RF inference service, SHAP service, case reads/transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account; it does not yet maintain an application session or an ingestion form.
+**Not implemented:** batch/CSV ingestion, RF inference service, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. Phase 2 is [design-only](docs/PHASE2_INTEGRATION_PLAN.md).
 
 ## Local setup (PowerShell)
 
@@ -25,7 +27,7 @@ python -m venv .venv
 docker compose up -d db
 .\.venv\Scripts\alembic.exe -c backend/alembic.ini upgrade head
 .\.venv\Scripts\python.exe -m app.security.bootstrap --username admin --role admin
-.\.venv\Scripts\uvicorn.exe app.main:create_app --factory --host 127.0.0.1 --port 8010
+.\.venv\Scripts\uvicorn.exe app.main:create_app --factory --host 127.0.0.1 --port 8010 --no-access-log
 ```
 
 In a second terminal:
@@ -59,6 +61,7 @@ Open http://127.0.0.1:8088; the API is http://127.0.0.1:8010. Migration is a sep
 .\.venv\Scripts\alembic.exe -c backend/alembic.ini check
 .\.venv\Scripts\python.exe scripts/verify_postgres.py
 .\.venv\Scripts\python.exe scripts/smoke_http.py --base-url http://127.0.0.1:8088
+.\.venv\Scripts\python.exe scripts/smoke_cases.py --base-url http://127.0.0.1:8088
 .\.venv\Scripts\python.exe scripts/check_publication.py
 cd frontend
 npm.cmd test
@@ -89,5 +92,6 @@ The stager verifies both matching delivery manifests and every main private asse
 - [Security](docs/SECURITY_PLAN.md) · [Decisions](docs/DECISIONS.md)
 - [Actual setup evidence and blockers](docs/SETUP_STATUS.md)
 - [Week 1 ingestion verification](docs/WEEK1_INGESTION_VERIFICATION.md)
+- [Seven-phase implementation status](docs/IMPLEMENTATION_STATUS.md) · [Phase 2 integration design](docs/PHASE2_INTEGRATION_PLAN.md)
 
-Before network exposure: rate limiting, organization/case authorization, least-privilege database roles, TLS, security review, and operational acceptance remain required. SAR labels are synthetic source dispositions, not evidence of criminality. Human decisions must remain distinct from labels and model routing.
+Before network exposure: approved proxy/perimeter limits, organization/tenant authorization, least-privilege database roles, TLS, security review, and operational acceptance remain required. Foundation login limits and case authorization are implemented; they do not constitute enterprise deployment acceptance. SAR labels are synthetic source dispositions, not evidence of criminality. Human decisions must remain distinct from labels and model routing.
