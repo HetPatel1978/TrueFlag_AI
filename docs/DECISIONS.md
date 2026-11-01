@@ -51,6 +51,13 @@
 - Validate CPython 3.11/64-bit, exact required distribution versions, fitted guard/preprocessor/RF, class order, native missing-income behavior and the actual `state`+`kycRiskScore` encoder. Keep original code private; no source shim, training or inference API.
 - Phase 2.1 acceptance uses the actual retained model. CI boundary tests may skip private-runtime tests; local scientific acceptance is required evidence and is recorded separately.
 
+## ADR-019 — Phase 2.2 read-only scoring and regression
+
+- Construct `RFScoringService` only through the approved loader; preserve original fitted preprocessing and RF parameters. Resolve positive class from verified `classes_`; label 1 represents the research SAR target. No classifier threshold or calibration is added.
+- Bound requests to 1–1000 unique-ID records, reuse strict ingestion feature validation and return per-record processed/failed results. Reject ambiguous envelopes/duplicate IDs before prediction. Never fabricate a failure score or log customer inputs/exception text.
+- Pin the saved predictions and cleaned evaluation-source hashes independently of artifact manifests. Align all 4000 records by ID, check source/reference label metadata, and reject duplicated/missing/mismatched IDs. Numeric acceptance is absolute 1e-12, relative 0; measured maximum error is 0.0.
+- Keep only pure Python scoring in Phase 2.2. HTTP endpoints, workers, persistence, deterministic policy recommendations and SHAP remain separately authorized work. No retraining, automatic dismissal or case mutation.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

@@ -7,7 +7,7 @@
 | Capability | Intended behavior | Initialization status |
 |---|---|---|
 | Alert ingestion | Validate synthetic alert envelopes and exactly the approved predictors; deduplicate inputs; reject invalid requests | Admin-only single-alert API, atomic alert/case/audit persistence and durable idempotency implemented; batch/quarantine workflows remain future work |
-| RF scoring | Load trusted fitted preprocessing/RF in isolated runtime; preserve full-precision positive-class score | Baseline staged privately; Week 2 integration pending |
+| RF scoring | Load trusted fitted preprocessing/RF in isolated runtime; preserve full-precision positive-class score | Secure loader and pure single/batch scorer implemented; all 4000 saved scores match (maximum error 0.0); worker/API/persistence integration pending |
 | Routing | Versioned Efficiency/Balanced/Coverage semantics; failed cases require review | Original policies staged; service pending |
 | Explainability | Verified model-score contributions plus separate deterministic routing rationale | Reference code staged; service pending |
 | Investigation | Evidence-grounded, source-cited drafts; explicit abstention; human confirmation | Provider protocol only; Week 3 |

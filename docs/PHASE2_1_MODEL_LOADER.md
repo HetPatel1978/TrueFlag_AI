@@ -63,8 +63,8 @@ Reproduce after private staging:
 
 CI has no private artifact/runtime and cannot independently prove real-model acceptance. No remote CI execution is claimed. The existing Starlette TestClient/httpx deprecation remains non-blocking in backend regressions. No 4000-score/12000-route replay was performed during this loading-only task.
 
-## Next authorized boundary
+## Subsequent progress
 
-Phase 2.2 is pending a separate request: pure positive-class scoring through the verified full pipeline and the 4000 saved-score identity regression at absolute tolerance 1e-12 / relative 0. Live endpoints, background jobs, persistent assessments, policies and explanations remain subsequent work.
+Phase 2.2 has since been authorized and completed separately: [pure scoring and 4000-score identity acceptance](PHASE2_2_RF_SCORING.md). This document retains the loading-only Phase 2.1 evidence. Live endpoints, background jobs, persistent assessments, policies and explanations remain subsequent work; current status is in IMPLEMENTATION_STATUS.
 
 Engineering references: [Joblib load security and file-object interface](https://joblib.readthedocs.io/en/stable/generated/joblib.load.html), [scikit-learn persistence compatibility](https://scikit-learn.org/stable/model_persistence.html).

@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md), [PHASE2_1_MODEL_LOADER](PHASE2_1_MODEL_LOADER.md). Phase 2.1 loading is verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No live inference implementation is authorized by this roadmap update.
+Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md), [PHASE2_1_MODEL_LOADER](PHASE2_1_MODEL_LOADER.md), [PHASE2_2_RF_SCORING](PHASE2_2_RF_SCORING.md). Loading and pure scoring are verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference HTTP endpoint is authorized by this roadmap update.
 
 ## Week 1 — Foundation and integration
 
@@ -23,7 +23,9 @@ Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMP
 - **Objective:** integrate the unchanged RF reference and policy semantics.
 - **Tasks:**
   - [x] Phase 2.1: load the real fitted RF in compatible isolated runtime, pin model/contract/source identities independently of the artifact manifest, enforce the exact shared 27-field contract and verify native missing income.
-  - [x] Implement strict 27-predictor validation at the ingestion boundary, including missing versus zero income and unsupported KYC (Week 1); worker input conversion remains part of inference integration.
+  - [x] Phase 2.2: pure single/batch RF scorer with positive-class mapping, sanitized failure results and ID-aligned 4000-score regression (maximum error 0.0; absolute tolerance 1e-12 / relative 0).
+  - [x] Implement strict 27-predictor validation at ingestion and isolated scoring, preserving missing versus zero income and unsupported KYC rejection.
+  - [ ] Implement deterministic recommendation policies and 12000-route regression without automatic dismissal.
   - [ ] Persist model/input/policy identities, failures and separate routing records.
   - [ ] Integrate verified TreeSHAP with timeout/failure isolation.
   - [ ] Add bounded background execution and idempotent score requests.
