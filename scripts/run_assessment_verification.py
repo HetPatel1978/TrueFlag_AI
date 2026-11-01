@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--full-backend", action="store_true")
+    parser.add_argument("--jobs-only", action="store_true")
     args = parser.parse_args()
     if args.build:
         result = subprocess.run(
@@ -81,6 +82,7 @@ def main():
             {
                 "database_url": database_url,
                 "full_backend": args.full_backend,
+                "jobs_only": args.jobs_only,
             }
         ),
         text=True,

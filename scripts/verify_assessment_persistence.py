@@ -25,8 +25,12 @@ def main():
             "backend/tests/test_assessments.py",
             "backend/tests/test_assessments_postgres.py",
             "backend/tests/test_assessments_real_ml.py",
+            "backend/tests/test_assessment_jobs.py",
+            "backend/tests/test_assessment_worker.py",
         ]
     )
+    if settings.get("jobs_only"):
+        paths = ["backend/tests/test_assessment_jobs.py", "backend/tests/test_assessment_worker.py"]
     return pytest.main(
         [*paths, "-q", "--tb=short", "-p", "no:cacheprovider", "--basetemp", "/tmp/pytest"]
     )

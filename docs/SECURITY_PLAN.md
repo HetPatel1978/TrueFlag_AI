@@ -59,3 +59,12 @@ New data sources, public hosting, institutional use and actual customer data req
 - Database triggers reject UPDATE/DELETE of immutable history and linked children; TRUNCATE is blocked. Unlinked foundation audit events are not newly protected. Owners/superusers can bypass triggers; runtime-role separation and independent audit retention remain pending.
 - SHA-256 content checks detect accidental corruption on retrieval; they are not signatures or protection against a privileged actor rewriting digests. No new data access/inference HTTP route is exposed.
 - Actual RF/SHAP/DB acceptance runs in a non-root, read-only Linux verification container on the local Compose network. Credentials pass through stdin; no `.env` or private assets enter image layers. Native Windows DLL security remains unchanged.
+
+## Phase 2.6 worker and queue controls
+
+- Separate non-login 256-bit worker secrets, hashed in DB and checked on every queue operation. Current admins provision/revoke; current requesting-user case access remains independently required.
+- Immutable queued envelopes bind source/input/model/policy identity. Completion rechecks actor/worker eligibility, assignment/state, lease generation and deadline under locks before atomic publication.
+- Linux child uses JSON-only private IPC, approved model loading, restricted environment, output/address-space/CPU bounds, independent wall-clock kill watchdog, parent-death SIGKILL and reaping. No feature-value logs or inherited application secrets; child stderr is discarded.
+- Expiration or DB outage cannot publish partial results. Three attempts with durable backoff; terminal failures record manual review and keep case/human disposition unchanged.
+- Optional non-root worker profile has no ports, read-only source/artifact mounts, dropped capabilities and bounded resources. No dataset mounts or automatic enqueue. Host token ACL/readability and production SQL roles remain operational gates.
+- Real Linux/PostgreSQL/process acceptance and limitations: [Phase 2.6](PHASE2_6_DURABLE_JOBS.md). Synthetic fixture clock correction does not change production JWT validation; future-issued JWTs remain rejected.

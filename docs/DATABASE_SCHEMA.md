@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.5
+# PostgreSQL schema - Phase 2.6
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0004_assessments**; 11 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0005_assessment_jobs**; 13 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -13,6 +13,8 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | decisions | Score-linked policy mode/version, recommendation/status/reason; assessment-linked rows immutable |
 | audit_events | Actor/action/resource/details; assessment-linked completion events immutable |
 | login_throttles | HMAC client key, window start and atomic attempt count |
+| assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
+| assessment_jobs | Immutable request envelope; Pending/Running/Succeeded/Failed state, fencing token, lease/deadline, bounded attempts/backoff and completed assessment link |
 | assessment_explanations | Immutable verified SHAP payload and independent-verification metadata; no raw predictor values |
 | assessments | Immutable completed run, case/alert/actor, versions, hashes, child links and provenance |
 
@@ -36,3 +38,10 @@ erDiagram
 - DB triggers protect assessments, explanations and referenced score/decision/audit rows from UPDATE/DELETE; PostgreSQL TRUNCATE is blocked on all five tables. Schema owners remain privileged; least-privilege runtime roles are pending.
 - Reassessment appends a new version; it does not update an existing run or a human case disposition. Failed jobs/attempts are not represented as completed assessments.
 - Upgrade: `alembic -c backend/alembic.ini upgrade head`; drift: `alembic -c backend/alembic.ini check`. Downgrade refuses retained assessment history. Never disable history protection as a normal rollback procedure.
+
+## Phase 2.6 queue invariants
+
+- Unique global run ID and actor-scoped key digest; valid four-state combinations and attempt range 0-3 enforced by constraints. State values are stored lowercase.
+- Ready/expiry indexes support SKIP LOCKED claim and bounded reaping. Each claim rotates its fencing token; DB clock determines validity and durable backoff.
+- Job envelope and terminal history are immutable; DELETE/TRUNCATE of jobs and UPDATE/DELETE of job audit events are blocked. Migration downgrade refuses retained jobs.
+- One caller-owned transaction links the existing immutable assessment write, completion audit and Succeeded job. No features are duplicated in queue rows and no human disposition is changed.

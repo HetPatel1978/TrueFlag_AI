@@ -83,6 +83,15 @@
 - Enforce immutability with database triggers, including linked children and TRUNCATE protection. Refuse history-destroying downgrade. Owner bypass, independent retention and runtime role separation remain deployment limits.
 - Failure leaves no completed assessment or partial writes; durable failed attempts, jobs, bounded workers and HTTP integration require a later request. No changes to human case state, model, teammate sources or private references.
 
+## ADR-023 - Durable assessment jobs (2026-11-01)
+
+- Use PostgreSQL as the durable queue; no separate broker/outbox is needed for this single-database internal handoff.
+- Separate worker service credentials from human identities. Execution rechecks the current requesting principal and case state; no worker HTTP interface is added.
+- SKIP LOCKED claim, DB-clock renewable leases, rotating fencing tokens, three attempts and durable 5/10-second retry backoff. At-least-once computation, unique immutable assessment publication.
+- Isolate each scientific run in a Linux subprocess with independent wall-clock watchdog, parent-death cleanup and bounded resource/JSON IPC. Keep existing RF/policy/SHAP behavior unchanged.
+- Extract the unchanged Phase 2.5 write body into a caller-owned transaction so job success, assessment/explanation and both audit events commit together. No partial success or automatic human-case action.
+- Optional Compose worker, explicit operator provisioning and no default/automatic enqueue. HTTP contracts, admission quotas, retention, metrics and production privilege separation remain later scope.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

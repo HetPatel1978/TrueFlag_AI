@@ -36,3 +36,9 @@ Original paths are relative to sibling `../github`, or are ZIP members in `../pr
 - New internal assessment service composes the unchanged approved loader/scorer, frozen policies and verified SHAP implementation with existing case scope, ingestion fingerprints, score/decision tables and audit records.
 - Two additive tables retain immutable results; no original source, model, policy or saved reference is modified. All 25 staged baseline identities remain authoritative and private.
 - New test-only Linux image installs existing service/scientific pins; models/references mount read-only at runtime and never enter image layers. No worker or private application image is published.
+
+## Phase 2.6 reuse
+
+- Existing verified scientific modules remain unchanged. The assessment transaction body is extracted without behavioral changes for atomic job/result completion.
+- PostgreSQL, existing human case scope and audit records provide the queue boundary; no third-party broker, agent framework or new ML model.
+- Operational worker image copies only new application code/dependency pins; approved model/contracts/serialized source mount read-only. Test runtime remains separate and can mount private replay fixtures without publishing them.

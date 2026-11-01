@@ -19,7 +19,8 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 
 - Phase 2.5 internal assessment persistence: approved RF/policy/SHAP orchestration, immutable versioned history, atomic completion audit, idempotent retries, stale-state protection and current case authorization. See [assessment persistence](docs/PHASE2_5_ASSESSMENT_PERSISTENCE.md) and [schema](docs/DATABASE_SCHEMA.md).
 
-**Pending:** batch/CSV ingestion, inference/policy/explanation HTTP endpoints, durable jobs/worker deployment/timeouts, review transitions/approvals, live regulatory retrieval, LLM investigations and model promotion. Assessment services integrate the ML libraries with PostgreSQL internally; ingestion does not trigger inference. They cannot dismiss or close cases. The UI verifies an account; case/session/assignment screens remain pending.
+- Phase 2.6 PostgreSQL assessment queue and opt-in Linux worker: fenced claims, leases/recovery, bounded retries/timeouts, service credentials and atomic assessment/job completion. See [durable jobs](docs/PHASE2_6_DURABLE_JOBS.md).
+**Pending:** protected assessment/job HTTP endpoints, workbench integration, queue admission/retention and production monitoring, batch/CSV ingestion, human review/approvals, regulatory retrieval, LLM investigations and model promotion. Internal enqueue is explicit; alert ingestion still does not invoke inference. Workers cannot dismiss, close or file cases. The operational worker profile is opt-in and does not start with the default stack.
 
 ## Local setup (PowerShell)
 

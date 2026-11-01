@@ -2,17 +2,34 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
-Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.5 now include verified RF/policies/SHAP and [internal immutable assessment persistence](PHASE2_5_ASSESSMENT_PERSISTENCE.md). HTTP, durable jobs, deployed workers and hard timeouts remain proposed; ingestion does not invoke ML.
+Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.6 include verified RF/policies/SHAP, immutable assessments and [durable PostgreSQL jobs with a controlled Linux worker](PHASE2_6_DURABLE_JOBS.md). HTTP/workbench wiring and operational deployment acceptance remain pending; ingestion does not invoke ML.
 
 | Boundary | Implemented now | Pending |
 |---|---|---|
 | API/security | JWT/Argon2, analyst/supervisor/admin, per-case SQL scope, body limits, request IDs, persistent login throttle | Enterprise IAM, tenant isolation, perimeter controls |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, durable receipts, 11 domain tables, immutable assessment/explanation history and atomic completion audit | Durable jobs/failure history, new sources, runtime DB roles |
+| Data | Synthetic ingestion, durable receipts, 13 domain tables, immutable assessments, PostgreSQL jobs and atomic job/result/audit completion | New sources, admission/retention and least-privilege SQL roles |
 | UI | React account verification, including supervisor identities | Case/session/assignment workbench |
-| Scientific worker | Separate verified RF loader/scorer; 27-feature contract and 4000-score identity replay | Worker deployment and API/ingestion integration; no model is loaded by the current API |
+| Scientific worker | Opt-in Linux worker, isolated bounded child, renewable leases/fencing, recovery and retries using approved libraries | Protected submission APIs, operational monitoring and throughput acceptance |
 | Policy engine | Frozen deterministic recommendations, 12000-route parity and immutable linked decision records | Authorized HTTP/workflow integration; all recommendations require human decision |
-| Explanation service | Exact SHAP, 41-to-27 grouping, 4000-reference parity, independent verification and immutable permission-scoped storage | Authenticated HTTP/worker wiring and hard timeouts |
+| Explanation service | Exact SHAP, 41-to-27 grouping, independent checks, immutable storage and killable bounded worker execution | Authenticated HTTP/workbench wiring |
+
+Implemented Phase 2.6 internal job flow (no public inference endpoint):
+
+```mermaid
+flowchart LR
+  Caller[Trusted principal and explicit internal enqueue] --> Check[Current case scope and frozen request fingerprint]
+  Check --> Queue[(PostgreSQL Pending job and enqueue audit)]
+  Service[Active worker credential] --> Claim[SKIP LOCKED claim and fenced lease]
+  Queue --> Claim
+  Claim --> Child[Isolated Linux RF plus policy plus verified SHAP]
+  Watchdog[Heartbeat and independent kill watchdog] --> Child
+  Child --> Recheck[Current user and worker and source and lease checks]
+  Recheck --> Commit[One assessment plus explanation plus audit plus Succeeded transaction]
+  Claim --> Recovery[Expired lease recovery and bounded backoff]
+  Recovery --> Queue
+  Recovery --> Manual[Failed manual-review job after attempt limit]
+```
 
 Implemented Phase 2.5 internal flow (no HTTP inference endpoint or deployed worker):
 

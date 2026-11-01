@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md) and Phases 2.1-2.5 [assessment evidence](PHASE2_5_ASSESSMENT_PERSISTENCE.md). RF, policies and verified explanations now persist through an internal authorized service. HTTP/job/worker integration remains design only; no automatic inference is triggered at ingestion.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md) and [Phase 2.6 durable jobs](PHASE2_6_DURABLE_JOBS.md). Verified RF/policy/SHAP, immutable persistence and bounded Linux background execution are implemented internally. Protected job/result APIs and workbench wiring remain pending; ingestion has no automatic inference hook.
 
 ## Week 1 — Foundation and integration
 
@@ -27,10 +27,11 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1]
   - [x] Implement strict 27-predictor validation at ingestion and isolated scoring, preserving missing versus zero income and unsupported KYC rejection.
   - [x] Phase 2.3: implement versioned deterministic recommendations and all 12000 saved route/audit comparisons, including 456 changed-route Coverage overrides; no automatic dismissal or case mutation.
   - [x] Phase 2.5: immutable versioned assessments, approved model/input/policy identity, verified explanations, atomic audit, idempotency and scoped internal retrieval.
-  - [ ] Add durable job/attempt failure history and retry/lease management; Phase 2.5 stores completed results only.
+  - [x] Phase 2.6: durable four-state jobs, claim/fencing, lease recovery, bounded retry/backoff and atomic completed-result/job/audit publication.
   - [x] Phase 2.4: exact SHAP service, required host authorization, independent output checks and 4000-reference parity; native missing/zero income preserved, no RF retraining.
-  - [ ] Add hard explanation-worker timeouts, cancellation and job failure isolation during worker integration.
-  - [ ] Add bounded background execution and idempotent score requests.
+  - [x] Phase 2.6: hard subprocess watchdog, cancellation, parent-death cleanup and bounded failure isolation.
+  - [x] Phase 2.6: bounded Linux background worker and internal idempotent job requests.
+  - [ ] Add protected job submission/status/result APIs and workbench integration after contract approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.
 - **Acceptance:** all 4,000 saved scores match within 1e-12 absolute tolerance and all 12,000 routes match; no fitting/tuning; input labels never enter features; attribution reconstruction passes fixed tolerances; failures require manual review and receive no capture/dismissal credit.

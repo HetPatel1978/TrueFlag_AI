@@ -184,3 +184,58 @@ class Assessment(Identity, Base):
     )
     audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
     provenance: Mapped[dict] = mapped_column(JSON)
+
+
+class AssessmentWorker(Identity, Base):
+    """Dedicated non-login service identity; its only permission is assessment execution."""
+
+    __tablename__ = "assessment_workers"
+    name: Mapped[str] = mapped_column(String(64), unique=True)
+    token_sha256: Mapped[str] = mapped_column(String(64), unique=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    provisioned_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+
+
+class AssessmentJob(Identity, Base):
+    __tablename__ = "assessment_jobs"
+    __table_args__ = (
+        UniqueConstraint("run_id", name="uq_job_run"),
+        UniqueConstraint("key_sha256", name="uq_job_key"),
+        CheckConstraint("policy IN ('Efficiency','Balanced','Coverage')", name="ck_job_policy"),
+        CheckConstraint("expected_version >= 1", name="ck_job_version"),
+        CheckConstraint("attempts >= 0 AND attempts <= 3", name="ck_job_attempts"),
+        CheckConstraint(
+            "(status = 'pending' AND assessment_id IS NULL AND lease_token IS NULL AND "
+            "lease_until IS NULL AND deadline IS NULL AND fallback_route IS NULL) OR "
+            "(status = 'running' AND assessment_id IS NULL AND lease_token IS NOT NULL AND "
+            "lease_until IS NOT NULL AND deadline IS NOT NULL AND worker_id IS NOT NULL AND "
+            "attempts >= 1 AND fallback_route IS NULL) OR "
+            "(status = 'succeeded' AND assessment_id IS NOT NULL AND lease_token IS NULL AND "
+            "lease_until IS NULL AND deadline IS NULL AND fallback_route IS NULL) OR "
+            "(status = 'failed' AND assessment_id IS NULL AND lease_token IS NULL AND "
+            "lease_until IS NULL AND deadline IS NULL AND fallback_route IS NOT NULL AND "
+            "fallback_route = 'manual_review' "
+            "AND failure_code IS NOT NULL)",
+            name="ck_job_state",
+        ),
+        Index("ix_job_ready", "status", "available_at", "id"),
+        Index("ix_job_expiry", "status", "lease_until"),
+    )
+    case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"), index=True)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    run_id: Mapped[UUID] = mapped_column(Uuid)
+    expected_version: Mapped[int] = mapped_column()
+    policy: Mapped[str] = mapped_column(String(20))
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    request_sha256: Mapped[str] = mapped_column(String(64))
+    snapshot: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    attempts: Mapped[int] = mapped_column(default=0)
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    lease_token: Mapped[UUID | None] = mapped_column(Uuid)
+    worker_id: Mapped[UUID | None] = mapped_column(ForeignKey("assessment_workers.id"))
+    assessment_id: Mapped[UUID | None] = mapped_column(ForeignKey("assessments.id"), unique=True)
+    failure_code: Mapped[str | None] = mapped_column(String(64))
+    fallback_route: Mapped[str | None] = mapped_column(String(20))

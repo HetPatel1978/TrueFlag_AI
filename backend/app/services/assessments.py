@@ -459,105 +459,130 @@ class AssessmentService:
 
     def _persist(self, actor_id, case_id, version, run_id, key_sha, request_sha, snapshot, result):
         with Session(self.engine) as session, session.begin():
-            case = _locked_case(session, actor_id, case_id)
-            current, _ = _snapshot(session, case)
-            if current["input_sha256"] != snapshot["input_sha256"]:
-                raise AssessmentConflict("assessment_stale_input")
-            prior = _prior(session, key_sha, run_id, request_sha)
-            if prior is not None:
-                return _read(session, prior), False
-            if current != snapshot or case.version != version or case.status == "closed":
-                raise AssessmentConflict("assessment_stale_case")
-            next_version = 1 + (
-                session.scalar(
-                    select(func.max(Assessment.version)).where(
-                        Assessment.case_id == case_id,
-                    )
+            return self._persist_in_session(
+                session,
+                actor_id,
+                case_id,
+                version,
+                run_id,
+                key_sha,
+                request_sha,
+                snapshot,
+                result,
+            )
+
+    def _persist_in_session(
+        self,
+        session,
+        actor_id,
+        case_id,
+        version,
+        run_id,
+        key_sha,
+        request_sha,
+        snapshot,
+        result,
+    ):
+        # Caller owns the transaction; queue completion can commit its status with these writes.
+        case = _locked_case(session, actor_id, case_id)
+        current, _ = _snapshot(session, case)
+        if current["input_sha256"] != snapshot["input_sha256"]:
+            raise AssessmentConflict("assessment_stale_input")
+        prior = _prior(session, key_sha, run_id, request_sha)
+        if prior is not None:
+            return _read(session, prior), False
+        if current != snapshot or case.version != version or case.status == "closed":
+            raise AssessmentConflict("assessment_stale_case")
+        next_version = 1 + (
+            session.scalar(
+                select(func.max(Assessment.version)).where(
+                    Assessment.case_id == case_id,
                 )
-                or 0
             )
-            now = utcnow()
-            s, p = result["score"], result["policy"]
-            score = ModelScore(
-                id=uuid4(),
-                created_at=now,
-                alert_id=case.alert_id,
-                model_version=s["model_version"],
-                model_sha256=s["model_sha256"],
-                input_sha256=snapshot["input_sha256"],
-                status="processed",
-                score=s["score"],
-            )
-            session.add(score)
-            session.flush()
-            decision = Decision(
-                id=uuid4(),
-                created_at=now,
-                score_id=score.id,
-                policy_version=p["policy_version"],
-                mode=p["selected_policy"],
-                route=p["recommended_route"],
-                processing_status="processed",
-                reason_code=p["routing_reason"],
-            )
-            explanation = AssessmentExplanation(
-                id=uuid4(),
-                created_at=now,
-                payload=result["explanation"],
-                verification=result["verification"],
-            )
-            audit = AuditEvent(
-                id=uuid4(),
-                created_at=now,
-                actor_id=actor_id,
-                action="assessment.completed",
-                resource_id=str(case_id),
-                details={},
-            )
-            session.add_all([decision, explanation, audit])
-            session.flush()
-            assessment = Assessment(
-                id=uuid4(),
-                created_at=now,
-                case_id=case_id,
-                alert_id=case.alert_id,
-                actor_id=actor_id,
-                run_id=run_id,
-                version=next_version,
-                case_version=version,
-                status="completed",
-                key_sha256=key_sha,
-                request_sha256=request_sha,
-                input_sha256=snapshot["input_sha256"],
-                score_id=score.id,
-                decision_id=decision.id,
-                explanation_id=explanation.id,
-                audit_event_id=audit.id,
-                provenance={
-                    "schema": PERSISTENCE_SCHEMA,
-                    "processed_at": now.isoformat(),
-                    "snapshot": snapshot,
-                    "policy": p,
-                    "contract_sha256": APPROVED_SHA256[CONTRACT_PATH],
-                    "producer": "trueflag.phase2.5.verified-rf-shap.v1",
-                    "human_decision_required": True,
-                },
-            )
-            assessment.content_sha256 = digest(
-                _content(assessment, score, decision, explanation, audit)
-            )
-            audit.details = {
-                "assessment_id": str(assessment.id),
-                "case_id": str(case_id),
-                "run_id": str(run_id),
-                "assessment_version": next_version,
-                "content_sha256": assessment.content_sha256,
-            }
-            # Audit update must flush BEFORE its protecting assessment link is inserted.
-            session.flush()
-            session.add(assessment)
-            session.flush()
-            return _read(session, assessment), True
+            or 0
+        )
+        now = utcnow()
+        s, p = result["score"], result["policy"]
+        score = ModelScore(
+            id=uuid4(),
+            created_at=now,
+            alert_id=case.alert_id,
+            model_version=s["model_version"],
+            model_sha256=s["model_sha256"],
+            input_sha256=snapshot["input_sha256"],
+            status="processed",
+            score=s["score"],
+        )
+        session.add(score)
+        session.flush()
+        decision = Decision(
+            id=uuid4(),
+            created_at=now,
+            score_id=score.id,
+            policy_version=p["policy_version"],
+            mode=p["selected_policy"],
+            route=p["recommended_route"],
+            processing_status="processed",
+            reason_code=p["routing_reason"],
+        )
+        explanation = AssessmentExplanation(
+            id=uuid4(),
+            created_at=now,
+            payload=result["explanation"],
+            verification=result["verification"],
+        )
+        audit = AuditEvent(
+            id=uuid4(),
+            created_at=now,
+            actor_id=actor_id,
+            action="assessment.completed",
+            resource_id=str(case_id),
+            details={},
+        )
+        session.add_all([decision, explanation, audit])
+        session.flush()
+        assessment = Assessment(
+            id=uuid4(),
+            created_at=now,
+            case_id=case_id,
+            alert_id=case.alert_id,
+            actor_id=actor_id,
+            run_id=run_id,
+            version=next_version,
+            case_version=version,
+            status="completed",
+            key_sha256=key_sha,
+            request_sha256=request_sha,
+            input_sha256=snapshot["input_sha256"],
+            score_id=score.id,
+            decision_id=decision.id,
+            explanation_id=explanation.id,
+            audit_event_id=audit.id,
+            provenance={
+                "schema": PERSISTENCE_SCHEMA,
+                "processed_at": now.isoformat(),
+                "snapshot": snapshot,
+                "policy": p,
+                "contract_sha256": APPROVED_SHA256[CONTRACT_PATH],
+                "producer": "trueflag.phase2.5.verified-rf-shap.v1",
+                "human_decision_required": True,
+            },
+        )
+        assessment.content_sha256 = digest(
+            _content(assessment, score, decision, explanation, audit)
+        )
+        audit.details = {
+            "assessment_id": str(assessment.id),
+            "case_id": str(case_id),
+            "run_id": str(run_id),
+            "assessment_version": next_version,
+            "content_sha256": assessment.content_sha256,
+        }
+        # Audit update must flush BEFORE its protecting assessment link is inserted.
+        session.flush()
+        session.add(assessment)
+        session.flush()
+        return _read(session, assessment), True
 
     def get(self, *, actor_id, case_id, assessment_id):
         if any(type(x) is not UUID for x in (actor_id, case_id, assessment_id)):

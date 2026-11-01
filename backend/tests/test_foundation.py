@@ -15,10 +15,15 @@ from app.models import Alert, AuditEvent, ModelScore, User
 
 
 def headers(platform, username="admin"):
-    client, _, _, password = platform
+    client, _, settings, password = platform
     response = client.post("/api/v1/auth/token", json={"username": username, "password": password})
     assert response.status_code == 200
-    return {"Authorization": "Bearer " + response.json()["access_token"]}
+    # Docker guest clock rollback caused measured ImmatureSignatureError during fixture setup.
+    # Backdate this synthetic fixture only; production validation retains zero clock leeway.
+    claims = jwt.decode(response.json()["access_token"], options={"verify_signature": False})
+    claims["iat"] -= 2
+    token = jwt.encode(claims, settings.jwt_secret.get_secret_value(), algorithm="HS256")
+    return {"Authorization": "Bearer " + token}
 
 
 def test_health_and_migrated_readiness(platform):
@@ -38,6 +43,8 @@ def test_health_and_migrated_readiness(platform):
         "login_throttles",
         "assessments",
         "assessment_explanations",
+        "assessment_jobs",
+        "assessment_workers",
     }
 
 
@@ -89,7 +96,15 @@ def test_passwords_are_hashed_and_failure_is_audited(platform):
 
 
 @pytest.mark.parametrize(
-    "mutation", ["expired", "wrong_audience", "wrong_issuer", "missing_expiry", "wrong_signature"]
+    "mutation",
+    [
+        "expired",
+        "wrong_audience",
+        "wrong_issuer",
+        "missing_expiry",
+        "wrong_signature",
+        "future_issued_at",
+    ],
 )
 def test_invalid_tokens_rejected(platform, mutation):
     client, engine, settings, _ = platform
@@ -107,6 +122,8 @@ def test_invalid_tokens_rejected(platform, mutation):
     secret = settings.jwt_secret.get_secret_value()
     if mutation == "expired":
         claims["exp"] = now - timedelta(seconds=1)
+    if mutation == "future_issued_at":
+        claims["iat"] = now + timedelta(seconds=60)
     if mutation == "wrong_audience":
         claims["aud"] = "other-service"
     if mutation == "wrong_issuer":
