@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.7
+# PostgreSQL schema - Phase 2.8
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0006_assessment_api**; 14 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0007_operations**; 15 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -13,6 +13,7 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | decisions | Score-linked policy mode/version, recommendation/status/reason; assessment-linked rows immutable |
 | audit_events | Actor/action/resource/details; assessment-linked completion events immutable |
 | login_throttles | HMAC client key, window start and atomic attempt count |
+| operational_metrics | Non-customer per-instance/minute cumulative count/sum/fixed histogram, indexed by minute; bounded best-effort retention |
 | assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
 | assessment_jobs | Immutable request envelope; Pending/Running/Succeeded/Failed state, fencing token, lease/deadline, bounded attempts/backoff and completed assessment link |
@@ -52,3 +53,10 @@ erDiagram
 - Queue capacity check uses one PostgreSQL transaction advisory lock across enqueue processes; Pending/Running count only, matching original receipts bypass admission. Existing worker/model/assessment schema is preserved.
 - Per-user API fixed windows use atomic upsert in an independent transaction; read/audit failures and hidden resource probes cannot roll back the request debit. The existing login throttle is unchanged.
 - The audit guard additionally protects `assessment.history_read` and `assessment.detail_read`, while preserving the existing completion-audit assembly transaction.
+
+## Phase 2.8 telemetry boundary
+
+- New `operational_metrics` table only; existing input, model, job and immutable-result schemas remain unchanged.
+- Cumulative snapshot primary key: random operational instance ID, minute, fixed metric name and label. Upsert replaces counts and rejects older decreasing snapshots; no double-counting on export retry.
+- Export is outside domain transactions with a dedicated bounded pool and timeout. Best-effort 120-minute cleanup affects only generated telemetry rows. Durable jobs/audits are authoritative; telemetry can be lost during crashes/extended outages.
+- Internal metrics return bounded aggregates, never operational instance IDs, business identifiers or customer features. See PHASE2_8_OPERATIONS for quantile/coverage limits.

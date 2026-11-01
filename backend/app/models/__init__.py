@@ -13,6 +13,7 @@ from app.models.domain import (
     Evidence,
     LoginThrottle,
     ModelScore,
+    OperationalMetric,
     User,
 )
 
@@ -31,5 +32,6 @@ __all__ = [
     "Evidence",
     "LoginThrottle",
     "ModelScore",
+    "OperationalMetric",
     "User",
 ]

@@ -28,6 +28,7 @@ def main():
     from sqlalchemy.engine import make_url
 
     from app.core.database import make_engine
+    from app.core.telemetry import capture_stages
     from app.services.assessment_jobs import AssessmentJobService, Claim
     from app.services.assessments import AssessmentConflict, AssessmentNotFound
 
@@ -41,6 +42,8 @@ def main():
         }
     )
     engine = make_engine(url.render_as_string(hide_password=False))
+    timing_context = capture_stages()
+    timings = timing_context.__enter__()
     try:
         queue = AssessmentJobService(engine, payload["artifact_root"])
         claim = Claim(*(UUID(payload[name]) for name in ("job_id", "lease_token", "worker_id")))
@@ -62,7 +65,9 @@ def main():
     except Exception:
         response = {"ok": False, "reason": "processing_unavailable"}
     finally:
+        timing_context.__exit__(None, None, None)
         engine.dispose()
+    response["timings"] = timings
     sys.stdout.write(json.dumps(response, allow_nan=False, separators=(",", ":")))
     return 0
 

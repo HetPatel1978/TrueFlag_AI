@@ -264,6 +264,7 @@ class AssessmentService:
 
     def _compute(self, actor_id, case_id, features, policy):
         # This is a trusted internal producer; there is no submission endpoint or result parameter.
+        from app.core.telemetry import stage
         from trueflag_ml.explainability import ExplanationService
         from trueflag_ml.explanation_verification import verify_explanation
 
@@ -277,10 +278,13 @@ class AssessmentService:
             except Exception:
                 return False
 
-        explainer = ExplanationService(authorize, self.artifact_root)
+        with stage("model.initialization"):
+            explainer = ExplanationService(authorize, self.artifact_root)
         record = ScoringRecord(str(case_id), features)
-        score = explainer._scorer.score_one(record.record_id, features)
-        explanation = explainer.explain_one(record.record_id, features)
+        with stage("model.scoring"):
+            score = explainer._scorer.score_one(record.record_id, features)
+        with stage("model.shap"):
+            explanation = explainer.explain_one(record.record_id, features)
         if explanation.status != "verified":
             raise AssessmentUnavailable("assessment_explanation_unavailable")
         verified = verify_explanation(

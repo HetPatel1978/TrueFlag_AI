@@ -11,22 +11,30 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.api.alerts import router as alerts_router
 from app.api.assessments import router as assessments_router
 from app.api.cases import router as cases_router
+from app.api.monitoring import router as monitoring_router
 from app.api.routes import router
 from app.core.config import Settings
 from app.core.database import make_engine
 from app.core.schema import EXPECTED_SCHEMA_REVISION
+from app.core.telemetry import Registry
 from app.security.logging import configure_security_logging
 from app.security.request_guard import RequestGuardMiddleware
+from app.services.monitoring import MetricFlusher
 
 
 def create_app(settings: Settings | None = None, engine: Engine | None = None) -> FastAPI:
     configure_security_logging()
     settings = settings or Settings()
     database = engine or make_engine(settings.database_url)
+    telemetry = Registry()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        yield
+        exporter = MetricFlusher(database, telemetry).start()
+        try:
+            yield
+        finally:
+            exporter.close()
         if engine is None:
             database.dispose()
 
@@ -40,6 +48,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     )
     app.state.settings = settings
     app.state.engine = database
+    app.state.telemetry = telemetry
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -47,7 +56,9 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
         expose_headers=["X-Request-ID", "Location", "Retry-After"],
     )
-    app.add_middleware(RequestGuardMiddleware, max_request_bytes=settings.max_request_bytes)
+    app.add_middleware(
+        RequestGuardMiddleware, max_request_bytes=settings.max_request_bytes, telemetry=telemetry
+    )
 
     @app.middleware("http")
     async def headers(request: Request, call_next):
@@ -96,4 +107,5 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(alerts_router)
     app.include_router(cases_router)
     app.include_router(assessments_router)
+    app.include_router(monitoring_router)
     return app

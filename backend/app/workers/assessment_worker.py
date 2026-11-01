@@ -2,6 +2,8 @@
 
 import argparse
 import json
+import logging
+import math
 import os
 import selectors
 import signal
@@ -9,7 +11,9 @@ import subprocess
 import sys
 import threading
 import time
+from uuid import uuid4
 
+from app.core.telemetry import Registry
 from app.services.assessment_jobs import (
     AssessmentJobService,
     JobError,
@@ -40,11 +44,13 @@ class IsolatedRunner:
         if sys.platform != "linux":
             raise JobUnavailable("linux_worker_required")
         self.stop = threading.Event() if stop is None else stop
+        self.last_timings = {}
 
     def _command(self):
         return [sys.executable, "-B", "-m", "app.workers.assessment_child", str(os.getpid())]
 
     def run(self, queue, token, claim):
+        self.last_timings = {}
         config = {
             "database_url": queue.engine.url.render_as_string(hide_password=False),
             "worker_token": token,
@@ -125,6 +131,20 @@ class IsolatedRunner:
                 )
                 if type(response) is not dict or type(response.get("ok")) is not bool:
                     raise ValueError
+                timings = response.get("timings", {})
+                if (
+                    type(timings) is not dict
+                    or len(timings) > 3
+                    or any(
+                        name not in {"model.initialization", "model.scoring", "model.shap"}
+                        or type(value) not in (int, float)
+                        or not math.isfinite(value)
+                        or not 0 <= value <= 3600000
+                        for name, value in timings.items()
+                    )
+                ):
+                    raise ValueError
+                self.last_timings = timings
                 if not response["ok"]:
                     reason = response.get("reason")
                     raise ExecutionFailed(
@@ -137,7 +157,10 @@ class IsolatedRunner:
                         }
                         else "child_failed"
                     )
-                if set(response) != {"ok", "result"} or type(response["result"]) is not dict:
+                if (
+                    set(response) - {"timings"} != {"ok", "result"}
+                    or type(response["result"]) is not dict
+                ):
                     raise ValueError
                 return response["result"]
             except (ValueError, TypeError):
@@ -154,12 +177,44 @@ class AssessmentWorker:
         self.queue = queue
         self.token = token
         self.runner = IsolatedRunner(stop)
+        self.telemetry = Registry()
 
     def run_once(self):
-        self.queue.recover_expired(self.token)
+        self.telemetry.observe("worker.recovery_scan")
+        recovered = self.queue.recover_expired(self.token)
+        if recovered:
+            self.telemetry.observe("worker.recovered", count=recovered)
         claim = self.queue.claim(self.token)
         if claim is None:
             return None
+        ident = uuid4().hex
+        start = time.monotonic()
+        outcome = "unavailable"
+        try:
+            result = self._execute(claim)
+            outcome = result["status"]
+            return result
+        except LeaseLost:
+            outcome = "lease_lost"
+            raise
+        except WorkerDenied:
+            outcome = "worker_denied"
+            raise
+        finally:
+            duration = (time.monotonic() - start) * 1000
+            self.telemetry.observe("worker.execution", outcome, duration)
+            for name, value in self.runner.last_timings.items():
+                self.telemetry.observe(name, "observed", value)
+            logging.getLogger("trueflag.security").info(
+                "worker.completed",
+                extra={
+                    "correlation_id": ident,
+                    "outcome": outcome,
+                    "duration_ms": duration,
+                },
+            )
+
+    def _execute(self, claim):
         try:
             result = self.runner.run(self.queue, self.token, claim)
             return self.queue.complete(self.token, claim, result)
@@ -189,17 +244,22 @@ def main():
     from pathlib import Path
 
     from app.core.database import make_engine
+    from app.security.logging import configure_security_logging
+    from app.services.monitoring import MetricFlusher
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--once", action="store_true")
     parser.add_argument("--token-file", default="/run/secrets/assessment_worker_token")
     args = parser.parse_args()
     engine = None
+    exporter = None
+    configure_security_logging()
     stop = threading.Event()
     try:
         token = Path(args.token_file).read_text(encoding="ascii").strip()
         engine = make_engine(os.environ["DATABASE_URL"])
         worker = AssessmentWorker(AssessmentJobService(engine), token, stop)
+        exporter = MetricFlusher(engine, worker.telemetry).start()
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, lambda *_: stop.set())
         while not stop.is_set():
@@ -209,6 +269,7 @@ def main():
                     json.dumps(
                         {
                             "event": "assessment.worker",
+                            "correlation_id": uuid4().hex,
                             "status": result["status"] if result else "idle",
                         }
                     ),
@@ -225,9 +286,20 @@ def main():
             stop.wait(2)
         return 0
     except Exception:
-        print(json.dumps({"event": "assessment.worker", "status": "unavailable"}), flush=True)
+        print(
+            json.dumps(
+                {
+                    "event": "assessment.worker",
+                    "correlation_id": uuid4().hex,
+                    "status": "unavailable",
+                }
+            ),
+            flush=True,
+        )
         return 1
     finally:
+        if exporter is not None:
+            exporter.close()
         if engine is not None:
             engine.dispose()
 

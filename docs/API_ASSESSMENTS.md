@@ -78,3 +78,7 @@ Configuration: `ASSESSMENT_API_RATE_LIMIT`, `ASSESSMENT_API_WINDOW_SECONDS`, `AS
 ## Remaining scope
 
 No workbench, notification, cancellation API, bulk assessment endpoint, operational queue metrics/SLA, automatic archival, enterprise identity/SQL roles or regulatory production acceptance is claimed. Native Windows SHAP remains blocked; scientific execution uses Linux. A new request is required before later subphases.
+
+## Operational monitoring
+
+Admin-only `GET /api/v1/internal/metrics?minutes=15` exposes bounded aggregate API/job/worker/stage metrics. It does not return case contents or replace these case-scoped result endpoints. See [operational contract and benchmark](PHASE2_8_OPERATIONS.md).

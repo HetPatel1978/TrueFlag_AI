@@ -155,6 +155,23 @@ class AssessmentAPIThrottle(Base):
     request_count: Mapped[int] = mapped_column()
 
 
+class OperationalMetric(Base):
+    """Replaceable cumulative minute snapshots; contains no business identifiers."""
+
+    __tablename__ = "operational_metrics"
+    __table_args__ = (
+        CheckConstraint("count >= 0 AND total_ms >= 0", name="ck_metric_values"),
+        Index("ix_operational_metrics_minute", "minute"),
+    )
+    instance_id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    minute: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    name: Mapped[str] = mapped_column(String(40), primary_key=True)
+    label: Mapped[str] = mapped_column(String(100), primary_key=True)
+    count: Mapped[int] = mapped_column()
+    total_ms: Mapped[float] = mapped_column(Float)
+    buckets: Mapped[list] = mapped_column(JSON)
+
+
 class AssessmentExplanation(Identity, Base):
     """Immutable verified explanation; no raw feature values are copied."""
 

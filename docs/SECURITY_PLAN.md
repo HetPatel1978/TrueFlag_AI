@@ -77,3 +77,11 @@ New data sources, public hosting, institutional use and actual customer data req
 - Original job request/creation and new/replayed API request audit commit together. Sensitive read audit must commit before response disclosure; read audits are protected from UPDATE/DELETE. No feature values or explanation bodies enter logs/audit.
 - Worker rechecks current actor/service identity and queued source/state before execution/publication. No request starts scoring in the API process or automatically changes case disposition.
 - Real Linux/PostgreSQL API/worker acceptance, error semantics and limits: [assessment API](API_ASSESSMENTS.md). TLS, production SQL roles, tenancy, retention and independent audit storage remain deployment work.
+
+## Phase 2.8 operational visibility
+
+- Admin-only internal metrics with fresh active-role SQL check; anonymous, analyst, supervisor and revoked identities denied. No public metrics listener or customer-level monitoring endpoint.
+- Fixed allowlists constrain metric names, route/method/status labels, logged fields and correlation IDs. No PII, request/query/body contents, raw paths, secrets, private features or case/job IDs in operational telemetry.
+- Bounded histograms/current+previous-minute buffer, asynchronous dedicated DB export and short SQL/connect limits isolate monitoring failures from committed jobs/results. Retried cumulative exports are idempotent; best-effort telemetry loss is explicitly distinguished from job loss.
+- Real synthetic TCP/API/worker load and fault injections verified crash recovery, stale fencing, own-transaction PG disconnect rollback, authorization revocation, backpressure and terminal manual review. No automatic case action or private-source/model modification.
+- Evidence and limits: [Phase 2.8 operations](PHASE2_8_OPERATIONS.md). Production capacity, HA, TLS/perimeter, SQL privileges, external alerting and institutional data acceptance remain separate gates.

@@ -29,7 +29,7 @@ router = APIRouter(prefix="/api/v1", tags=["AML assessments"])
 
 
 @contextmanager
-def errors():
+def errors(request=None):
     try:
         yield
     except AssessmentRateLimited as error:
@@ -47,6 +47,8 @@ def errors():
             409, "Assessment request conflicts with existing content or case state"
         ) from None
     except QueueFull:
+        if request is not None:
+            request.app.state.telemetry.observe("api.queue_saturation")
         raise HTTPException(
             503, "Assessment queue is full; retry using the same key", headers={"Retry-After": "5"}
         ) from None
@@ -54,7 +56,9 @@ def errors():
         raise HTTPException(
             503, "Assessment service unavailable", headers={"Retry-After": "2"}
         ) from None
-    except AssessmentError:
+    except AssessmentError as error:
+        if request is not None and str(error) == "job_admission_busy":
+            request.app.state.telemetry.observe("api.queue_contention")
         raise HTTPException(
             503, "Assessment service unavailable", headers={"Retry-After": "2"}
         ) from None
@@ -65,7 +69,7 @@ def service(request):
 
 
 def assessment_reader(request: Request, user: User = Depends(require_case_reader)):
-    with errors():
+    with errors(request):
         service(request).consume(user.id)
     return user
 
@@ -97,7 +101,7 @@ def request_assessment(
     ],
     user: User = Depends(assessment_reader),
 ):
-    with errors():
+    with errors(request):
         result = service(request).request(user.id, case_id, body, idempotency_key)
     response.headers["Location"] = f"/api/v1/assessment-jobs/{result.job_id}"
     response.headers["Retry-After"] = "2"
@@ -108,7 +112,7 @@ def request_assessment(
 def assessment_job(
     job_id: UUID, request: Request, response: Response, user: User = Depends(assessment_reader)
 ):
-    with errors():
+    with errors(request):
         result = service(request).job(user.id, job_id)
     if result.status in {"pending", "running"}:
         response.headers["Retry-After"] = "2"
@@ -122,7 +126,7 @@ def assessment_history(
     request: Request,
     user: User = Depends(assessment_reader),
 ):
-    with errors():
+    with errors(request):
         return service(request).history(user.id, case_id, query)
 
 
@@ -130,5 +134,5 @@ def assessment_history(
 def assessment_detail(
     case_id: UUID, assessment_id: UUID, request: Request, user: User = Depends(assessment_reader)
 ):
-    with errors():
+    with errors(request):
         return service(request).detail(user.id, case_id, assessment_id)

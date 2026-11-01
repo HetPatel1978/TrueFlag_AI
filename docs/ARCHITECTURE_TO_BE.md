@@ -2,17 +2,33 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
-Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.7 include approved RF/policies/SHAP, immutable assessments, durable Linux jobs and [protected asynchronous APIs](API_ASSESSMENTS.md). Workbench and operational deployment acceptance remain pending; ingestion does not automatically invoke ML.
+Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.8 include approved ML, immutable results, bounded durable Linux jobs, protected APIs and [internal operational monitoring/load-recovery evidence](PHASE2_8_OPERATIONS.md). Workbench and production deployment acceptance remain pending; ingestion does not automatically score.
 
 | Boundary | Implemented now | Pending |
 |---|---|---|
 | API/security | Current JWT/roles/case scope, protected assessment APIs, strict DTOs, shared per-user request budget, queue admission and sensitive-read audit | Enterprise IAM, tenancy, perimeter and production SQL roles |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, durable receipts, 14 domain tables, immutable assessments/jobs, atomic completion and API throttle state | New sources, retention and least-privilege SQL roles |
+| Data | Synthetic ingestion, receipts, 15 domain tables, immutable assessments/jobs and bounded operational rollups | Production retention/governance, new sources and least-privilege SQL roles |
 | UI | React account verification, including supervisor identities | Case/session/assignment workbench |
-| Scientific worker | Opt-in Linux worker, isolated bounded child, renewable leases/fencing/recovery/retries; authenticated API enqueue and result retrieval | Operational monitoring and throughput/recovery acceptance |
+| Scientific worker | Bounded Linux execution, fencing/recovery/retries, stage timing and measured local fault/load acceptance | Production capacity/SLO, HA and operational deployment |
 | Policy engine | Frozen rules, 12000-route parity, immutable recommendations and case-scoped HTTP retrieval | Human review workflow; no automatic case action |
 | Explanation service | Exact SHAP, verified 41-to-27 grouping, immutable storage, bounded worker and redacted case-scoped API retrieval | Workbench integration |
+
+Implemented Phase 2.8 operational flow (no frontend or additional service):
+
+```mermaid
+flowchart LR
+  Request[API request guard] --> Buffer[Bounded fixed-label histograms]
+  Worker[Existing worker and numeric child timings] --> WorkerBuffer[Bounded worker histograms]
+  Buffer --> Export[Independent PostgreSQL exporter]
+  WorkerBuffer --> Export
+  Export --> Metrics[(Cumulative operational rollups)]
+  Operator[Current active admin JWT] --> Internal[Internal metrics API]
+  Metrics --> Internal
+  State[(Jobs and durable audit counts)] --> Internal
+  Request --> Logs[Sanitized correlated logs]
+  Worker --> Logs
+```
 
 Implemented Phase 2.7 API flow (all routes require current authentication and case scope):
 

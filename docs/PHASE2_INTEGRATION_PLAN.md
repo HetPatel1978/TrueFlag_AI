@@ -1,6 +1,6 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Phases 2.1-2.7 implemented and verified locally:** approved scoring/policies/SHAP, immutable persistence, durable bounded Linux jobs and [protected assessment APIs](API_ASSESSMENTS.md). Workbench, operational monitoring and production acceptance remain pending; ingestion does not automatically score and model results cannot dismiss cases.
+**Phases 2.1-2.8 implemented and verified locally:** approved scorer/policies/SHAP, immutable persistence, bounded jobs, protected APIs and [operational monitoring/reliability evidence](PHASE2_8_OPERATIONS.md). No automatic scoring at ingestion, dismissal, frontend or LLM/RAG work is enabled.
 
 ## Confirmed retained evidence
 
@@ -82,4 +82,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Phases 2.1-2.7 accepted locally. Proposed next subphase, after a new request:** assessment API/worker operational monitoring and bounded load/recovery acceptance. Frontend, LLM/RAG and consequential human decisions are separate later work.
+**Phases 2.1-2.8 accepted locally. Next design gate, after a new request:** Phase 3 evidence-source rights, jurisdiction/institution scope and permission-aware retrieval acceptance. No retrieval/LLM implementation is started here.

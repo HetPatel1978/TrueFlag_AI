@@ -102,6 +102,15 @@
 - Audit new/replayed requests atomically with enqueue; validate output and commit protected sensitive-read audits before disclosure. Existing RF, SHAP, policy and worker decision semantics remain unchanged.
 - No frontend, automatic enqueue, LLM/RAG or consequential human-case action. Operational monitoring/load/retention and enterprise deployment gates remain separate scope.
 
+## ADR-025 - Bounded operations monitoring (2026-11-01)
+
+- Reuse PostgreSQL and existing API/worker processes: one operational rollup table, no mandatory telemetry/broker/dashboard service.
+- Fixed-label streaming histograms and cumulative idempotent minute snapshots. Exact benchmark quantiles are distinct from conservative operational histogram upper bounds.
+- Separate best-effort numeric telemetry from authoritative queue/audit state and domain commits. Dedicated export connections/timeouts and bounded buffering prevent monitoring from becoming a decision/persistence prerequisite.
+- Observe existing RF/SHAP service envelopes without changing scientific behavior or immutable assessment content; numeric timing metadata travels separately over existing JSON IPC.
+- Restrict metrics to current active admins; sanitize all metric/log fields. Per-request/attempt/exporter correlation contains no business or customer identity.
+- Record one capped local synthetic run with real TCP/Linux/PG and injected failures; do not infer production capacity/SLO. Next phase requires new authorization.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

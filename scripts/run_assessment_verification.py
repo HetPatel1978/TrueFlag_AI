@@ -20,6 +20,7 @@ def main():
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--full-backend", action="store_true")
     parser.add_argument("--jobs-only", action="store_true")
+    parser.add_argument("--benchmark", action="store_true")
     args = parser.parse_args()
     if args.build:
         result = subprocess.run(
@@ -74,8 +75,38 @@ def main():
         if not path.is_relative_to(ROOT) or not path.is_dir():
             raise RuntimeError("invalid_verification_mount")
         command.extend(["-v", f"{path.as_posix()}:/workspace/{relative}:ro"])
-    command.extend([IMAGE, "python", "-B", "scripts/verify_assessment_persistence.py"])
+    command.extend(
+        [
+            IMAGE,
+            "python",
+            "-B",
+            "scripts/benchmark_operations.py"
+            if args.benchmark
+            else "scripts/verify_assessment_persistence.py",
+        ]
+    )
     # No environment/command-line persistence of DB credentials in Docker inspect.
+    if args.benchmark:
+        completed = subprocess.run(
+            command,
+            input=json.dumps({"database_url": database_url}),
+            text=True,
+            cwd=ROOT,
+            capture_output=True,
+        )
+        try:
+            report = json.loads(completed.stdout)
+        except ValueError:
+            print(json.dumps({"status": "FAIL", "reason": "benchmark_output_invalid"}))
+            return 1
+        if completed.returncode == 0 and report.get("status") == "PASS":
+            (ROOT / "docs/PHASE2_8_BENCHMARK.json").write_text(
+                json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+        text_report = dict(report)
+        text_report.pop("monitoring", None)
+        print(json.dumps(text_report, sort_keys=True))
+        return completed.returncode
     return subprocess.run(
         command,
         input=json.dumps(

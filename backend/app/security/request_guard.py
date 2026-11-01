@@ -1,23 +1,28 @@
 """Bound request bodies and correlate logs without retaining body/header/customer values."""
 
 import logging
+import time
 from uuid import uuid4
 
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.responses import JSONResponse
 
+from app.core.telemetry import METHODS, ROUTES, status_label
+
 logger = logging.getLogger("trueflag.security")
 
 
 class RequestGuardMiddleware:
-    def __init__(self, app, max_request_bytes: int):
+    def __init__(self, app, max_request_bytes: int, telemetry=None):
         self.app = app
         self.limit = max_request_bytes
+        self.telemetry = telemetry
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         ident = uuid4().hex
+        begin = time.monotonic()
         scope.setdefault("state", {})["request_id"] = ident
         status = 500
         started = False
@@ -82,14 +87,21 @@ class RequestGuardMiddleware:
         finally:
             route = scope.get("route")
             method = scope.get("method")
+            method = method if method in METHODS else "OTHER"
+            name = getattr(route, "name", "unmatched")
+            name = name if name in ROUTES else "unmatched"
+            elapsed = (time.monotonic() - begin) * 1000
+            if self.telemetry is not None:
+                self.telemetry.observe(
+                    "api.request", f"{name}|{method}|{status_label(status)}", elapsed
+                )
             logger.info(
                 "request.completed",
                 extra={
                     "request_id": ident,
                     "status_code": status,
-                    "method": method
-                    if method in {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
-                    else "OTHER",
-                    "route_name": getattr(route, "name", "unmatched"),
+                    "method": method,
+                    "route_name": name,
+                    "duration_ms": elapsed,
                 },
             )
