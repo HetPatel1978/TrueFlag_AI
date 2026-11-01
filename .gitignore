@@ -33,3 +33,5 @@ coverage/
 .idea/
 .vscode/
 npm-debug.log*
+frontend/test-results/
+frontend/playwright-report/

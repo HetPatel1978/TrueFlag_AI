@@ -111,6 +111,14 @@
 - Restrict metrics to current active admins; sanitize all metric/log fields. Per-request/attempt/exporter correlation contains no business or customer identity.
 - Record one capped local synthetic run with real TCP/Linux/PG and injected failures; do not infer production capacity/SLO. Next phase requires new authorization.
 
+## ADR-026 - Thin authorized risk workbench (2026-11-01)
+
+- Reuse React, existing auth and asynchronous assessment contracts; hash navigation and no additional production runtime dependencies.
+- Add only scoped safe overview/list metadata and literal server-side filters needed by the screens; preserve existing detail/assignment contracts and avoid predictor-bearing browser calls.
+- Keep sessions and uncertain submission receipts in memory. Stable run/key retries, cancellable bounded polling and fresh server authorization; no client-supplied scores or decision authority.
+- Display verified grouped attribution with signed text and model/provenance history. Recommendations stay separate from human dispositions; no automatic case action or new approval workflow.
+- Validate real Chromium plus pinned Linux/PostgreSQL/ML flow and exercised accessibility states; do not equate UI completion with enterprise deployment certification.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

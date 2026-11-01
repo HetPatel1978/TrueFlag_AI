@@ -85,3 +85,11 @@ New data sources, public hosting, institutional use and actual customer data req
 - Bounded histograms/current+previous-minute buffer, asynchronous dedicated DB export and short SQL/connect limits isolate monitoring failures from committed jobs/results. Retried cumulative exports are idempotent; best-effort telemetry loss is explicitly distinguished from job loss.
 - Real synthetic TCP/API/worker load and fault injections verified crash recovery, stale fencing, own-transaction PG disconnect rollback, authorization revocation, backpressure and terminal manual review. No automatic case action or private-source/model modification.
 - Evidence and limits: [Phase 2.8 operations](PHASE2_8_OPERATIONS.md). Production capacity, HA, TLS/perimeter, SQL privileges, external alerting and institutional data acceptance remain separate gates.
+
+## Phase 2.9 browser boundary
+
+- Memory-only bearer session and uncertain-request receipts; no local/session storage, cookies, URL credentials or third-party analytics. Logout aborts requests, destroys session state and unmounts private screens. Refresh requires authentication. Existing bearer expiration remains the server-side token lifecycle.
+- Current identity and visible scope refresh every ten seconds; hidden tabs hide private views until revalidation. Every 401/403/404 clears protected results on response; revocation detection has bounded polling/network delay, not push semantics. Failed access checks hide content.
+- UI requests a redacted scoped overview and immutable assessment DTOs; never the raw-predictor detail endpoint. No artifacts, customer feature values, worker secrets or client-generated scores cross this boundary. Literal search stays inside server authorization scope.
+- Stable session-scoped run/key/content prevents duplicate uncertain retries across view changes. Sequential polling respects backoff and has read/time limits; navigation/sign-out cancels requests/timers. Human disposition is read-only and separate from recommendations.
+- Actual Chromium/Linux/PostgreSQL acceptance covers role scope, IDOR, revocation, persisted jobs, real RF/SHAP results, failure/manual review and logout. Component tests cover conflicts, throttling, uncertain retries and timer cleanup. Accessibility checks cover exercised states, not certification. See [Phase 2.9](PHASE2_9_FRONTEND.md).

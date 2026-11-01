@@ -18,6 +18,11 @@ class CaseQuery(BaseModel):
     assignment: Literal["all", "assigned", "unassigned"] = "all"
     sort_by: Literal["created_at", "status", "version"] = "created_at"
     sort_order: Literal["asc", "desc"] = "desc"
+    search: str = Field(default="", max_length=128)
+    priority: Literal["Standard", "High"] | None = None
+    assessment_status: (
+        Literal["not_requested", "pending", "running", "succeeded", "failed"] | None
+    ) = None
 
     @model_validator(mode="after")
     def coherent_filters(self):
@@ -37,8 +42,15 @@ class CaseSummary(BaseModel):
     created_at: datetime
 
 
+class WorkbenchCase(CaseSummary):
+    source_id: str
+    priority: Literal["Standard", "High"]
+    assessment_status: Literal["not_requested", "pending", "running", "succeeded", "failed"]
+    latest_job_id: UUID | None
+
+
 class CasePage(BaseModel):
-    items: list[CaseSummary]
+    items: list[WorkbenchCase]
     total: int
     limit: int
     offset: int

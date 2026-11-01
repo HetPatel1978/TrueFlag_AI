@@ -5,7 +5,7 @@
 - Explicit asynchronous requests against existing synthetic alerts; API processes do not load or invoke the RF/SHAP pipeline.
 - Bearer JWT and current active DB role required on every endpoint. Analysts: currently assigned cases only. Supervisors/admins: existing single-workspace oversight, including unassigned cases. No team/tenant hierarchy is invented.
 - Hidden/missing jobs, cases and case/assessment mismatches return the same `404` body. Role/assignment changes are rechecked during submission, computation, publication and retrieval; an old receipt is not an access token.
-- No frontend, LLM/RAG, automatic enqueue, retraining, dismissal, closure or SAR action is implemented.
+- Phase 2.9 React workbench consumes these protected APIs. No LLM/RAG, automatic enqueue, retraining, dismissal, closure or SAR action is implemented.
 
 ## Endpoints
 
@@ -77,8 +77,12 @@ Configuration: `ASSESSMENT_API_RATE_LIMIT`, `ASSESSMENT_API_WINDOW_SECONDS`, `AS
 
 ## Remaining scope
 
-No workbench, notification, cancellation API, bulk assessment endpoint, operational queue metrics/SLA, automatic archival, enterprise identity/SQL roles or regulatory production acceptance is claimed. Native Windows SHAP remains blocked; scientific execution uses Linux. A new request is required before later subphases.
+The workbench and bounded internal operational metrics are implemented. Notification, cancellation API, bulk assessment, production SLO/HA, automatic archival, enterprise identity/SQL roles and regulatory production acceptance remain pending. Native Windows SHAP remains blocked; scientific execution uses Linux. A new request is required before later subphases.
 
 ## Operational monitoring
 
 Admin-only `GET /api/v1/internal/metrics?minutes=15` exposes bounded aggregate API/job/worker/stage metrics. It does not return case contents or replace these case-scoped result endpoints. See [operational contract and benchmark](PHASE2_8_OPERATIONS.md).
+
+## React consumer
+
+See [Phase 2.9](PHASE2_9_FRONTEND.md): explicit 202 workflow, session-scoped run/key retries, bounded cancellable polling and immutable history/verified result display. No client feature values or model-generated scores are submitted.

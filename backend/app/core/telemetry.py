@@ -39,6 +39,7 @@ ROUTES = frozenset(
         "ingest",
         "case_list",
         "case_detail",
+        "case_overview",
         "case_assignment",
         "request_assessment",
         "assessment_job",

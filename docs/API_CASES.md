@@ -9,7 +9,7 @@ Scope: one synthetic-data workspace. No tenant/team boundary or enterprise IAM i
 | Assign/reassign/unassign | No | Yes | Yes |
 | Ingest alerts / global audit endpoint | No | No | Yes |
 
-`GET /api/v1/cases` returns `{items,total,limit,offset}`. Items contain only `id, alert_id, assigned_to, status, disposition, version, created_at`; no customer features or source identifiers. Filtering is applied **inside authorization scope**, including `total`.
+`GET /api/v1/cases` returns `{items,total,limit,offset}`. Items preserve `id, alert_id, assigned_to, status, disposition, version, created_at` and add safe workbench metadata: `source_id`, `priority` (Standard/High), `assessment_status` (not_requested/pending/running/succeeded/failed) and nullable `latest_job_id`. No raw customer predictors are returned. Filtering is applied **inside authorization scope**, including `total`.
 
 | Query | Allowed values |
 |---|---|
@@ -17,11 +17,16 @@ Scope: one synthetic-data workspace. No tenant/team boundary or enterprise IAM i
 | status | open, in_review, awaiting_approval, closed |
 | assigned_to | UUID; intersects the caller's authorized scope |
 | assignment | all (default), assigned, unassigned |
+| search | Up to 128 characters; literal case-insensitive source/case/alert ID substring, wildcard-escaped and scoped |
+| priority | Standard or High, existing frozen KYC grouping |
+| assessment_status | not_requested, pending, running, succeeded, failed; latest requested job |
 | sort_by / sort_order | created_at (default), status, version / asc, desc (default) |
 
 Sorting uses a fixed column allowlist and UUID tie-breaker. Unknown parameters, contradictory assignee/unassigned filters and invalid bounds return 422. Counts/pages can change during concurrent work; this is bounded offset pagination, not an immutable snapshot/export.
 
 `GET /api/v1/cases/{case_id}` adds `alert: {source_id, data_classification, feature_contract_version, features}`. The feature projection contains only the approved 27 predictors. Passwords, notes, source SAR labels, idempotency keys, stored model paths and arbitrary JSON metadata are never projected. Active role, assignment and protected data are checked in the same SQL statement. Hidden and nonexistent UUIDs both return **404, `Case not found`**; invalid UUID syntax returns 422.
+
+`GET /api/v1/cases/{case_id}/overview` returns the enriched list summary without `alert.features`. Current role/assignment is checked in the same data query; hidden/missing returns 404. `case.overview_read` audit commits before disclosure; audit failure returns sanitized 503. The React workbench uses this route instead of the full predictor-bearing detail route. Overview is a single-record read and does not use pagination parameters.
 
 `PUT /api/v1/cases/{case_id}/assignment` requires a current active supervisor/admin and the JSON body:
 
@@ -45,7 +50,7 @@ Provision a supervisor locally with the existing interactive CLI:
 docker compose exec backend python -m app.security.bootstrap --username supervisor --role supervisor
 ```
 
-New endpoints return server-generated `X-Request-ID` and no-store headers. The API is rate/body bounded as documented in SECURITY_PLAN. Frontend case/assignment screens remain pending; supervisor identity verification is supported.
+New endpoints return server-generated `X-Request-ID` and no-store headers. The API is rate/body bounded as documented in SECURITY_PLAN. Phase 2.9 case dashboard/details and assessment workflow are implemented; frontend assignment editing remains pending. See [workbench contracts and acceptance](PHASE2_9_FRONTEND.md).
 
 ## Assessment integration
 

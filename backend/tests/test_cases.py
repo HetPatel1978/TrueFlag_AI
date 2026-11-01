@@ -47,6 +47,10 @@ def test_case_list_scope_and_metadata_only(platform, case_team, name, count):
             "disposition",
             "version",
             "created_at",
+            "source_id",
+            "priority",
+            "assessment_status",
+            "latest_job_id",
         }
         if name.startswith("analyst"):
             assert item["assigned_to"] == case_team["users"][name]

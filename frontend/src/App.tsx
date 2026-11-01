@@ -1,175 +1,328 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { currentUser, health, signIn, type User } from './api';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from 'react';
+import {
+  ApiError,
+  client,
+  currentUser,
+  message,
+  signIn,
+  type Client,
+  type User,
+} from './api';
+import { Dashboard, CaseView } from './workbench';
+import { Receipts, type Receipt } from './receipts';
 
-const milestones = [
-  ['01', 'Foundation', 'Authentication, data model, service checks'],
-  [
-    '02',
-    'Risk intelligence',
-    'Frozen RF baseline, policy routing, explanations',
-  ],
-  ['03', 'Evidence & investigation', 'Scoped retrieval and cited AI drafts'],
-  ['04', 'Analyst workbench', 'Case review, approval, and audit history'],
-  [
-    '05',
-    'Evaluation & deployment',
-    'Measured performance and release acceptance',
-  ],
-];
+export type ApiFactory = (signal?: AbortSignal) => Client;
+type Session = { token: string; user: User; controller: AbortController };
+const subscribe = (fn: () => void) => {
+  window.addEventListener('hashchange', fn);
+  return () => window.removeEventListener('hashchange', fn);
+};
 
 export default function App() {
-  const [online, setOnline] = useState<boolean | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [notice, setNotice] = useState('');
+  const logout = useCallback((reason = '') => {
+    setSession((previous) => {
+      previous?.controller.abort();
+      return null;
+    });
+    setNotice(reason);
+    window.location.hash = '/';
+  }, []);
+  // No localStorage/sessionStorage/cookie token; refresh always requires sign-in.
+  return session ? (
+    <Workspace key={session.token} session={session} logout={logout} />
+  ) : (
+    <Login notice={notice} onLogin={setSession} />
+  );
+}
+
+function Login({
+  notice,
+  onLogin,
+}: {
+  notice: string;
+  onLogin: (s: Session) => void;
+}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    let active = true;
-    health()
-      .then((value) => {
-        if (active) setOnline(value);
-      })
-      .catch(() => {
-        if (active) setOnline(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
   async function login(event: FormEvent) {
     event.preventDefault();
-    setError('');
+    if (busy) return;
     setBusy(true);
+    setError('');
+    const controller = new AbortController();
     try {
-      const token = await signIn(username, password);
-      // Foundation checks identity only. Tokens are never persisted in browser storage.
-      setUser(await currentUser(token));
+      const token = await signIn(username, password, controller.signal);
+      const user = await currentUser(token, controller.signal);
       setPassword('');
+      onLogin({ token, user, controller });
     } catch (failure) {
-      setError(
-        failure instanceof Error ? failure.message : 'Service unavailable.',
-      );
+      setPassword('');
+      setError(message(failure));
     } finally {
       setBusy(false);
     }
   }
-
   return (
-    <div className="shell">
-      <header>
-        <a className="brand" href="/" aria-label="TrueFlag AI home">
-          <span className="mark">TF</span> TrueFlag <b>AI</b>
-        </a>
-        <span className="environment">SYNTHETIC DATA ONLY</span>
-      </header>
-      <main>
-        <section className="intro">
-          <p className="eyebrow">INVESTIGATION PLATFORM / FOUNDATION</p>
-          <h1>
-            Evidence first.
-            <br />
-            <span>Human decisions.</span>
-          </h1>
-          <p className="lead">
-            A secure foundation for alert intelligence, grounded investigation,
-            and accountable review.
+    <main className="login-shell">
+      <section className="login-intro">
+        <Brand />
+        <p className="eyebrow">AML INTELLIGENCE WORKBENCH</p>
+        <h1>
+          Clarity for every
+          <br />
+          <em>investigation.</em>
+        </h1>
+        <p>
+          Verified model intelligence.
+          <br />
+          Accountable human review.
+        </p>
+        <div className="login-rule" />
+        <span className="environment">SYNTHETIC ENVIRONMENT</span>
+      </section>
+      <section className="login-form" aria-labelledby="sign-in-title">
+        <p className="eyebrow">AUTHORIZED ACCESS</p>
+        <h2 id="sign-in-title">Welcome back</h2>
+        <p className="muted">Sign in to your assigned case workspace.</p>
+        {notice && (
+          <p role="status" className="notice">
+            {notice}
           </p>
-          <p className="service" role="status">
-            <span className={online ? 'dot online' : 'dot'} />
-            {online === null
-              ? 'Checking backend'
-              : online
-                ? 'Backend reachable'
-                : 'Backend unavailable'}
-            <small> Liveness only; database readiness is separate.</small>
-          </p>
-          <div className="boundary">
-            <b>Current build</b>
-            <p>
-              Account verification and platform setup. Alert ingestion, live
-              scoring, case workflows, and AI investigations are not enabled
-              yet.
+        )}
+        <form
+          onSubmit={(e) => {
+            void login(e);
+          }}
+        >
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            autoComplete="username"
+            required
+            minLength={3}
+            maxLength={100}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            maxLength={1024}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && (
+            <p className="error" role="alert">
+              {error}
             </p>
-          </div>
-        </section>
-        <section className="access" aria-labelledby="access-title">
-          <p className="eyebrow">AUTHORIZED ACCESS</p>
-          <h2 id="access-title">
-            {user ? 'Identity verified' : 'Sign in to verify access'}
-          </h2>
-          {user ? (
-            <div>
-              <p>
-                Signed in as <b>{user.username}</b>.
-              </p>
-              <p className="role">Server-assigned role: {user.role}</p>
-              <p>
-                This verifies your account. Persistent application sessions and
-                case access follow in Week 1.
-              </p>
-              <button onClick={() => setUser(null)}>Clear account view</button>
-            </div>
-          ) : (
-            <form
-              onSubmit={(event) => {
-                void login(event);
-              }}
-            >
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                autoComplete="username"
-                required
-                minLength={3}
-                maxLength={100}
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-              />
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                maxLength={1024}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              {error && (
-                <p role="alert" className="error">
-                  {error}
-                </p>
-              )}
-              <button disabled={busy}>
-                {busy ? 'Verifying…' : 'Verify account →'}
-              </button>
-              <p className="hint">
-                Accounts are provisioned by an administrator. There are no
-                default credentials.
-              </p>
-            </form>
           )}
-        </section>
-        <section className="roadmap" aria-label="Development milestones">
-          {milestones.map(([week, title, detail]) => (
-            <article key={week}>
-              <span className="week">WEEK {week}</span>
-              <h3>{title}</h3>
-              <p>{detail}</p>
-              <span className="tag">
-                {week === '01' ? 'Foundation in progress' : 'Planned'}
-              </span>
-            </article>
-          ))}
-        </section>
-      </main>
-      <footer>
-        TrueFlag AI · Production-oriented demonstration · No live banking
-        integration
-      </footer>
+          <button className="primary" disabled={busy}>
+            {busy ? 'Signing in…' : 'Sign in →'}
+          </button>
+        </form>
+        <p className="hint">
+          Accounts are provisioned by an administrator. Your session stays in
+          memory and clears on sign-out or refresh.
+        </p>
+      </section>
+    </main>
+  );
+}
+
+function Brand() {
+  return (
+    <a className="brand" href="#/" aria-label="TrueFlag home">
+      <span className="mark">TF</span>
+      <span>
+        TrueFlag <b>AI</b>
+      </span>
+    </a>
+  );
+}
+
+function Workspace({
+  session,
+  logout,
+}: {
+  session: Session;
+  logout: (reason?: string) => void;
+}) {
+  const hash = useSyncExternalStore(subscribe, () => window.location.hash);
+  const [denied, setDenied] = useState<number | null>(null);
+  const [guard, setGuard] = useState<'ready' | 'checking' | 'unavailable'>(
+    'ready',
+  );
+  const [generation, setGeneration] = useState(0);
+  const [receipts] = useState(() => new Map<string, Receipt>());
+  const onDenied = useCallback(
+    (status: number) => {
+      if (status === 401) logout('Your session ended. Sign in again.');
+      else {
+        receipts.clear();
+        setDenied(status);
+      }
+    },
+    [logout, receipts],
+  );
+  const api = useCallback<ApiFactory>(
+    (signal) =>
+      client(
+        session.token,
+        signal
+          ? AbortSignal.any([session.controller.signal, signal])
+          : session.controller.signal,
+        onDenied,
+      ),
+    [session, onDenied],
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let busy = false;
+    async function verify() {
+      if (busy || document.hidden) return;
+      busy = true;
+      try {
+        const user = await currentUser(session.token, controller.signal);
+        if (controller.signal.aborted) return;
+        if (user.role !== session.user.role || user.id !== session.user.id) {
+          logout('Permissions changed. Sign in again.');
+          return;
+        }
+        setGuard('ready');
+      } catch (failure) {
+        if (controller.signal.aborted) return;
+        if (failure instanceof ApiError && [401, 403].includes(failure.status))
+          logout('Your access changed. Sign in again.');
+        else setGuard('unavailable');
+      } finally {
+        busy = false;
+      }
+    }
+    function visibility() {
+      if (document.hidden) setGuard('checking');
+      else {
+        setGuard('checking');
+        setGeneration((n) => n + 1);
+        void verify();
+      }
+    }
+    void verify();
+    const timer = window.setInterval(() => {
+      void verify();
+    }, 10000);
+    document.addEventListener('visibilitychange', visibility);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', visibility);
+    };
+  }, [session, logout, generation]);
+
+  const match = /^#\/cases\/([a-f0-9-]{36})(\/assessment)?$/i.exec(hash);
+  return (
+    <div className="workspace">
+      <a
+        className="skip"
+        href="#main-content"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById('main-content')?.focus();
+        }}
+      >
+        Skip to content
+      </a>
+      <aside className="sidebar">
+        <Brand />
+        <p className="nav-label">WORKSPACE</p>
+        <a className={`nav-item ${!match ? 'active' : ''}`} href="#/">
+          ◫ <span>Alert dashboard</span>
+        </a>
+        <div className="sidebar-bottom">
+          <span className="environment">SYNTHETIC DATA</span>
+          <p>
+            Recommendations support
+            <br />
+            human decisions.
+          </p>
+        </div>
+      </aside>
+      <div className="work-area">
+        <header className="topbar">
+          <span className="breadcrumb">
+            Workspace <span>/</span> {match ? 'Case review' : 'Alerts'}
+          </span>
+          <div className="account">
+            <span>
+              <b>{session.user.username}</b>
+              <small>{session.user.role}</small>
+            </span>
+            <button className="quiet" onClick={() => logout()}>
+              Sign out
+            </button>
+          </div>
+        </header>
+        <main id="main-content" tabIndex={-1}>
+          <Receipts.Provider value={receipts}>
+            {guard !== 'ready' ? (
+              <div className="state" role="status">
+                <h2>
+                  {guard === 'checking'
+                    ? 'Verifying access…'
+                    : 'Access verification unavailable'}
+                </h2>
+                <p>Protected information is hidden until access is verified.</p>
+                {guard === 'unavailable' && (
+                  <button onClick={() => setGeneration((n) => n + 1)}>
+                    Retry verification
+                  </button>
+                )}
+              </div>
+            ) : denied ? (
+              <div className="state" role="alert">
+                <h1>Information unavailable</h1>
+                <p>{new ApiError(denied).message}</p>
+                <button
+                  onClick={() => {
+                    setDenied(null);
+                    window.location.hash = '/';
+                    setGeneration((n) => n + 1);
+                  }}
+                >
+                  Return to authorized cases
+                </button>
+              </div>
+            ) : match ? (
+              <CaseView
+                key={`${hash}:${generation}`}
+                id={match[1]}
+                workflow={!!match[2]}
+                api={api}
+                user={session.user}
+              />
+            ) : (
+              <Dashboard key={generation} api={api} user={session.user} />
+            )}
+          </Receipts.Provider>
+        </main>
+        <footer>
+          TrueFlag AI <span>·</span> Human review required. No automatic case
+          actions.
+        </footer>
+      </div>
     </div>
   );
 }

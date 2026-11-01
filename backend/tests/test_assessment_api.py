@@ -73,6 +73,12 @@ def test_async_lifecycle_projection_history_and_audit(api):
     assert response.headers["location"] == "/api/v1/assessment-jobs/" + response.json()["job_id"]
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["retry-after"] == "2" and counts(api["engine"]) == [0] * 5
+    overview_path = f"/api/v1/cases/{api['request']['case_id']}/overview"
+    overview = api["client"].get(overview_path, headers=api["team"]["auth"]["analyst"]).json()
+    assert (
+        overview["assessment_status"] == "pending"
+        and overview["latest_job_id"] == response.json()["job_id"]
+    )
     auth = api["team"]["auth"]["analyst"]
     claim = api["queue"].claim(api["token"])
     running = api["client"].get(response.headers["location"], headers=auth)
@@ -81,6 +87,7 @@ def test_async_lifecycle_projection_history_and_audit(api):
         api["token"], claim, result_for(api["queue"], api["token"], claim, api["producer"])
     )
     job = api["client"].get(response.headers["location"], headers=auth).json()
+    assert api["client"].get(overview_path, headers=auth).json()["assessment_status"] == "succeeded"
     path = f"/api/v1/cases/{job['case_id']}/assessments"
     detail_response = api["client"].get(path + "/" + job["assessment_id"], headers=auth)
     assert detail_response.status_code == 200

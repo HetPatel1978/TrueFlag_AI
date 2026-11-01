@@ -2,11 +2,12 @@ from datetime import timezone
 from uuid import UUID
 
 from pydantic import ValidationError
-from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy import String, and_, cast, func, or_, select, update
+from sqlalchemy import case as sql_case
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.models import Alert, AuditEvent, Case, User
+from app.models import Alert, AssessmentJob, AuditEvent, Case, User
 from app.schemas.alerts import FEATURE_CONTRACT_VERSION, AlertFeatures
 from app.schemas.cases import AssignmentInput, CaseQuery
 
@@ -61,6 +62,56 @@ def summary(case: Case) -> dict:
     }
 
 
+def workbench_statement():
+    # Scalar projections only: do not load raw predictors into a browser response.
+    latest_id = (
+        select(AssessmentJob.id)
+        .where(AssessmentJob.case_id == Case.id)
+        .order_by(AssessmentJob.created_at.desc(), AssessmentJob.id.desc())
+        .limit(1)
+        .correlate(Case)
+        .scalar_subquery()
+    )
+    latest_status = (
+        select(AssessmentJob.status)
+        .where(AssessmentJob.id == latest_id)
+        .correlate(Case)
+        .scalar_subquery()
+    )
+    # Frozen policy mapping: KYC 0/1/2 Standard; 3/4/5/6 High. No RF invocation.
+    priority = sql_case((Alert.features["kycRiskScore"].as_float() >= 3, "High"), else_="Standard")
+    return select(
+        Case,
+        Alert.source_id,
+        priority.label("priority"),
+        func.coalesce(latest_status, "not_requested").label("assessment_status"),
+        latest_id.label("latest_job_id"),
+    ).join(Alert, Alert.id == Case.alert_id)
+
+
+def workbench_summary(row):
+    case, source, priority, status, job_id = row
+    return {
+        **summary(case),
+        "source_id": source,
+        "priority": priority,
+        "assessment_status": status,
+        "latest_job_id": job_id,
+    }
+
+
+def get_overview(session: Session, user: User, case_id: UUID) -> dict:
+    row = session.execute(
+        workbench_statement().where(Case.id == case_id, visible_cases(user))
+    ).one_or_none()
+    if row is None:
+        raise CaseNotFound
+    result = workbench_summary(row)
+    session.add(AuditEvent(actor_id=user.id, action="case.overview_read", resource_id=str(case_id)))
+    session.commit()
+    return result
+
+
 def list_cases(session: Session, user: User, query: CaseQuery) -> dict:
     predicates = [visible_cases(user)]
     if query.status is not None:
@@ -71,6 +122,21 @@ def list_cases(session: Session, user: User, query: CaseQuery) -> dict:
         predicates.append(Case.assigned_to.is_not(None))
     elif query.assignment == "unassigned":
         predicates.append(Case.assigned_to.is_(None))
+    statement = workbench_statement()
+    if query.search:
+        # SQL-bound literal substring; wildcard characters cannot expand the search scope.
+        terms = [Alert.source_id.icontains(query.search, autoescape=True)]
+        compact_id = query.search.replace("-", "")
+        if compact_id:
+            terms.extend(
+                func.replace(cast(column, String), "-", "").icontains(compact_id, autoescape=True)
+                for column in (Case.id, Case.alert_id)
+            )
+        predicates.append(or_(*terms))
+    if query.priority:
+        predicates.append(statement.selected_columns.priority == query.priority)
+    if query.assessment_status:
+        predicates.append(statement.selected_columns.assessment_status == query.assessment_status)
     columns = {"created_at": Case.created_at, "status": Case.status, "version": Case.version}
     column = columns[query.sort_by]
     order = (
@@ -78,12 +144,11 @@ def list_cases(session: Session, user: User, query: CaseQuery) -> dict:
         if query.sort_order == "asc"
         else [column.desc(), Case.id.desc()]
     )
-    total = session.scalar(select(func.count()).select_from(Case).where(*predicates))
-    rows = session.scalars(
-        select(Case).where(*predicates).order_by(*order).offset(query.offset).limit(query.limit)
-    )
+    filtered = statement.where(*predicates)
+    total = session.scalar(select(func.count()).select_from(filtered.subquery()))
+    rows = session.execute(filtered.order_by(*order).offset(query.offset).limit(query.limit))
     return {
-        "items": [summary(row) for row in rows],
+        "items": [workbench_summary(row) for row in rows],
         "total": total,
         "limit": query.limit,
         "offset": query.offset,

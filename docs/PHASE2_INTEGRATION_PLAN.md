@@ -1,6 +1,6 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Phases 2.1-2.8 implemented and verified locally:** approved scorer/policies/SHAP, immutable persistence, bounded jobs, protected APIs and [operational monitoring/reliability evidence](PHASE2_8_OPERATIONS.md). No automatic scoring at ingestion, dismissal, frontend or LLM/RAG work is enabled.
+**Phases 2.1-2.9 implemented and verified locally:** approved scorer/policies/SHAP, immutable persistence, bounded jobs, protected APIs and [operational monitoring/reliability evidence](PHASE2_8_OPERATIONS.md). The [React workbench](PHASE2_9_FRONTEND.md) now integrates these contracts. No automatic scoring at ingestion, dismissal or LLM/RAG work is enabled.
 
 ## Confirmed retained evidence
 

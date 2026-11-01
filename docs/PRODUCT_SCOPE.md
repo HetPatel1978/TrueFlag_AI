@@ -12,7 +12,7 @@
 | Explainability | Verified model-score contributions plus separate deterministic routing rationale | Authorization-gated exact SHAP library, 41→27 grouping, ranking and 4000-reference parity verified in Linux; immutable authorized storage verified; bounded worker and protected HTTP retrieval implemented |
 | Investigation | Evidence-grounded, source-cited drafts; explicit abstention; human confirmation | Provider protocol only; Week 3 |
 | Regulatory RAG | Approved jurisdiction/institution/as-of corpus; versioned passages and access filters | Planned; no corpus/provider configured |
-| Case management | Assignment, notes, state transitions, approval, evidence links, reproducible reports | Scoped case list/detail, pagination/filtering/sorting and protected versioned assignment implemented; review/approval/report workflows pending |
+| Case management | Assignment, notes, state transitions, approval, evidence links, reproducible reports | Scoped case list/detail, pagination/filtering/sorting and protected versioned assignment implemented; React alert/case/assessment workbench integrated; assignment UI and review/approval/report workflows pending |
 | Security | Authentication, server RBAC, input validation, audit records, deployment controls | Three-role case authorization, persistent login throttle, bounded bodies, safe request/failure logs and transactional assignment audit verified; deployment hardening pending |
 | Monitoring/feedback | Health, readiness, failures, queue metrics and reviewed outcomes | Liveness/readiness, internal aggregate monitoring and bounded local load/recovery verified; drift/quality/feedback and production operations pending |
 

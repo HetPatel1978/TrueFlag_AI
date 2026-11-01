@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_session
 from app.models import User
-from app.schemas.cases import AssignmentInput, CaseDetail, CasePage, CaseQuery, CaseSummary
+from app.schemas.cases import (
+    AssignmentInput,
+    CaseDetail,
+    CasePage,
+    CaseQuery,
+    CaseSummary,
+    WorkbenchCase,
+)
 from app.security.auth import require_case_manager, require_case_reader
 from app.services.cases import (
     AssignmentConflict,
@@ -15,6 +22,7 @@ from app.services.cases import (
     InvalidAssignee,
     assign_case,
     get_case,
+    get_overview,
     list_cases,
 )
 
@@ -38,6 +46,18 @@ def case_detail(
 ):
     try:
         return get_case(session, user, case_id)
+    except CaseNotFound:
+        raise HTTPException(404, "Case not found") from None
+
+
+@router.get("/{case_id}/overview", response_model=WorkbenchCase)
+def case_overview(
+    case_id: UUID,
+    user: User = Depends(require_case_reader),
+    session: Session = Depends(get_session),
+):
+    try:
+        return get_overview(session, user, case_id)
     except CaseNotFound:
         raise HTTPException(404, "Case not found") from None
 

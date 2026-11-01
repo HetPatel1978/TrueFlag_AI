@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessment APIs](API_ASSESSMENTS.md), and [Phase 2.8 operations](PHASE2_8_OPERATIONS.md). Internal monitoring and bounded synthetic load/recovery are verified; production deployment acceptance and frontend remain pending.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessment APIs](API_ASSESSMENTS.md), and [Phase 2.8 operations](PHASE2_8_OPERATIONS.md). Internal monitoring and bounded synthetic load/recovery are verified; the Phase 2.9 risk workbench is integrated; production deployment acceptance remains pending.
 
 ## Week 1 — Foundation and integration
 
@@ -11,7 +11,7 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
   - [ ] Accept setup evidence, license boundary and product scope.
   - [x] Add validated/idempotent synthetic alert ingestion and case creation in one transaction (API, strict 27-field contract, durable receipts, creation audit; see API_ALERT_INGESTION.md).
   - [x] Add authenticated case reads with assignment-aware access rules, supervisor oversight, protected assignment/reassignment and atomic version/audit updates (Phase 1).
-  - [ ] Extend frontend authentication from identity verification to in-memory application session handling.
+  - [x] Phase 2.9: in-memory authenticated application sessions, role-aware navigation, logout cleanup and bounded authorization refresh.
   - [x] Add safe failure logging, server-generated request correlation, bounded request bodies and database-backed cross-worker login throttling (Phase 1).
 - **Dependencies:** Python 3.11, Docker/PostgreSQL, accounts, agreed input envelope; no model needed for foundation tests.
 - **Deliverables:** backend/frontend foundation, migrations, authentication/RBAC, CI and first ingestion vertical slice.
@@ -33,7 +33,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
   - [x] Phase 2.6: bounded Linux background worker and internal idempotent job requests.
   - [x] Phase 2.7: protected assessment request/status/history/detail APIs, strict contracts, case scope, request/read audit, queue capacity and shared API budgets.
   - [x] Phase 2.8: internal operational metrics, safe structured correlation and measured bounded synthetic load/recovery acceptance.
-  - [ ] Add frontend/workbench integration and production deployment acceptance after separate approval.
+  - [x] Phase 2.9: authorized alert dashboard, safe case results/SHAP/provenance/history, explicit assessment requests and bounded async status workflow.
+  - [ ] Production deployment acceptance after separate approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.
 - **Acceptance:** all 4,000 saved scores match within 1e-12 absolute tolerance and all 12,000 routes match; no fitting/tuning; input labels never enter features; attribution reconstruction passes fixed tolerances; failures require manual review and receive no capture/dismissal credit.
@@ -58,7 +59,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
 - **Objective:** complete case handling with auditable human control.
 - **Tasks:**
   - [x] Implement backend assignment/reassignment, case authorization and optimistic concurrency (completed in Phase 1).
-  - [ ] Implement evidence inspection, notes, review history and frontend case/session workflows.
+  - [x] Phase 2.9: case/session workbench and immutable assessment history with real browser/API/worker acceptance.
+  - [ ] Evidence inspection, notes, human review history and assignment editor.
   - [ ] Implement approval-gated consequential transitions and report/export authorization.
   - [ ] Add actor-attributed audit events in the same transaction as state changes.
   - [ ] Restrict runtime database privileges; establish migrations versus application roles.
