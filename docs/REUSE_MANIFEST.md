@@ -30,3 +30,9 @@ Original paths are relative to sibling `../github`, or are ZIP members in `../pr
 - Worker paths must be rooted at staged local assets, with explicit identity checks; no implicit import/read of the original teammate workspace.
 - Keep source SAR labels separate from analyst recommendations. Do not retrain from workflow actions automatically.
 - Existing original UI/explanation preview are not copied into the public frontend or silently activated.
+
+## Phase 2.5 reuse
+
+- New internal assessment service composes the unchanged approved loader/scorer, frozen policies and verified SHAP implementation with existing case scope, ingestion fingerprints, score/decision tables and audit records.
+- Two additive tables retain immutable results; no original source, model, policy or saved reference is modified. All 25 staged baseline identities remain authoritative and private.
+- New test-only Linux image installs existing service/scientific pins; models/references mount read-only at runtime and never enter image layers. No worker or private application image is published.

@@ -1,6 +1,6 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Phases 2.1–2.4 loader, scorer, recommendation-only policy engine and exact SHAP service are implemented and verified.** See [loader](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policies](PHASE2_3_POLICY_ENGINE.md), and [SHAP acceptance](PHASE2_4_SHAP_EXPLAINABILITY.md). No HTTP integration, workflow mutation, deployed worker or assessment migration is implemented. Remaining integration is design only; do not retrain/replace the model or enable automatic dismissal.
+**Phases 2.1-2.5 are implemented and verified locally:** secure loading, scoring, frozen recommendations, exact SHAP and [immutable assessment persistence](PHASE2_5_ASSESSMENT_PERSISTENCE.md). Migration 0004 adds assessment/explanation history and atomic audit links. HTTP integration, durable job states, deployed workers and hard timeouts remain design only; no automatic dismissal or retraining.
 
 ## Confirmed retained evidence
 
@@ -30,10 +30,10 @@ RF remains 300 trees/minimum leaf size 5. The supplied explanation loader is cou
 | Input adapter | Persisted alert ID, immutable input snapshot/hash, contract → ordered 27-column DataFrame | No SAR/notes/IDs/priority/split fields; JSON missing income → native NaN only for RF, zero preserved; do not fit/scale/impute |
 | Scorer | Verified pipeline + ordered snapshot → positive-class score or typed failure | Use complete pipeline `predict_proba`; resolve `classes_ == 1`; require finite score in [0,1]; never infer crime/calibration |
 | Policy evaluator | Score/status, original KYC, frozen policy ID/mode → recommendation + trace | Implemented deterministic rules; failure yields `manual_review`/failed with no successful-retention/dismissal credit; every output requires human decision |
-| Explanation adapter | Approved RF/preprocessor, same snapshot, score → verified feature contributions or unavailable status | Implemented exact SHAP and independent checks; host authorization before/after; unavailable payloads contain no contributions. API/worker/persistence wiring pending |
+| Explanation adapter | Approved RF/preprocessor, same snapshot, score → verified feature contributions or unavailable status | Implemented exact SHAP and independent checks; host authorization before/after; unavailable payloads contain no contributions. Internal persistence wired; API/worker wiring pending |
 | Assessment persistence | Request identity, versions, score/failure, recommendations, explanation references → immutable assessment ID | Atomic result/audit write, safe duplicate submission, permission-checked retrieval; no case closure or assignment mutation |
 
-Proposed future API: authenticated `POST /api/v1/cases/{case_id}/assessments` with an idempotency key and allowlisted mode; `GET /api/v1/cases/{case_id}/assessments/{assessment_id}` with the same case scope as current reads. Job execution is an internal worker capability, never an unprotected model-call endpoint. Final submission-role authorization is a Phase 2 implementation decision; default to supervisor/admin until explicitly widened. Reads must recheck current case access after reassignment.
+Proposed future API: authenticated `POST /api/v1/cases/{case_id}/assessments` with an idempotency key and allowlisted mode; `GET /api/v1/cases/{case_id}/assessments/{assessment_id}` with the same case scope as current reads. Job execution is an internal worker capability, never an unprotected model-call endpoint. Future HTTP submission roles remain an explicit decision; no submission endpoint is implemented. The internal Phase 2.5 service permits current assigned analysts and workspace supervisors/admins. Reads must recheck current case access after reassignment.
 
 Request envelope: schema version, assessment/request IDs, case/alert IDs, snapshot/hash, model SHA/version, predictor-contract SHA/version, policy SHA/version and requested mode. IDs/policy metadata are alignment fields, never predictors. Worker accepts only validated trusted internal requests. Result envelope: execution status, positive score or null, processing reason code, per-mode recommendation/trace, explanation status/reference, provenance and timings. No raw exception strings in public results/logs.
 
@@ -64,11 +64,11 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 - Saved-score tolerance: absolute 1e-12, relative 0; attribution reconstruction: absolute 1e-6, relative 0. A stale/missing/unverified explanation returns unavailable, never a fabricated rationale.
 - Store model/input/contract/method/library and generator/verifier identities. Approval to show detailed explanations in a future UI requires browser acceptance; old hidden payloads are not promoted as verified.
 
-## Persistent assessment design (future migration)
+## Persistent assessment design (Phase 2.5 implemented; durable jobs pending)
 
 - Reuse `ModelScore` for completed score/failure records and `Decision` for versioned policy recommendations; preserve their existing processed/failed semantics. Keep pending/running/retry state in a separate assessment/job entity instead of inserting a fake pending score.
-- Add an assessment ID linking alert snapshot, request idempotency, model/policy/contract versions, actor, timing and execution/explanation status. Store immutable explanation content/reference and hashes separately from case workflow status.
-- Job/result publication must be atomic and retry-safe. Suggested result uniqueness: assessment ID plus model/input/policy identities; never key only by case or model name. Protect against stale jobs and duplicate worker delivery.
+- Implemented: versioned assessment ID linking alert/case, current actor, input fingerprint, model/policy/contract identity, immutable SHAP, timing and atomic audit; no human workflow mutation. See migration 0004 and the Phase 2.5 contract.
+- Completed-result publication is atomic and idempotent using a global run ID and actor-scoped hashed key. Durable worker publication, leases and failed attempts remain pending; never key only by case/model.
 - Existing ingestion input hashes use exact numeric canonicalization; historical explanation hashes use recorded source lexemes. Retain these as distinct, named provenance contracts; do not silently overwrite/reinterpret one as the other.
 
 ## Acceptance gates before enabling assessment requests
@@ -82,4 +82,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Phases 2.1–2.4 library acceptance complete. Proposed next task, after separate authorization:** immutable assessment/policy/explanation persistence with provenance, atomic audit, idempotency and permission-checked retrieval. Worker timeouts, HTTP integration and automatic-action restrictions retain separate acceptance gates.
+**Phases 2.1-2.5 acceptance complete. Proposed next task, after a new request:** durable assessment jobs with bounded scientific execution, retry/lease/failure isolation and immutable result linkage. HTTP contracts and deployment remain separate gates.

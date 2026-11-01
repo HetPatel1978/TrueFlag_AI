@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md), [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policies](PHASE2_3_POLICY_ENGINE.md), [SHAP](PHASE2_4_SHAP_EXPLAINABILITY.md). Loading, scoring, recommendations and verified explanations are implemented as libraries; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference/policy/explanation HTTP endpoint is authorized by this roadmap update.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md) and Phases 2.1-2.5 [assessment evidence](PHASE2_5_ASSESSMENT_PERSISTENCE.md). RF, policies and verified explanations now persist through an internal authorized service. HTTP/job/worker integration remains design only; no automatic inference is triggered at ingestion.
 
 ## Week 1 — Foundation and integration
 
@@ -26,7 +26,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1]
   - [x] Phase 2.2: pure single/batch RF scorer with positive-class mapping, sanitized failure results and ID-aligned 4000-score regression (maximum error 0.0; absolute tolerance 1e-12 / relative 0).
   - [x] Implement strict 27-predictor validation at ingestion and isolated scoring, preserving missing versus zero income and unsupported KYC rejection.
   - [x] Phase 2.3: implement versioned deterministic recommendations and all 12000 saved route/audit comparisons, including 456 changed-route Coverage overrides; no automatic dismissal or case mutation.
-  - [ ] Persist model/input/policy identities, failures and separate routing records.
+  - [x] Phase 2.5: immutable versioned assessments, approved model/input/policy identity, verified explanations, atomic audit, idempotency and scoped internal retrieval.
+  - [ ] Add durable job/attempt failure history and retry/lease management; Phase 2.5 stores completed results only.
   - [x] Phase 2.4: exact SHAP service, required host authorization, independent output checks and 4000-reference parity; native missing/zero income preserved, no RF retraining.
   - [ ] Add hard explanation-worker timeouts, cancellation and job failure isolation during worker integration.
   - [ ] Add bounded background execution and idempotent score requests.

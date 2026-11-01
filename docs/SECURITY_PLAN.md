@@ -19,6 +19,7 @@ Scope: synthetic local demonstration. A passing foundation test is not a penetra
 | RF scoring | Phase 2.2 pure Python implementation | Approved loader, bounded unique-ID batches, strict feature allowlist, verified class mapping, finite/range/shape checks, sanitized failures/warnings; no feature logs, API, policy or case mutation. See PHASE2_2_RF_SCORING |
 | Policy recommendations | Phase 2.3 pure deterministic implementation | Verified policy SHA/model binding, exact thresholds, strict score/priority validation; invalid or failed inputs require manual review with no success credit. All outputs require human decision; no HTTP endpoint or workflow mutation. See PHASE2_3_POLICY_ENGINE |
 | SHAP explanations | Phase 2.4 verified library | Required host ACL callback before work/after verification, no raw value logging/output, exact dependencies/model/input identity, independent checks and empty unavailable payloads on failure. Actual acceptance in hardened local Linux container; no API/worker authorization wiring or timeout deployment yet. See PHASE2_4_SHAP_EXPLAINABILITY |
+| Assessment persistence | Phase 2.5 verified internal service | Current DB role/assignment checks before snapshot, explanation and commit/read; stale-state rejection, actor-scoped receipt keys, immutable linked rows, atomic completion audit and read-time content digest. No raw feature duplication, HTTP result submission, automatic disposition or deployed worker. See [assessment security](PHASE2_5_ASSESSMENT_PERSISTENCE.md) |
 | Prompt injection/leakage | Planned Week 3 | Treat evidence as untrusted data, enforce tool permissions before retrieval, validate citations, bound tokens/time/cost; test adversarial passages |
 | Human approval | Review workflow pending | Assignment changes preserve status/disposition; no automatic closure, dismissal or filing; review approvals remain a later phase |
 | Abuse protection | Implemented foundation | Persistent atomic login window per HMAC client key, shared across workers/restarts; 429/Retry-After; declared and streamed request bodies bounded before parsing/DB work |
@@ -49,3 +50,12 @@ Assignment requires an active supervisor/admin, an eligible active analyst or ex
 - Week 5: TLS, dependency review, backup/restore, rollback, rotation, bounded load and explicit deployment acceptance.
 
 New data sources, public hosting, institutional use and actual customer data require separately agreed scope. No automatic filing, model promotion or retraining is authorized by a review action.
+
+## Phase 2.5 integrity boundary
+
+- Actor IDs originate from trusted server identity. Internal service permits assigned analysts and workspace supervisors/admins; future HTTP submission-role decisions are not implemented here.
+- PostgreSQL shared actor/alert locks plus case row locks serialize authorization/input/state changes with the final transaction. Expensive RF/SHAP work runs between short transactions; completion rechecks state and input/source fingerprints.
+- Assessment, explanation, score, recommendation and audit commit or roll back together. Duplicate retries reauthorize; changed content/run/key conflicts. Reassessment appends history and never changes human disposition.
+- Database triggers reject UPDATE/DELETE of immutable history and linked children; TRUNCATE is blocked. Unlinked foundation audit events are not newly protected. Owners/superusers can bypass triggers; runtime-role separation and independent audit retention remain pending.
+- SHA-256 content checks detect accidental corruption on retrieval; they are not signatures or protection against a privileged actor rewriting digests. No new data access/inference HTTP route is exposed.
+- Actual RF/SHAP/DB acceptance runs in a non-root, read-only Linux verification container on the local Compose network. Credentials pass through stdin; no `.env` or private assets enter image layers. Native Windows DLL security remains unchanged.

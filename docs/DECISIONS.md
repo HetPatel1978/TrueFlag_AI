@@ -73,6 +73,16 @@
 - Preserve original lexical provenance separately from new rational input hashes. Pin the three historical explanation references, compare all 4000 numeric allocations, and retain old UI/policy context without installing it as current policy or browser state.
 - Use a verification-only non-root, read-only, offline Linux container because host Application Control blocks the pinned llvmlite DLL. Do not weaken the host policy or substitute dependencies. Baseline RF fits remain zero; the independent algorithm unit test fits only a synthetic two-feature toy tree.
 
+## ADR-022 - Phase 2.5 assessment persistence (2026-11-01)
+
+- Add two tables: immutable `assessments` and `assessment_explanations`; reuse existing score, decision and audit tables. Preserve legacy routes while storing explicit recommendations for new assessments.
+- Use trusted internal orchestration instead of arbitrary result submission. Permit current assigned analysts and workspace managers; no HTTP inference endpoint or automatic ingestion hook is added.
+- Compute outside write transactions. Recheck actor, case/alert state and input/source identity under PostgreSQL locks before one atomic score/decision/explanation/audit/assessment commit.
+- Actor-scoped hashed keys and global unique run IDs identify retries; conflicts reject, matching authorized retries reuse the original result. Serialize append-only version allocation per case.
+- Retain feature references/fingerprints, not duplicate values. Persist model/contract/source/runtime/policy/method provenance, explicit override trace and checked content digest.
+- Enforce immutability with database triggers, including linked children and TRUNCATE protection. Refuse history-destroying downgrade. Owner bypass, independent retention and runtime role separation remain deployment limits.
+- Failure leaves no completed assessment or partial writes; durable failed attempts, jobs, bounded workers and HTTP integration require a later request. No changes to human case state, model, teammate sources or private references.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

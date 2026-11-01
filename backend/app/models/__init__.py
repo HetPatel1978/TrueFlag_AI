@@ -1,6 +1,8 @@
 from app.models.domain import (
     Alert,
     AlertIngestion,
+    Assessment,
+    AssessmentExplanation,
     AuditEvent,
     Base,
     Case,
@@ -14,6 +16,8 @@ from app.models.domain import (
 __all__ = [
     "Alert",
     "AlertIngestion",
+    "Assessment",
+    "AssessmentExplanation",
     "AuditEvent",
     "Base",
     "Case",

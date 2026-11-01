@@ -104,14 +104,15 @@ class Decision(Identity, Base):
     score_id: Mapped[UUID] = mapped_column(ForeignKey("model_scores.id"), index=True)
     policy_version: Mapped[str] = mapped_column(String(100))
     mode: Mapped[str] = mapped_column(String(20))
-    route: Mapped[str | None] = mapped_column(String(20))
+    route: Mapped[str | None] = mapped_column(String(40))
     processing_status: Mapped[str] = mapped_column(String(20))
     reason_code: Mapped[str] = mapped_column(String(100))
     __table_args__ = (
         CheckConstraint("mode IN ('Efficiency','Balanced','Coverage')", name="ck_decision_mode"),
         CheckConstraint(
             "(processing_status = 'processed' AND route IS NOT NULL AND "
-            "route IN ('retain','dismiss')) OR (processing_status = 'failed' AND route IS NULL)",
+            "route IN ('retain','dismiss','retain_human_review','review_reduction_candidate')) OR "
+            "(processing_status = 'failed' AND route IS NULL)",
             name="ck_decision_route",
         ),
     )
@@ -144,3 +145,42 @@ class LoginThrottle(Base):
     key_sha256: Mapped[str] = mapped_column(String(64), primary_key=True)
     window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     attempt_count: Mapped[int] = mapped_column()
+
+
+class AssessmentExplanation(Identity, Base):
+    """Immutable verified explanation; no raw feature values are copied."""
+
+    __tablename__ = "assessment_explanations"
+    payload: Mapped[dict] = mapped_column(JSON)
+    verification: Mapped[dict] = mapped_column(JSON)
+
+
+class Assessment(Identity, Base):
+    """Append-only completed run linking existing score, recommendation and audit records."""
+
+    __tablename__ = "assessments"
+    __table_args__ = (
+        UniqueConstraint("case_id", "version", name="uq_assessment_case_version"),
+        UniqueConstraint("run_id", name="uq_assessment_run"),
+        UniqueConstraint("key_sha256", name="uq_assessment_key"),
+        CheckConstraint("version >= 1 AND case_version >= 1", name="ck_assessment_version"),
+        CheckConstraint("status = 'completed'", name="ck_assessment_completed"),
+    )
+    case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"), index=True)
+    alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"))
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    run_id: Mapped[UUID] = mapped_column(Uuid)
+    version: Mapped[int] = mapped_column()
+    case_version: Mapped[int] = mapped_column()
+    status: Mapped[str] = mapped_column(String(20), default="completed")
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    request_sha256: Mapped[str] = mapped_column(String(64))
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    input_sha256: Mapped[str] = mapped_column(String(64))
+    score_id: Mapped[UUID] = mapped_column(ForeignKey("model_scores.id"), unique=True)
+    decision_id: Mapped[UUID] = mapped_column(ForeignKey("decisions.id"), unique=True)
+    explanation_id: Mapped[UUID] = mapped_column(
+        ForeignKey("assessment_explanations.id"), unique=True
+    )
+    audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
+    provenance: Mapped[dict] = mapped_column(JSON)

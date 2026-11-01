@@ -1,11 +1,11 @@
-# Implementation status — 2026-10-31
+# Implementation status - 2026-11-01
 
 Seven functional phases are mapped below to the existing **five-week schedule**; they are not seven additional weeks. Phase 1/2 names follow the current request; labels for 3–7 organize the existing roadmap into planning workstreams, without implying separate historical approval.
 
 | Phase | Verified completed functionality | In progress / pending | Acceptance / blockers |
 |---|---|---|---|
 | 1 — Foundation & Security | FastAPI/React/PostgreSQL/Compose, auth, synthetic ingestion, 27-field validation, atomic idempotency, scoped case APIs, supervisor/admin assignment, version conflicts, change audit, body/login limits, safe correlation/logs | Local-demo backend acceptance complete; no further Phase 1 implementation active | PostgreSQL/SQLite security and regression suites; frontend role tests; migration/drift and live HTTP checks. No Phase 1 functional blocker; production security is not certified |
-| 2 — AML Risk Intelligence | Phases 2.1–2.4 verified: secure loader/scorer, strict 27-feature contract, 4000 exact scores, 12000 policy routes, authorization-gated exact SHAP and 4000 saved explanations matched (41→27 grouping) | Immutable assessments/explanations/jobs, deployed worker, HTTP endpoints, ingestion integration and hard timeouts remain pending | 178 ML/policy/SHAP tests pass in isolated Linux runtime; no automatic dismissal. Native Windows SHAP blocked by Application Control; Linux acceptance complete. Redistribution rights remain unresolved |
+| 2 - AML Risk Intelligence | Phases 2.1-2.5 verified: approved loader/scorer, exact 27 predictors, 4000-score replay, frozen policies/12000-route parity, verified SHAP/4000 explanations, immutable versioned assessment storage, atomic audit, idempotency and internal scoped retrieval | Durable jobs/failure history, bounded worker execution, HTTP/workbench integration and operational metrics | Actual pinned Linux/PostgreSQL persistence verified. Native Windows SHAP DLL remains blocked; source redistribution rights unresolved |
 | 3 — Regulatory/Evidence Retrieval | Only historical saved prototypes/reference evidence; no current retrieval service | Approved corpus, source rights, institution/jurisdiction/as-of scope, permission-aware retrieval and relevance evaluation | Reproducible source/citation and access checks; corpus/source-use decisions pending |
 | 4 — AI Investigation | Provider-neutral protocol from initialization only | Provider adapter, evidence-grounded drafts, citation validation, abstention and bounded tool workflow | Approved provider/data boundary and adversarial evaluation required; no LLM integration or agent execution enabled |
 | 5 — Analyst Workbench & Human Decisions | Frontend account verification; backend case-read/assignment foundation | In-memory application sessions, case/assignment UI, notes, review/approval state machine, evidence view and reports | Browser/IDOR/concurrency/approval acceptance; no automated closure/filing and no current case workbench UI |
@@ -14,6 +14,9 @@ Seven functional phases are mapped below to the existing **five-week schedule**;
 
 ## Acceptance evidence
 
+- Phase 2.5 starts from clean `c18acef`: **223 Linux/PostgreSQL backend tests passed, 0 failed/skipped**, including actual approved RF/SHAP persistence for missing/zero income. Windows/PostgreSQL: **221 passed, 2 Linux-only skips**. SQLite: **200 passed, 23 PostgreSQL/Linux-only skips**. All prior ingestion/security regressions included. See [assessment acceptance](PHASE2_5_ASSESSMENT_PERSISTENCE.md) and [schema](DATABASE_SCHEMA.md).
+- Existing ML suite: **178 passed, 0 failed/skipped** in the pinned Linux runtime. Full replays: **4000 RF scores, 12000 policy routes/traces, 4000 SHAP explanations**, zero mismatches; score and original explanation deltas 0.0, maximum reconstruction residual 3.1086244689504383e-15. All 25 staged baseline identities unchanged.
+- Phase 2.5 migration **0004_assessments** applied to local PostgreSQL; **11 domain tables**, no schema drift, rollback probe passed with zero retained records. Ruff lint/format, dependency consistency and publication boundaries passed. No remote CI run or GitHub push is claimed.
 - Phase 2.4 starts from clean `22c0afb`: **178 Linux ML/policy/SHAP tests passed, 0 failed/skipped**. All **4000 explanations verified**, no mismatches/unavailable; encoded/grouped/base/score reference deltas **0.0**, maximum reconstruction residual **3.1086244689504383e-15**. All 87 missing/22 zero income cases preserved. See [SHAP acceptance](PHASE2_4_SHAP_EXPLAINABILITY.md).
 - Phase 2.4 backend rerun: **153 PostgreSQL passed**; **145 SQLite passed, 8 PostgreSQL-only skips**. Windows API boundaries **115 passed, 63 expected skips**; Linux API without private/runtime assets **96 passed, 82 expected skips**. Windows-native SHAP DLL remains blocked; verification uses the exact pinned Linux runtime, with no host security changes. Historical subphase counts below retain their original scope.
 - Phase 2.3 starts from clean `20a4ef2`: **135 ML/policy tests passed, 0 failed/skipped**; **12000 routes and audit traces matched**, zero mismatches/failures and zero retained/dismissed total differences in all three modes. Coverage has 456 changed-route High overrides. RF replay remains 4000/4000 exact, maximum error 0.0. See [policy acceptance](PHASE2_3_POLICY_ENGINE.md).
@@ -33,11 +36,11 @@ Seven functional phases are mapped below to the existing **five-week schedule**;
 
 ## Exact next implementation task
 
-**Proposed Phase 2.5, only after a new request:** implement immutable model-assessment/policy/explanation persistence with complete provenance, atomic audit, idempotency and permission-checked retrieval. Hard worker timeouts/cancellation, HTTP integration and consequential human decisions remain separate later acceptance gates.
+**Proposed Phase 2.6, only after a new request:** durable assessment jobs with bounded scientific execution, leases/retries/failure isolation and immutable completed-result linkage. HTTP submission/retrieval contracts, hard timeout enforcement and deployment remain separate acceptance gates.
 
 ## Deliberate limits
 
 - Supervisor scope is the entire current workspace, not an invented team hierarchy. Multi-tenancy/team scoping is pending enterprise data modeling.
-- Current list/detail and assignment features do not implement evidence retrieval, review dispositions, filing approvals or model assessments.
+- Current list/detail and assignment APIs do not implement evidence retrieval, review dispositions or filing approvals. Assessment persistence/retrieval exists as an authorized internal service; no new inference HTTP endpoints or ingestion-triggered scoring exist.
 - Phase 1 acceptance is for a secure synthetic local demonstration. Deployment controls and external source/provider approval remain explicit future gates.
 - This task ends after documentation, checks and a local development-branch commit. No GitHub push or later-phase implementation is authorized.

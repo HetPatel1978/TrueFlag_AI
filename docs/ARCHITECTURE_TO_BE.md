@@ -2,17 +2,36 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
-Current acceptance and seven-phase mapping are in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phase 1 security and Phases 2.1–2.4 [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policies](PHASE2_3_POLICY_ENGINE.md) and [verified SHAP](PHASE2_4_SHAP_EXPLAINABILITY.md) are verified locally. HTTP/worker integration, persistence, retrieval and job flows remain proposed in the [integration design](PHASE2_INTEGRATION_PLAN.md).
+Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.5 now include verified RF/policies/SHAP and [internal immutable assessment persistence](PHASE2_5_ASSESSMENT_PERSISTENCE.md). HTTP, durable jobs, deployed workers and hard timeouts remain proposed; ingestion does not invoke ML.
 
 | Boundary | Implemented now | Pending |
 |---|---|---|
 | API/security | JWT/Argon2, analyst/supervisor/admin, per-case SQL scope, body limits, request IDs, persistent login throttle | Enterprise IAM, tenant isolation, perimeter controls |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, durable idempotency, linked cases, nine domain tables | Assessment/job/explanation persistence and new data sources |
+| Data | Synthetic ingestion, durable receipts, 11 domain tables, immutable assessment/explanation history and atomic completion audit | Durable jobs/failure history, new sources, runtime DB roles |
 | UI | React account verification, including supervisor identities | Case/session/assignment workbench |
 | Scientific worker | Separate verified RF loader/scorer; 27-feature contract and 4000-score identity replay | Worker deployment and API/ingestion integration; no model is loaded by the current API |
-| Policy engine | Separate deterministic rules, verified full-precision thresholds, priority validation, manual-review fallbacks and 12000-route parity | Persistent recommendation/audit storage and authorized workflow integration; every output requires human decision |
-| Explanation service | Required host authorization callback, exact TreeSHAP, independent checks, 41→27 grouping/ranking and 4000-reference parity | Persistent provenance, authenticated API/worker wiring and hard timeouts; library verification container is not a deployed worker |
+| Policy engine | Frozen deterministic recommendations, 12000-route parity and immutable linked decision records | Authorized HTTP/workflow integration; all recommendations require human decision |
+| Explanation service | Exact SHAP, 41-to-27 grouping, 4000-reference parity, independent verification and immutable permission-scoped storage | Authenticated HTTP/worker wiring and hard timeouts |
+
+Implemented Phase 2.5 internal flow (no HTTP inference endpoint or deployed worker):
+
+```mermaid
+flowchart LR
+  Caller[Trusted server principal and run request] --> Scope[Current role and case authorization]
+  Scope --> Snapshot[Validate alert and capture fingerprints]
+  Snapshot --> Compute[Approved RF plus policy plus verified SHAP]
+  Compute --> Recheck[Lock and recheck authorization and state]
+  Recheck --> TX[One PostgreSQL transaction]
+  TX --> Score[(Existing model_scores)]
+  TX --> Decision[(Existing decisions)]
+  TX --> Explanation[(Immutable explanations)]
+  TX --> Assessment[(Versioned assessment and provenance)]
+  TX --> Audit[(Linked completion audit)]
+  Read[Internal bounded reads] --> ACL[Current case scope plus integrity check]
+  Assessment --> ACL
+  Recheck -->|Stale or revoked| Abort[Reject without partial writes]
+```
 
 Implemented library flow (the later API/workbench flow below remains a target):
 
