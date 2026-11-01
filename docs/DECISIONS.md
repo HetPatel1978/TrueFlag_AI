@@ -58,6 +58,13 @@
 - Pin the saved predictions and cleaned evaluation-source hashes independently of artifact manifests. Align all 4000 records by ID, check source/reference label metadata, and reject duplicated/missing/mismatched IDs. Numeric acceptance is absolute 1e-12, relative 0; measured maximum error is 0.0.
 - Keep only pure Python scoring in Phase 2.2. HTTP endpoints, workers, persistence, deterministic policy recommendations and SHAP remain separately authorized work. No retraining, automatic dismissal or case mutation.
 
+## ADR-020 — Phase 2.3 frozen policy recommendations
+
+- Verify the original policy artifact SHA and model binding before using thresholds; identify the policy set by original model version plus artifact SHA because upstream supplies no independent policy version field.
+- Keep deterministic evaluation separate from RF inference. Accept trusted internal score results and KYC attributes; reject booleans/nonfinite/out-of-range scores, unsupported priorities, mismatched model identity and failed processing. Fail to manual review without successful-retention/dismissal credit.
+- Preserve exact inclusive thresholds, Coverage's successful-High-only protection, original reason codes and override flags. Represent saved `Dismiss` as `review_reduction_candidate`; all outputs require human decision and never change case visibility/disposition.
+- Align all 12000 traces by record ID and mode, compare routes plus audit fields and totals, and preserve reference files. Actual parity is zero route/audit mismatches and zero retained/dismissed total differences; RF code remains unchanged.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

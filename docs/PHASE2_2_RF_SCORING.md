@@ -59,8 +59,8 @@ Positive scoring/replay acceptance uses the actual model and reference records. 
 .\.venv-ml\Scripts\python.exe -B -m unittest discover -s backend/ml_tests -v
 ```
 
-## Pending boundary
+## Subsequent progress
 
-Proposed Phase 2.3, after separate authorization: pure Efficiency/Balanced/Coverage recommendation evaluation and 12000 saved-route identity checks. No automatic dismissal, suppression, closure, filing or case-visibility mutation. Persistence, worker/API integration and SHAP retain their separate acceptance gates.
+Phase 2.3 has since been separately authorized and completed: [frozen policy recommendations and 12000-route parity](PHASE2_3_POLICY_ENGINE.md). This document retains Phase 2.2's scoring-only acceptance evidence. No automatic dismissal, suppression, closure, filing or case-visibility mutation is enabled. Persistence, worker/API integration and SHAP retain separate acceptance gates.
 
 Technical reference: [RandomForestClassifier probability class ordering](https://scikit-learn.org/1.9/modules/generated/sklearn.ensemble.RandomForestClassifier.html).

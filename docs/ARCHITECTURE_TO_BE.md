@@ -2,7 +2,7 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
-Current acceptance and seven-phase mapping are in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phase 1 backend security, the isolated [artifact loader](PHASE2_1_MODEL_LOADER.md) and [pure RF scorer](PHASE2_2_RF_SCORING.md) are implemented and tested locally. HTTP/worker integration, policies, SHAP, retrieval and job flows remain proposed in the [integration design](PHASE2_INTEGRATION_PLAN.md).
+Current acceptance and seven-phase mapping are in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phase 1 security and Phases 2.1–2.3 [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md) and [policy recommendations](PHASE2_3_POLICY_ENGINE.md) are verified locally. HTTP/worker integration, SHAP, retrieval and job flows remain proposed in the [integration design](PHASE2_INTEGRATION_PLAN.md).
 
 | Boundary | Implemented now | Pending |
 |---|---|---|
@@ -10,7 +10,8 @@ Current acceptance and seven-phase mapping are in [IMPLEMENTATION_STATUS](IMPLEM
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
 | Data | Synthetic ingestion, durable idempotency, linked cases, nine domain tables | Assessment/job/explanation persistence and new data sources |
 | UI | React account verification, including supervisor identities | Case/session/assignment workbench |
-| Scientific worker | Separate `trueflag_ml` loader and single/batch scorer; verified private bytes, 27-feature contract and 4000-score identity replay | Worker deployment, API/ingestion integration, policies and SHAP; no model is loaded by the current API |
+| Scientific worker | Separate verified RF loader/scorer; 27-feature contract and 4000-score identity replay | Worker deployment, API/ingestion integration and SHAP; no model is loaded by the current API |
+| Policy engine | Separate deterministic rules, verified full-precision thresholds, priority validation, manual-review fallbacks and 12000-route parity | Persistent recommendation/audit storage and authorized workflow integration; every output requires human decision |
 
 ```mermaid
 flowchart TB

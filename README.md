@@ -14,8 +14,9 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Docker Compose, CI, local private-baseline staging and publication boundary checks.
 - Isolated Phase 2.1 RF loader: approved artifact/source hashes, pinned runtime, fitted-pipeline checks and strict shared 27-feature validation. See [loader verification](docs/PHASE2_1_MODEL_LOADER.md).
 - Pure Phase 2.2 single/batch RF scorer: all 4000 saved evaluation scores reproduced with maximum absolute error 0.0. See [scoring interfaces and verification](docs/PHASE2_2_RF_SCORING.md).
+- Pure Phase 2.3 Efficiency/Balanced/Coverage recommendations: frozen policy verification, strict score/priority checks, manual-review fallback and exact 12000-route/audit parity. See [policy engine](docs/PHASE2_3_POLICY_ENGINE.md).
 
-**Pending:** batch/CSV ingestion, inference HTTP endpoints/worker deployment, policy recommendations, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. The pure scorer has no ingestion/API/database integration. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. [Remaining Phase 2 integration](docs/PHASE2_INTEGRATION_PLAN.md) is design only.
+**Pending:** batch/CSV ingestion, inference/policy HTTP endpoints, worker deployment, persistent assessments, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Scoring/policy components have no ingestion/API/database integration and cannot dismiss or close cases. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. [Remaining Phase 2 integration](docs/PHASE2_INTEGRATION_PLAN.md) is design only.
 
 ## Local setup (PowerShell)
 
@@ -84,6 +85,7 @@ python -m venv .venv-ml
 .\.venv-ml\Scripts\python.exe -m pip install -r backend/ml-requirements.txt
 .\.venv-ml\Scripts\python.exe -B scripts/verify_model_loader.py
 .\.venv-ml\Scripts\python.exe -B scripts/verify_rf_scoring.py
+.\.venv-ml\Scripts\python.exe -B scripts/verify_risk_policy.py
 .\.venv-ml\Scripts\python.exe -B -m unittest discover -s backend/ml_tests -v
 ```
 

@@ -1,10 +1,12 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Phases 2.1/2.2 loader and pure scorer implemented and verified; remaining integration is design only.** See [loader acceptance](PHASE2_1_MODEL_LOADER.md) and [scoring/replay acceptance](PHASE2_2_RF_SCORING.md). No inference endpoint, routing service, deployed worker, assessment migration or new explanation generation is implemented. Do not retrain/replace the model or enable automatic dismissal.
+**Phases 2.1–2.3 loader, pure scorer and recommendation-only policy engine are implemented and verified.** See [loader](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), and [policy acceptance](PHASE2_3_POLICY_ENGINE.md). No inference/policy HTTP endpoint, workflow mutation, deployed worker, assessment migration or new explanation generation is implemented. Remaining integration is design only; do not retrain/replace the model or enable automatic dismissal.
 
 ## Confirmed retained evidence
 
 All 25 staged artifact/reference identities match `assets/local/baseline/baseline.manifest.json`. Phase 1 only hashed the model; Phase 2.1 verified loading. Phase 2.2 scores all 4000 saved evaluation records through the unchanged fitted pipeline with maximum absolute error 0.0 and zero mismatches. No training, policy or SHAP execution occurs in Phase 2.2.
+
+Phase 2.3 independently verifies frozen policy settings and all 12000 saved routes/audit traces against actual RF scores: zero mismatches or retained/dismissed total differences. Invalid inputs/evaluation failures return manual-review recommendations with failed status and no successful-retention/dismissal credit.
 
 | Item | Exact reference |
 |---|---|
@@ -25,7 +27,7 @@ RF remains 300 trees/minimum leaf size 5. The supplied explanation loader is cou
 | Trusted loader | Configured private artifact and allowlisted identities → fitted pipeline handle | Verify model/code/contract/version before deserialization; no client-supplied path/pickle; refuse startup/readiness on mismatch |
 | Input adapter | Persisted alert ID, immutable input snapshot/hash, contract → ordered 27-column DataFrame | No SAR/notes/IDs/priority/split fields; JSON missing income → native NaN only for RF, zero preserved; do not fit/scale/impute |
 | Scorer | Verified pipeline + ordered snapshot → positive-class score or typed failure | Use complete pipeline `predict_proba`; resolve `classes_ == 1`; require finite score in [0,1]; never infer crime/calibration |
-| Policy evaluator | Score/status, original KYC, frozen policy ID/mode → recommendation + trace | Deterministic comparisons/override; failure produces no route or successful-capture/dismissal credit |
+| Policy evaluator | Score/status, original KYC, frozen policy ID/mode → recommendation + trace | Implemented deterministic rules; failure yields `manual_review`/failed with no successful-retention/dismissal credit; every output requires human decision |
 | Explanation adapter | Approved RF/preprocessor, same snapshot, score → verified feature contributions or unavailable status | Independent score, input/hash, encoded-grouping and reconstruction checks; explanation failure cannot change score, route or case access |
 | Assessment persistence | Request identity, versions, score/failure, recommendations, explanation references → immutable assessment ID | Atomic result/audit write, safe duplicate submission, permission-checked retrieval; no case closure or assignment mutation |
 
@@ -78,4 +80,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Phases 2.1/2.2 complete. Proposed next task, after separate authorization:** implement pure deterministic policy recommendations and validate the 12000 retained routes. No live API or automatic dismissal is part of that task.
+**Phases 2.1–2.3 complete. Proposed next task, after separate authorization:** implement the verified SHAP explanation adapter with input/model provenance, additivity and native missing-income checks. No live API or automatic dismissal is part of that task.

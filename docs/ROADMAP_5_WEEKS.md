@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md), [PHASE2_1_MODEL_LOADER](PHASE2_1_MODEL_LOADER.md), [PHASE2_2_RF_SCORING](PHASE2_2_RF_SCORING.md). Loading and pure scoring are verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference HTTP endpoint is authorized by this roadmap update.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md), [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policy engine](PHASE2_3_POLICY_ENGINE.md). Loading, pure scoring and deterministic recommendations are verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference/policy HTTP endpoint is authorized by this roadmap update.
 
 ## Week 1 — Foundation and integration
 
@@ -25,7 +25,7 @@ Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMP
   - [x] Phase 2.1: load the real fitted RF in compatible isolated runtime, pin model/contract/source identities independently of the artifact manifest, enforce the exact shared 27-field contract and verify native missing income.
   - [x] Phase 2.2: pure single/batch RF scorer with positive-class mapping, sanitized failure results and ID-aligned 4000-score regression (maximum error 0.0; absolute tolerance 1e-12 / relative 0).
   - [x] Implement strict 27-predictor validation at ingestion and isolated scoring, preserving missing versus zero income and unsupported KYC rejection.
-  - [ ] Implement deterministic recommendation policies and 12000-route regression without automatic dismissal.
+  - [x] Phase 2.3: implement versioned deterministic recommendations and all 12000 saved route/audit comparisons, including 456 changed-route Coverage overrides; no automatic dismissal or case mutation.
   - [ ] Persist model/input/policy identities, failures and separate routing records.
   - [ ] Integrate verified TreeSHAP with timeout/failure isolation.
   - [ ] Add bounded background execution and idempotent score requests.
