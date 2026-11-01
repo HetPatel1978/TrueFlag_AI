@@ -1,6 +1,6 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Phases 2.1-2.6 implemented and verified locally:** approved loader/scorer/policies/SHAP, immutable assessment persistence and [durable jobs with controlled Linux execution](PHASE2_6_DURABLE_JOBS.md). HTTP/workbench integration, operational monitoring and production deployment acceptance remain pending; no automatic ingestion hook, dismissal or retraining.
+**Phases 2.1-2.7 implemented and verified locally:** approved scoring/policies/SHAP, immutable persistence, durable bounded Linux jobs and [protected assessment APIs](API_ASSESSMENTS.md). Workbench, operational monitoring and production acceptance remain pending; ingestion does not automatically score and model results cannot dismiss cases.
 
 ## Confirmed retained evidence
 
@@ -30,10 +30,10 @@ RF remains 300 trees/minimum leaf size 5. The supplied explanation loader is cou
 | Input adapter | Persisted alert ID, immutable input snapshot/hash, contract → ordered 27-column DataFrame | No SAR/notes/IDs/priority/split fields; JSON missing income → native NaN only for RF, zero preserved; do not fit/scale/impute |
 | Scorer | Verified pipeline + ordered snapshot → positive-class score or typed failure | Use complete pipeline `predict_proba`; resolve `classes_ == 1`; require finite score in [0,1]; never infer crime/calibration |
 | Policy evaluator | Score/status, original KYC, frozen policy ID/mode → recommendation + trace | Implemented deterministic rules; failure yields `manual_review`/failed with no successful-retention/dismissal credit; every output requires human decision |
-| Explanation adapter | Approved RF/preprocessor, same snapshot, score → verified feature contributions or unavailable status | Implemented exact SHAP and independent checks; host authorization before/after; unavailable payloads contain no contributions. Internal persistence and bounded worker wired; API/workbench wiring pending |
+| Explanation adapter | Approved RF/preprocessor, same snapshot, score → verified feature contributions or unavailable status | Implemented exact SHAP and independent checks; host authorization before/after; unavailable payloads contain no contributions. Internal persistence, bounded worker and protected APIs wired; workbench pending |
 | Assessment persistence | Request identity, versions, score/failure, recommendations, explanation references → immutable assessment ID | Atomic result/audit write, safe duplicate submission, permission-checked retrieval; no case closure or assignment mutation |
 
-Proposed future API: authenticated `POST /api/v1/cases/{case_id}/assessments` with an idempotency key and allowlisted mode; `GET /api/v1/cases/{case_id}/assessments/{assessment_id}` with the same case scope as current reads. Job execution is an internal worker capability, never an unprotected model-call endpoint. Future HTTP submission roles remain an explicit decision; no submission endpoint is implemented. The internal Phase 2.5 service permits current assigned analysts and workspace supervisors/admins. Reads must recheck current case access after reassignment.
+Implemented protected API: authenticated `POST /api/v1/cases/{case_id}/assessments` with an idempotency key and allowlisted mode; `GET /api/v1/cases/{case_id}/assessments/{assessment_id}` with the same case scope as current reads. Job execution is an internal worker capability, never an unprotected model-call endpoint. Submission uses the same current assigned-analyst/workspace-manager scope as Phase 2.5. See API_ASSESSMENTS for the exact asynchronous contract and read endpoints. Reads must recheck current case access after reassignment.
 
 Request envelope: schema version, assessment/request IDs, case/alert IDs, snapshot/hash, model SHA/version, predictor-contract SHA/version, policy SHA/version and requested mode. IDs/policy metadata are alignment fields, never predictors. Worker accepts only validated trusted internal requests. Result envelope: execution status, positive score or null, processing reason code, per-mode recommendation/trace, explanation status/reference, provenance and timings. No raw exception strings in public results/logs.
 
@@ -64,7 +64,7 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 - Saved-score tolerance: absolute 1e-12, relative 0; attribution reconstruction: absolute 1e-6, relative 0. A stale/missing/unverified explanation returns unavailable, never a fabricated rationale.
 - Store model/input/contract/method/library and generator/verifier identities. Approval to show detailed explanations in a future UI requires browser acceptance; old hidden payloads are not promoted as verified.
 
-## Persistent assessment design (Phases 2.5-2.6 implemented; HTTP wiring pending)
+## Persistent assessment design (Phases 2.5-2.7 implemented; workbench pending)
 
 - Reuse `ModelScore` for completed score/failure records and `Decision` for versioned policy recommendations; preserve their existing processed/failed semantics. Keep pending/running/retry state in a separate assessment/job entity instead of inserting a fake pending score.
 - Implemented: versioned assessment ID linking alert/case, current actor, input fingerprint, model/policy/contract identity, immutable SHAP, timing and atomic audit; no human workflow mutation. See migration 0004 and the Phase 2.5 contract.
@@ -82,4 +82,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Phases 2.1-2.6 accepted locally. Proposed next task, after a new request:** approve and implement protected job submission/status/result APIs using the existing queue, current case authorization and immutable result service. No later subphase is started here.
+**Phases 2.1-2.7 accepted locally. Proposed next subphase, after a new request:** assessment API/worker operational monitoring and bounded load/recovery acceptance. Frontend, LLM/RAG and consequential human decisions are separate later work.

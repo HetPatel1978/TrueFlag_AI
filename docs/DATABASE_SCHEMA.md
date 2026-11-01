@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.6
+# PostgreSQL schema - Phase 2.7
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0005_assessment_jobs**; 13 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0006_assessment_api**; 14 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -13,6 +13,7 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | decisions | Score-linked policy mode/version, recommendation/status/reason; assessment-linked rows immutable |
 | audit_events | Actor/action/resource/details; assessment-linked completion events immutable |
 | login_throttles | HMAC client key, window start and atomic attempt count |
+| assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
 | assessment_jobs | Immutable request envelope; Pending/Running/Succeeded/Failed state, fencing token, lease/deadline, bounded attempts/backoff and completed assessment link |
 | assessment_explanations | Immutable verified SHAP payload and independent-verification metadata; no raw predictor values |
@@ -45,3 +46,9 @@ erDiagram
 - Ready/expiry indexes support SKIP LOCKED claim and bounded reaping. Each claim rotates its fencing token; DB clock determines validity and durable backoff.
 - Job envelope and terminal history are immutable; DELETE/TRUNCATE of jobs and UPDATE/DELETE of job audit events are blocked. Migration downgrade refuses retained jobs.
 - One caller-owned transaction links the existing immutable assessment write, completion audit and Succeeded job. No features are duplicated in queue rows and no human disposition is changed.
+
+## Phase 2.7 API controls
+
+- Queue capacity check uses one PostgreSQL transaction advisory lock across enqueue processes; Pending/Running count only, matching original receipts bypass admission. Existing worker/model/assessment schema is preserved.
+- Per-user API fixed windows use atomic upsert in an independent transaction; read/audit failures and hidden resource probes cannot roll back the request debit. The existing login throttle is unchanged.
+- The audit guard additionally protects `assessment.history_read` and `assessment.detail_read`, while preserving the existing completion-audit assembly transaction.

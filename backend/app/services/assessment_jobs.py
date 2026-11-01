@@ -55,6 +55,31 @@ class LeaseLost(JobError):
     pass
 
 
+class QueueFull(JobError):
+    pass
+
+
+def _capacity(session, capacity):
+    # All enqueue writers use the same transaction lock, independent of API/worker process.
+    locked = session.scalar(
+        text(
+            "SELECT pg_try_advisory_xact_lock("
+            "6075990610000000000 + 'assessment_jobs'::regclass::oid::bigint)"
+        )
+    )
+    if not locked:
+        raise JobUnavailable("job_admission_busy")
+    active = session.scalar(
+        select(func.count())
+        .select_from(AssessmentJob)
+        .where(
+            AssessmentJob.status.in_(["pending", "running"]),
+        )
+    )
+    if active >= capacity:
+        raise QueueFull("assessment_queue_full")
+
+
 def safe(method):
     @functools.wraps(method)
     def call(*args, **kwargs):
@@ -277,8 +302,25 @@ class AssessmentJobService:
             )
 
     @safe
-    def enqueue(self, *, actor_id, case_id, expected_version, run_id, idempotency_key, policy):
+    def enqueue(
+        self,
+        *,
+        actor_id,
+        case_id,
+        expected_version,
+        run_id,
+        idempotency_key,
+        policy,
+        capacity=1000,
+        request_audit=False,
+    ):
         _arguments(actor_id, case_id, expected_version, run_id, idempotency_key, policy)
+        if (
+            type(capacity) is not int
+            or not 1 <= capacity <= 100000
+            or type(request_audit) is not bool
+        ):
+            raise JobError("invalid_admission_settings")
         key_sha = digest({"actor_id": str(actor_id), "key": idempotency_key})
         for attempt in range(2):
             try:
@@ -305,6 +347,8 @@ class AssessmentJobService:
                             or rows[0].run_id != run_id
                         ):
                             raise AssessmentConflict("job_idempotency_conflict")
+                        if request_audit:
+                            _event(session, rows[0], "requested", created=False)
                         return _view(rows[0]), False
                     prior = _prior(session, key_sha, run_id, request_sha)
                     if prior is None and (
@@ -313,6 +357,8 @@ class AssessmentJobService:
                         raise AssessmentConflict("job_stale_case")
                     if prior is not None:
                         _read(session, prior)
+                    else:
+                        _capacity(session, capacity)
                     job = AssessmentJob(
                         id=uuid4(),
                         case_id=case_id,
@@ -331,6 +377,8 @@ class AssessmentJobService:
                     session.add(job)
                     session.flush()
                     _event(session, job, "enqueued", reused_assessment=prior is not None)
+                    if request_audit:
+                        _event(session, job, "requested", created=True)
                     return _view(job), True
             except IntegrityError as error:
                 if getattr(getattr(error.orig, "diag", None), "constraint_name", None) not in {

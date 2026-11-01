@@ -9,6 +9,7 @@ from sqlalchemy import Engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.alerts import router as alerts_router
+from app.api.assessments import router as assessments_router
 from app.api.cases import router as cases_router
 from app.api.routes import router
 from app.core.config import Settings
@@ -44,7 +45,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         allow_origins=settings.cors_origins,
         allow_methods=["GET", "POST", "PUT"],
         allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
-        expose_headers=["X-Request-ID"],
+        expose_headers=["X-Request-ID", "Location", "Retry-After"],
     )
     app.add_middleware(RequestGuardMiddleware, max_request_bytes=settings.max_request_bytes)
 
@@ -94,4 +95,5 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(router)
     app.include_router(alerts_router)
     app.include_router(cases_router)
+    app.include_router(assessments_router)
     return app

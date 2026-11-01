@@ -46,3 +46,7 @@ docker compose exec backend python -m app.security.bootstrap --username supervis
 ```
 
 New endpoints return server-generated `X-Request-ID` and no-store headers. The API is rate/body bounded as documented in SECURITY_PLAN. Frontend case/assignment screens remain pending; supervisor identity verification is supported.
+
+## Assessment integration
+
+Protected asynchronous assessment APIs reuse this exact current-role/assignment scope. See [assessment contracts](API_ASSESSMENTS.md). Ingestion and assignment contracts remain unchanged; no model result changes human case state.

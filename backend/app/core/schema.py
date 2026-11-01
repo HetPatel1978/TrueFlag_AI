@@ -1,3 +1,3 @@
 """Expected migration for this service release; shared by readiness and verification."""
 
-EXPECTED_SCHEMA_REVISION = "0005_assessment_jobs"
+EXPECTED_SCHEMA_REVISION = "0006_assessment_api"

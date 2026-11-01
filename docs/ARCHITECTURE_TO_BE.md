@@ -2,17 +2,35 @@
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
-Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.6 include verified RF/policies/SHAP, immutable assessments and [durable PostgreSQL jobs with a controlled Linux worker](PHASE2_6_DURABLE_JOBS.md). HTTP/workbench wiring and operational deployment acceptance remain pending; ingestion does not invoke ML.
+Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.7 include approved RF/policies/SHAP, immutable assessments, durable Linux jobs and [protected asynchronous APIs](API_ASSESSMENTS.md). Workbench and operational deployment acceptance remain pending; ingestion does not automatically invoke ML.
 
 | Boundary | Implemented now | Pending |
 |---|---|---|
-| API/security | JWT/Argon2, analyst/supervisor/admin, per-case SQL scope, body limits, request IDs, persistent login throttle | Enterprise IAM, tenant isolation, perimeter controls |
+| API/security | Current JWT/roles/case scope, protected assessment APIs, strict DTOs, shared per-user request budget, queue admission and sensitive-read audit | Enterprise IAM, tenancy, perimeter and production SQL roles |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, durable receipts, 13 domain tables, immutable assessments, PostgreSQL jobs and atomic job/result/audit completion | New sources, admission/retention and least-privilege SQL roles |
+| Data | Synthetic ingestion, durable receipts, 14 domain tables, immutable assessments/jobs, atomic completion and API throttle state | New sources, retention and least-privilege SQL roles |
 | UI | React account verification, including supervisor identities | Case/session/assignment workbench |
-| Scientific worker | Opt-in Linux worker, isolated bounded child, renewable leases/fencing, recovery and retries using approved libraries | Protected submission APIs, operational monitoring and throughput acceptance |
-| Policy engine | Frozen deterministic recommendations, 12000-route parity and immutable linked decision records | Authorized HTTP/workflow integration; all recommendations require human decision |
-| Explanation service | Exact SHAP, 41-to-27 grouping, independent checks, immutable storage and killable bounded worker execution | Authenticated HTTP/workbench wiring |
+| Scientific worker | Opt-in Linux worker, isolated bounded child, renewable leases/fencing/recovery/retries; authenticated API enqueue and result retrieval | Operational monitoring and throughput/recovery acceptance |
+| Policy engine | Frozen rules, 12000-route parity, immutable recommendations and case-scoped HTTP retrieval | Human review workflow; no automatic case action |
+| Explanation service | Exact SHAP, verified 41-to-27 grouping, immutable storage, bounded worker and redacted case-scoped API retrieval | Workbench integration |
+
+Implemented Phase 2.7 API flow (all routes require current authentication and case scope):
+
+```mermaid
+flowchart LR
+  Client[Authenticated API client] --> Budget[Current DB role and persistent actor budget]
+  Budget --> POST[POST case assessment with version run and policy]
+  POST --> Admission[Case and source checks plus idempotency and queue capacity]
+  Admission --> Job[(Durable PostgreSQL job and request audit)]
+  Job --> Worker[Existing bounded Linux RF policy and verified SHAP worker]
+  Worker --> Result[(Atomic immutable assessment and audit and Succeeded job)]
+  Budget --> GET[GET job status or case history/detail]
+  GET --> Scope[Current assignment and resource binding]
+  Scope --> Projection[Integrity check and bounded response projection]
+  Result --> Projection
+  Projection --> ReadAudit[Commit sensitive-read audit]
+  ReadAudit --> Output[Status summaries or score policy and grouped explanations]
+```
 
 Implemented Phase 2.6 internal job flow (no public inference endpoint):
 

@@ -45,6 +45,7 @@ def test_health_and_migrated_readiness(platform):
         "assessment_explanations",
         "assessment_jobs",
         "assessment_workers",
+        "assessment_api_throttles",
     }
 
 

@@ -68,3 +68,12 @@ New data sources, public hosting, institutional use and actual customer data req
 - Expiration or DB outage cannot publish partial results. Three attempts with durable backoff; terminal failures record manual review and keep case/human disposition unchanged.
 - Optional non-root worker profile has no ports, read-only source/artifact mounts, dropped capabilities and bounded resources. No dataset mounts or automatic enqueue. Host token ACL/readability and production SQL roles remain operational gates.
 - Real Linux/PostgreSQL/process acceptance and limitations: [Phase 2.6](PHASE2_6_DURABLE_JOBS.md). Synthetic fixture clock correction does not change production JWT validation; future-issued JWTs remain rejected.
+
+## Phase 2.7 assessment API controls
+
+- All four routes use bearer authentication, current-role checks and fresh per-case SQL authorization. Job lookup is scoped before resource metadata is loaded; detail binds both URI case and assessment ID. Hidden and absent resources share 404.
+- Strict ID/version/policy-only submission and allowlisted response schemas; no client scores/features/artifacts, raw predictor values, source IDs, worker credentials, lease tokens or internal receipt/audit payloads are exposed.
+- Persistent per-actor API budgets count failed/hidden lookups and conflict/capacity failures independently of business rollback. Queue admission serializes new active-job counts; rate exhaustion returns 429, saturation/busy returns 503, with retry hints.
+- Original job request/creation and new/replayed API request audit commit together. Sensitive read audit must commit before response disclosure; read audits are protected from UPDATE/DELETE. No feature values or explanation bodies enter logs/audit.
+- Worker rechecks current actor/service identity and queued source/state before execution/publication. No request starts scoring in the API process or automatically changes case disposition.
+- Real Linux/PostgreSQL API/worker acceptance, error semantics and limits: [assessment API](API_ASSESSMENTS.md). TLS, production SQL roles, tenancy, retention and independent audit storage remain deployment work.

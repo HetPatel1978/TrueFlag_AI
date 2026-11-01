@@ -92,6 +92,16 @@
 - Extract the unchanged Phase 2.5 write body into a caller-owned transaction so job success, assessment/explanation and both audit events commit together. No partial success or automatic human-case action.
 - Optional Compose worker, explicit operator provisioning and no default/automatic enqueue. HTTP contracts, admission quotas, retention, metrics and production privilege separation remain later scope.
 
+## ADR-024 - Secure asynchronous assessment APIs (2026-11-01)
+
+- Expose explicit POST request, job status, bounded history and verified detail APIs. Request body contains only current case version, stable run UUID and frozen policy; model input remains the bound persisted alert.
+- Keep existing assigned-analyst/workspace-manager scope. Reauthorize every lookup and bind case/result IDs; no broad job enumeration or arbitrary model submission endpoint.
+- Always acknowledge matching/new durable requests with 202 and canonical Location, including historical job replay. Separate shared API abuse budget from enqueue transaction so failures do not undo throttling.
+- Use one PostgreSQL advisory admission lock and active-job count instead of introducing a broker. Matching receipts bypass capacity; all authenticated API calls consume per-user request budget.
+- Project stored immutable results through explicit schemas: summaries for history, grouped 27-feature SHAP for detail, model/input/policy/method verification provenance. Raw predictors/encoded vectors/worker secrets/receipt internals are omitted.
+- Audit new/replayed requests atomically with enqueue; validate output and commit protected sensitive-read audits before disclosure. Existing RF, SHAP, policy and worker decision semantics remain unchanged.
+- No frontend, automatic enqueue, LLM/RAG or consequential human-case action. Operational monitoring/load/retention and enterprise deployment gates remain separate scope.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

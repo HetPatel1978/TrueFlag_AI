@@ -27,6 +27,8 @@ def main():
             "backend/tests/test_assessments_real_ml.py",
             "backend/tests/test_assessment_jobs.py",
             "backend/tests/test_assessment_worker.py",
+            "backend/tests/test_assessment_api.py",
+            "backend/tests/test_assessment_api_real_ml.py",
         ]
     )
     if settings.get("jobs_only"):

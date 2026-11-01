@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md) and [Phase 2.6 durable jobs](PHASE2_6_DURABLE_JOBS.md). Verified RF/policy/SHAP, immutable persistence and bounded Linux background execution are implemented internally. Protected job/result APIs and workbench wiring remain pending; ingestion has no automatic inference hook.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md) and [Phase 2.7 assessment API](API_ASSESSMENTS.md). The approved RF/policy/SHAP pipeline now has immutable storage, bounded Linux jobs and protected asynchronous HTTP submission/retrieval. No automatic ingestion hook or human-case action is enabled.
 
 ## Week 1 — Foundation and integration
 
@@ -31,7 +31,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md) and [Phase
   - [x] Phase 2.4: exact SHAP service, required host authorization, independent output checks and 4000-reference parity; native missing/zero income preserved, no RF retraining.
   - [x] Phase 2.6: hard subprocess watchdog, cancellation, parent-death cleanup and bounded failure isolation.
   - [x] Phase 2.6: bounded Linux background worker and internal idempotent job requests.
-  - [ ] Add protected job submission/status/result APIs and workbench integration after contract approval.
+  - [x] Phase 2.7: protected assessment request/status/history/detail APIs, strict contracts, case scope, request/read audit, queue capacity and shared API budgets.
+  - [ ] Add frontend/workbench integration and operational monitoring/load acceptance after separate approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.
 - **Acceptance:** all 4,000 saved scores match within 1e-12 absolute tolerance and all 12,000 routes match; no fitting/tuning; input labels never enter features; attribution reconstruction passes fixed tolerances; failures require manual review and receive no capture/dismissal credit.

@@ -147,6 +147,14 @@ class LoginThrottle(Base):
     attempt_count: Mapped[int] = mapped_column()
 
 
+class AssessmentAPIThrottle(Base):
+    __tablename__ = "assessment_api_throttles"
+    __table_args__ = (CheckConstraint("request_count >= 1", name="ck_assessment_api_count"),)
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    request_count: Mapped[int] = mapped_column()
+
+
 class AssessmentExplanation(Identity, Base):
     """Immutable verified explanation; no raw feature values are copied."""
 

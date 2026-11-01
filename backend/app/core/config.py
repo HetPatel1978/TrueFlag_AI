@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     max_request_bytes: int = Field(default=65536, ge=1024, le=1048576)
     login_attempt_limit: int = Field(default=10, ge=1, le=100)
     login_window_seconds: int = Field(default=60, ge=1, le=3600)
+    assessment_api_rate_limit: int = Field(default=120, ge=1, le=10000)
+    assessment_api_window_seconds: int = Field(default=60, ge=1, le=3600)
+    assessment_queue_capacity: int = Field(default=1000, ge=1, le=100000)
 
     @field_validator("jwt_secret")
     @classmethod
