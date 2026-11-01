@@ -18,7 +18,7 @@ dependencies = [
 dev = ["httpx>=0.28,<0.29", "pytest>=8.4,<10", "ruff>=0.12,<1"]
 
 [tool.setuptools.packages.find]
-include = ["app*"]
+include = ["app*", "trueflag_ml*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

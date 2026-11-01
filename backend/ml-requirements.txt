@@ -10,3 +10,9 @@ numba==0.68.1
 llvmlite==0.50.0
 slicer==0.0.8
 cloudpickle==3.1.2
+# Shared strict ingestion schema only; no FastAPI/database dependencies in the ML environment.
+pydantic==2.14.2
+pydantic_core==2.50.2
+annotated-types==0.8.0
+typing-inspection==0.4.4
+typing_extensions==4.16.0

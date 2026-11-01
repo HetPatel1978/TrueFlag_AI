@@ -12,8 +12,9 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Persistent login throttle, streamed-body limits and safe server-generated request correlation; current roles and per-case access are enforced in the database query.
 - React/TypeScript account-verification screen, real health check, tests, linting and build.
 - Docker Compose, CI, local private-baseline staging and publication boundary checks.
+- Isolated Phase 2.1 RF loader: approved artifact/source hashes, pinned runtime, fitted-pipeline checks and strict shared 27-feature validation. See [loader verification](docs/PHASE2_1_MODEL_LOADER.md).
 
-**Not implemented:** batch/CSV ingestion, RF inference service, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. Phase 2 is [design-only](docs/PHASE2_INTEGRATION_PLAN.md).
+**Not implemented:** batch/CSV ingestion, RF inference service, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Their schemas/interfaces and roadmap are not completed features. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. Phase 2.1 loading is verified; [remaining Phase 2 integration](docs/PHASE2_INTEGRATION_PLAN.md) is design only.
 
 ## Local setup (PowerShell)
 
@@ -80,6 +81,8 @@ With `../github` and `../private_handoff` present:
 .\.venv\Scripts\python.exe scripts/stage_baseline.py
 python -m venv .venv-ml
 .\.venv-ml\Scripts\python.exe -m pip install -r backend/ml-requirements.txt
+.\.venv-ml\Scripts\python.exe -B scripts/verify_model_loader.py
+.\.venv-ml\Scripts\python.exe -B -m unittest discover -s backend/ml_tests -v
 ```
 
 The stager verifies both matching delivery manifests and every main private asset before copying a selected subset and reference source to ignored `assets/local/baseline/`. It refuses existing destinations and does not load a model, rescore, train, or change original files. Teammate source has no supplied redistribution license and stays untracked. The API package is `app`; serialized research `trueflag` modules are reserved for a separate ML runtime. Never force-add private assets.

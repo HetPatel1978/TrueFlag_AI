@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md). Phase 2 remains [design only](PHASE2_INTEGRATION_PLAN.md); no live inference implementation is authorized by this roadmap update.
+Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [PHASE1_VERIFICATION](PHASE1_VERIFICATION.md), [PHASE2_1_MODEL_LOADER](PHASE2_1_MODEL_LOADER.md). Phase 2.1 loading is verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No live inference implementation is authorized by this roadmap update.
 
 ## Week 1 — Foundation and integration
 
@@ -22,7 +22,7 @@ Current seven-phase mapping and executed acceptance: [IMPLEMENTATION_STATUS](IMP
 
 - **Objective:** integrate the unchanged RF reference and policy semantics.
 - **Tasks:**
-  - [ ] Verify local baseline manifest before trusted loading in compatible ML runtime.
+  - [x] Phase 2.1: load the real fitted RF in compatible isolated runtime, pin model/contract/source identities independently of the artifact manifest, enforce the exact shared 27-field contract and verify native missing income.
   - [x] Implement strict 27-predictor validation at the ingestion boundary, including missing versus zero income and unsupported KYC (Week 1); worker input conversion remains part of inference integration.
   - [ ] Persist model/input/policy identities, failures and separate routing records.
   - [ ] Integrate verified TreeSHAP with timeout/failure isolation.

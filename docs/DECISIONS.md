@@ -43,6 +43,14 @@
 - Document trusted worker loading, input snapshots, recommendations, explanation verification and 4000-score/12000-route regression before implementation. Original UI-bound SHAP loaders require an explicit live-case adapter.
 - A future below-threshold recommendation must not dismiss/close/hide a case automatically. Do not continue Phase 2 code until separately requested.
 
+## ADR-018 — Phase 2.1 trusted RF loading
+
+- Keep the loader in `backend/trueflag_ml`, invoked only in the separately pinned scientific environment. Reuse `app.schemas.alerts.AlertFeatures` with pinned Pydantic dependencies; import no API/settings/database modules.
+- Pin five approved identities in reviewed application code: model, contract, package initialization and the two required research modules. Never accept caller-supplied hashes/filenames or trust an editable artifact-side manifest as an authority.
+- Hash bounded immutable byte snapshots before executing source/deserializing the model. Load the exact verified bytes, including compatibility modules; keep `sys.path` unchanged and reject existing `trueflag` namespace collisions.
+- Validate CPython 3.11/64-bit, exact required distribution versions, fitted guard/preprocessor/RF, class order, native missing-income behavior and the actual `state`+`kycRiskScore` encoder. Keep original code private; no source shim, training or inference API.
+- Phase 2.1 acceptance uses the actual retained model. CI boundary tests may skip private-runtime tests; local scientific acceptance is required evidence and is recorded separately.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.

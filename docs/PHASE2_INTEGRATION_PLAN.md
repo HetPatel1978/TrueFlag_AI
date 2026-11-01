@@ -1,10 +1,10 @@
 # Phase 2 — AML risk intelligence integration plan
 
-**Design only.** Phase 1 acceptance passed before this inspection. No loader, inference endpoint, routing service, worker, assessment migration or new explanation generation is implemented here. Do not retrain/replace the model or enable automatic dismissal.
+**Phase 2.1 loader implemented and verified; remaining integration is design only.** See [loader interfaces and acceptance](PHASE2_1_MODEL_LOADER.md). No inference endpoint, routing service, deployed worker, assessment migration or new explanation generation is implemented. Do not retrain/replace the model or enable automatic dismissal.
 
 ## Confirmed retained evidence
 
-All 25 staged artifact/reference identities match `assets/local/baseline/baseline.manifest.json`. The model was hashed, not deserialized, during this task.
+All 25 staged artifact/reference identities match `assets/local/baseline/baseline.manifest.json`. Phase 1 inspection only hashed the model. Phase 2.1 now deserializes the approved pipeline from verified bytes in the isolated scientific environment; no scoring or training occurs during that acceptance.
 
 | Item | Exact reference |
 |---|---|
@@ -38,6 +38,7 @@ Request envelope: schema version, assessment/request IDs, case/alert IDs, snapsh
 - Separate Python 3.11 scientific runtime using `backend/ml-requirements.txt`: numpy 2.3.5, pandas 3.0.1, scikit-learn 1.9.0, scipy 1.17.0, joblib 1.5.3, threadpoolctl 3.6.0, SHAP 0.51.0 and pinned associated packages.
 - API package remains `app`; reserve the serialized `trueflag` namespace inside the worker. Mount only approved local artifacts read-only; no implicit reads of the teammate workspace or private UI.
 - Use recorded predictor order and fitted encoders. Unknown categories follow the fitted encoder; native missing income remains native. Do not change global income handling, add predictors, calibrate, fit, tune or replace the RF.
+- Confirmed by Phase 2.1 fitted-object inspection: one-hot columns are `state` **and** `kycRiskScore`; numeric passthrough contains the other 25 predictors, including income. This yields 41 encoded features; preserve the actual fitted configuration.
 - Bound worker concurrency, timeouts and queue size. A durable assessment/job record with lease/retry state can start in PostgreSQL; Kafka, multiple agents and a dedicated model server are not prerequisites.
 - Teammate code redistribution rights remain unresolved. Keep reference code/models private and local; obtain rights before packaging third-party implementation into a shared image/repository.
 
@@ -77,4 +78,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Exact next task:** implement and test an isolated, SHA-verified RF artifact loader with preserved serialized module names. Do not add scoring endpoints until its trust/dependency/contract tests pass.
+**Phase 2.1 complete. Exact next task, after separate authorization:** implement pure positive-class scoring through the approved loader and verify the 4000 saved scores at the fixed tolerance. No live API is part of that first scoring task.

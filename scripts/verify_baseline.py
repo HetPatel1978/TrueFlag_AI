@@ -4,12 +4,10 @@ import csv
 import hashlib
 import json
 import sys
-from importlib.metadata import version
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL = ROOT / "assets/local/baseline"
-EXPECTED_MODEL = "ea0806d579345d7085c00d26c188805e74de574028bda4a4573222b06e739917"
 
 
 def read_rows(path):
@@ -18,16 +16,10 @@ def read_rows(path):
 
 
 def main():
-    expected = {
-        "numpy": "2.3.5",
-        "pandas": "3.0.1",
-        "scikit-learn": "1.9.0",
-        "scipy": "1.17.0",
-        "joblib": "1.5.3",
-        "threadpoolctl": "3.6.0",
-    }
-    if any(version(package) != wanted for package, wanted in expected.items()):
-        raise RuntimeError("Use the separate pinned Python 3.11 ML environment")
+    sys.path.insert(0, str(ROOT / "backend"))
+    from trueflag_ml.loader import load_approved_pipeline
+
+    approved = load_approved_pipeline(LOCAL)
     manifest = json.loads((LOCAL / "baseline.manifest.json").read_text())
     for record in manifest["records"]:
         path = (LOCAL / record["local"]).resolve()
@@ -36,19 +28,11 @@ def main():
             or hashlib.sha256(path.read_bytes()).hexdigest() != record["sha256"]
         ):
             raise ValueError("Staged baseline identity mismatch")
-    model_path = LOCAL / "model/selected_pipeline.joblib"
-    if hashlib.sha256(model_path.read_bytes()).hexdigest() != EXPECTED_MODEL:
-        raise ValueError("Untrusted model; refusing deserialization")
-    sys.path.insert(0, str(LOCAL / "reference/research/src"))
-    import joblib
     import numpy as np
     import pandas as pd
     from threadpoolctl import threadpool_limits
 
-    contract = json.loads((LOCAL / "contracts/predictor_contract.json").read_text())
-    fields = contract["structured_predictors"]
-    if len(fields) != 27 or set(fields) & set(contract["excluded_from_scorer"]):
-        raise ValueError("Invalid predictor contract")
+    fields = list(approved.fields)
     predictions = read_rows(LOCAL / "validation/final_evaluation_predictions.csv")
     ids = [row["technical_row_id"] for row in predictions]
     allowed = set(ids)
@@ -63,7 +47,7 @@ def main():
     for field in fields:
         if field != "state":
             frame[field] = pd.to_numeric(frame[field].replace("\\N", np.nan), errors="raise")
-    pipeline = joblib.load(model_path)
+    pipeline = approved.pipeline
     with threadpool_limits(limits=1):
         scores = pipeline.predict_proba(frame)[:, list(pipeline.classes_).index(1)]
     saved = np.array([float(row["score"]) for row in predictions])

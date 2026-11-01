@@ -15,6 +15,7 @@ Scope: synthetic local demonstration. A passing foundation test is not a penetra
 | Transport | Local loopback only | TLS at trusted deployment ingress required before network exposure; no claim of local HTTPS |
 | Database | Partial | Named-volume PostgreSQL, readiness and constraints; Compose initialization account is not a least-privilege runtime role |
 | Sensitive content | Boundary implemented | No private assets in build contexts/Git; synthetic-only alert DB constraint; external AI data policy pending |
+| RF artifact trust | Phase 2.1 implemented locally | Reviewed model/contract/source hashes, exact runtime checks, verified in-memory deserialization and namespace cleanup; no API import/upload, scoring or deployment. See PHASE2_1_MODEL_LOADER |
 | Prompt injection/leakage | Planned Week 3 | Treat evidence as untrusted data, enforce tool permissions before retrieval, validate citations, bound tokens/time/cost; test adversarial passages |
 | Human approval | Review workflow pending | Assignment changes preserve status/disposition; no automatic closure, dismissal or filing; review approvals remain a later phase |
 | Abuse protection | Implemented foundation | Persistent atomic login window per HMAC client key, shared across workers/restarts; 429/Retry-After; declared and streamed request bodies bounded before parsing/DB work |
