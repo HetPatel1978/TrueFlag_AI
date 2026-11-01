@@ -70,6 +70,6 @@ Coverage includes all KYC bands, adjacent floating-point threshold boundaries, e
 .\.venv-ml\Scripts\python.exe -B -m unittest discover -s backend/ml_tests -v
 ```
 
-## Next boundary
+## Subsequent progress
 
-Proposed Phase 2.4, pending a separate request: verified SHAP explanation adapter for approved model/input snapshots, with additivity, missing-income and provenance checks. Persistent assessments, authorized HTTP/worker integration and human decision workflows remain separate later acceptance gates.
+Phase 2.4 has since been separately authorized and verified: [exact SHAP service and 4000-reference acceptance](PHASE2_4_SHAP_EXPLAINABILITY.md). This document retains Phase 2.3's policy-only evidence. Persistent assessments, authorized HTTP/worker integration and human decision workflows remain separate later acceptance gates.

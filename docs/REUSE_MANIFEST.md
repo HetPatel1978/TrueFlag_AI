@@ -11,7 +11,7 @@ Original paths are relative to sibling `../github`, or are ZIP members in `../pr
 | Cleaned data | Archive `research/data/processed/datarobot_cleaned_v1.csv` | `assets/local/baseline/data/datarobot_cleaned_v1.csv` | Synthetic replay fixture only | Staged, ignored |
 | Saved predictions/traces | Selection archive `final_evaluation_predictions.csv`, `decision_traces.csv` | `assets/local/baseline/validation/` | Preserve future replay reference | Staged; no rescoring |
 | Cleaning / serialized classes | `research/src/trueflag/*.py` | `assets/local/baseline/reference/research/src/trueflag/` | Unmodified private reference | Staged; no public redistribution |
-| SHAP implementation | `extensions/src/*.py`, `adapter/explanation_adapter.js` | `assets/local/baseline/reference/extensions/` | Unmodified method/reference | Staged; no service integration |
+| SHAP implementation | `extensions/src/*.py`, `adapter/explanation_adapter.js` | `assets/local/baseline/reference/extensions/` | Unmodified method/reference | Phase 2.4 own secure snapshot service reuses exact method/ranking/verification contracts; original code stays private; no UI adapter deployment |
 | Scientific versions | `extensions/requirements-explanations.txt` | Local reference plus `backend/ml-requirements.txt` | Exact recorded versions | Separate environment |
 | API transaction/idempotency pattern | `legacy_api/src/trueflag/local_workspace.py` | New service design and roadmap | Conceptual reuse; no legacy application copied | Authentication foundation implemented; review service pending |
 | Scientific reports | Archive selection/refinement/budget reports | Original archive remains authoritative | Reference, no duplication | Preserved |

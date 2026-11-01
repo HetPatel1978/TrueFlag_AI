@@ -1,0 +1,9 @@
+# Local verification runtime only: no worker service, application secrets or private assets.
+FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 NUMBA_CACHE_DIR=/tmp/numba MPLCONFIGDIR=/tmp/matplotlib
+WORKDIR /workspace
+COPY ml-requirements.txt /tmp/ml-requirements.txt
+RUN pip install --no-cache-dir -r /tmp/ml-requirements.txt \
+    && useradd --create-home --uid 10001 trueflag
+USER 10001
+CMD ["python", "-B", "-m", "unittest", "discover", "-s", "backend/ml_tests", "-q"]

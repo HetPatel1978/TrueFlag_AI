@@ -2,7 +2,7 @@
 
 Initialization provides a foundation, not five completed weeks. Checkboxes below remain open until acceptance evidence exists. Security is progressive from Week 1. No calendar dates or individual assignments are inferred.
 
-Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md), [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policy engine](PHASE2_3_POLICY_ENGINE.md). Loading, pure scoring and deterministic recommendations are verified; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference/policy HTTP endpoint is authorized by this roadmap update.
+Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1](PHASE1_VERIFICATION.md), [loading](PHASE2_1_MODEL_LOADER.md), [scoring](PHASE2_2_RF_SCORING.md), [policies](PHASE2_3_POLICY_ENGINE.md), [SHAP](PHASE2_4_SHAP_EXPLAINABILITY.md). Loading, scoring, recommendations and verified explanations are implemented as libraries; [remaining integration](PHASE2_INTEGRATION_PLAN.md) is design only. No inference/policy/explanation HTTP endpoint is authorized by this roadmap update.
 
 ## Week 1 — Foundation and integration
 
@@ -27,7 +27,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [Phase 1]
   - [x] Implement strict 27-predictor validation at ingestion and isolated scoring, preserving missing versus zero income and unsupported KYC rejection.
   - [x] Phase 2.3: implement versioned deterministic recommendations and all 12000 saved route/audit comparisons, including 456 changed-route Coverage overrides; no automatic dismissal or case mutation.
   - [ ] Persist model/input/policy identities, failures and separate routing records.
-  - [ ] Integrate verified TreeSHAP with timeout/failure isolation.
+  - [x] Phase 2.4: exact SHAP service, required host authorization, independent output checks and 4000-reference parity; native missing/zero income preserved, no RF retraining.
+  - [ ] Add hard explanation-worker timeouts, cancellation and job failure isolation during worker integration.
   - [ ] Add bounded background execution and idempotent score requests.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.

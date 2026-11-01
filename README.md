@@ -15,8 +15,9 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Isolated Phase 2.1 RF loader: approved artifact/source hashes, pinned runtime, fitted-pipeline checks and strict shared 27-feature validation. See [loader verification](docs/PHASE2_1_MODEL_LOADER.md).
 - Pure Phase 2.2 single/batch RF scorer: all 4000 saved evaluation scores reproduced with maximum absolute error 0.0. See [scoring interfaces and verification](docs/PHASE2_2_RF_SCORING.md).
 - Pure Phase 2.3 Efficiency/Balanced/Coverage recommendations: frozen policy verification, strict score/priority checks, manual-review fallback and exact 12000-route/audit parity. See [policy engine](docs/PHASE2_3_POLICY_ENGINE.md).
+- Phase 2.4 authorization-gated exact SHAP service: independent verification, 41→27 aggregation/ranking and all 4000 saved explanations matched. See [explainability and Linux verification](docs/PHASE2_4_SHAP_EXPLAINABILITY.md).
 
-**Pending:** batch/CSV ingestion, inference/policy HTTP endpoints, worker deployment, persistent assessments, SHAP service, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. Scoring/policy components have no ingestion/API/database integration and cannot dismiss or close cases. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. [Remaining Phase 2 integration](docs/PHASE2_INTEGRATION_PLAN.md) is design only.
+**Pending:** batch/CSV ingestion, inference/policy/explanation HTTP endpoints, worker deployment/timeouts, persistent assessments, review transitions/approvals, live regulatory retrieval, LLM investigations, or model promotion. ML/policy/explanation libraries have no ingestion/API/database integration and cannot dismiss or close cases. The UI verifies an account (including supervisor); case/session/assignment screens remain pending. [Remaining Phase 2 integration](docs/PHASE2_INTEGRATION_PLAN.md) is design only.
 
 ## Local setup (PowerShell)
 
@@ -87,6 +88,14 @@ python -m venv .venv-ml
 .\.venv-ml\Scripts\python.exe -B scripts/verify_rf_scoring.py
 .\.venv-ml\Scripts\python.exe -B scripts/verify_risk_policy.py
 .\.venv-ml\Scripts\python.exe -B -m unittest discover -s backend/ml_tests -v
+```
+
+Native SHAP is blocked by Windows Application Control on the current host. For Phase 2.4, use the [verification-only Linux runtime](docs/PHASE2_4_SHAP_EXPLAINABILITY.md):
+
+```powershell
+.\.venv\Scripts\python.exe -B scripts/stage_explanation_reference.py
+.\.venv\Scripts\python.exe -B scripts/run_ml_verification.py --build --check tests
+.\.venv\Scripts\python.exe -B scripts/run_ml_verification.py --check shap
 ```
 
 The stager verifies both matching delivery manifests and every main private asset before copying a selected subset and reference source to ignored `assets/local/baseline/`. It refuses existing destinations and does not load a model, rescore, train, or change original files. Teammate source has no supplied redistribution license and stays untracked. The API package is `app`; serialized research `trueflag` modules are reserved for a separate ML runtime. Never force-add private assets.

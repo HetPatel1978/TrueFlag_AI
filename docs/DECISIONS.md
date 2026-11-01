@@ -65,6 +65,14 @@
 - Preserve exact inclusive thresholds, Coverage's successful-High-only protection, original reason codes and override flags. Represent saved `Dismiss` as `review_reduction_candidate`; all outputs require human decision and never change case visibility/disposition.
 - Align all 12000 traces by record ID and mode, compare routes plus audit fields and totals, and preserve reference files. Actual parity is zero route/audit mismatches and zero retained/dismissed total differences; RF code remains unchanged.
 
+## ADR-021 — Phase 2.4 verified, authorization-gated SHAP
+
+- Preserve exact TreeSHAP 0.51.0/path-dependent/raw settings, complete fitted preprocessing and SAR-positive probability space. Group 41 encoded values into 27 predictors without residual repair; ranking is descriptive, without causal/criminal inference.
+- Require a trusted host authorization callback before feature access and again before disclosure. No default permit-all, client role/path/model control or HTTP endpoint; future server integration must bind current case scope.
+- Independently validate the strict input snapshot, model/contract/method identity, fitted-root base, mapping, score, aggregation and reconstruction. Return verified payloads only; failures expose no partial contributions, raw feature values or exception messages.
+- Preserve original lexical provenance separately from new rational input hashes. Pin the three historical explanation references, compare all 4000 numeric allocations, and retain old UI/policy context without installing it as current policy or browser state.
+- Use a verification-only non-root, read-only, offline Linux container because host Application Control blocks the pinned llvmlite DLL. Do not weaken the host policy or substitute dependencies. Baseline RF fits remain zero; the independent algorithm unit test fits only a synthetic two-feature toy tree.
+
 ## Decisions still required
 
 - Institution/jurisdiction and corpus source-use permissions.
