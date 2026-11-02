@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.api.alerts import router as alerts_router
 from app.api.assessments import router as assessments_router
 from app.api.cases import router as cases_router
+from app.api.csv_imports import router as csv_imports_router
 from app.api.csv_uploads import router as csv_uploads_router
 from app.api.monitoring import router as monitoring_router
 from app.api.routes import router
@@ -121,4 +122,5 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(assessments_router)
     app.include_router(monitoring_router)
     app.include_router(csv_uploads_router)
+    app.include_router(csv_imports_router)
     return app

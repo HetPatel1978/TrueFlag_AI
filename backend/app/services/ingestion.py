@@ -64,80 +64,13 @@ def unique_request_race(error: IntegrityError) -> bool:
 def ingest_alert(
     session: Session, body: AlertIngestionInput, key: str, actor_id: UUID
 ) -> tuple[dict, bool]:
-    input_sha, request_sha = fingerprints(body)
-    key_sha = hashlib.sha256(key.encode()).hexdigest()
     # Authentication may already have begun this request's session transaction.
     # Commit exactly once; rollback the whole transaction on every failure.
     for attempt in range(2):
         try:
-            prior = session.scalar(
-                select(AlertIngestion).where(AlertIngestion.key_sha256 == key_sha)
-            )
-            if prior is not None:
-                if prior.request_sha256 != request_sha:
-                    raise IngestionConflict("Idempotency key was used for different content")
-                response = dict(prior.response_json)
-                session.commit()
-                return response, False
-            alert = session.scalar(select(Alert).where(Alert.source_id == body.source_id))
-            created = alert is None
-            if alert is None:
-                alert = Alert(
-                    source_id=body.source_id,
-                    data_classification=body.data_classification,
-                    feature_contract_version=body.feature_contract_version,
-                    features=body.features.model_dump(),
-                    input_sha256=input_sha,
-                )
-                session.add(alert)
-                session.flush()
-                case = Case(alert_id=alert.id, status="open", disposition=None)
-                session.add(case)
-                session.flush()
-                session.add(
-                    AuditEvent(
-                        actor_id=actor_id,
-                        action="alert.ingested",
-                        resource_id=str(alert.id),
-                        details={
-                            "case_id": str(case.id),
-                            "input_sha256": input_sha,
-                            "feature_contract_version": body.feature_contract_version,
-                        },
-                    )
-                )
-                session.flush()
-            else:
-                if (
-                    alert.input_sha256 != input_sha
-                    or alert.feature_contract_version != body.feature_contract_version
-                    or alert.data_classification != body.data_classification
-                ):
-                    raise IngestionConflict("Source identifier was used for different content")
-                case = session.scalar(select(Case).where(Case.alert_id == alert.id))
-                if case is None:
-                    raise IngestionStateError("Stored alert is missing its case")
-            response = {
-                "alert_id": str(alert.id),
-                "case_id": str(case.id),
-                "case_status": "open",
-                "scoring_status": "not_requested",
-                "routing_status": "not_evaluated",
-                "feature_contract_version": body.feature_contract_version,
-            }
-            session.add(
-                AlertIngestion(
-                    key_sha256=key_sha,
-                    request_sha256=request_sha,
-                    alert_id=alert.id,
-                    case_id=case.id,
-                    created_by=actor_id,
-                    response_json=response,
-                )
-            )
-            session.flush()
+            result = ingest_alert_in_transaction(session, body, key, actor_id)
             session.commit()
-            return response, created
+            return result
         except IntegrityError as error:
             session.rollback()
             # Unique constraints arbitrate simultaneous requests, never process-local locks.
@@ -148,3 +81,75 @@ def ingest_alert(
             session.rollback()
             raise
     raise AssertionError("Unreachable ingestion state")
+
+
+def ingest_alert_in_transaction(
+    session: Session, body: AlertIngestionInput, key: str, actor_id: UUID
+) -> tuple[dict, bool]:
+    """Caller owns authorization, transaction and unique-race/savepoint handling."""
+    input_sha, request_sha = fingerprints(body)
+    key_sha = hashlib.sha256(key.encode()).hexdigest()
+    prior = session.scalar(select(AlertIngestion).where(AlertIngestion.key_sha256 == key_sha))
+    if prior is not None:
+        if prior.request_sha256 != request_sha:
+            raise IngestionConflict("Idempotency key was used for different content")
+        response = dict(prior.response_json)
+        return response, False
+    alert = session.scalar(select(Alert).where(Alert.source_id == body.source_id))
+    created = alert is None
+    if alert is None:
+        alert = Alert(
+            source_id=body.source_id,
+            data_classification=body.data_classification,
+            feature_contract_version=body.feature_contract_version,
+            features=body.features.model_dump(),
+            input_sha256=input_sha,
+        )
+        session.add(alert)
+        session.flush()
+        case = Case(alert_id=alert.id, status="open", disposition=None)
+        session.add(case)
+        session.flush()
+        session.add(
+            AuditEvent(
+                actor_id=actor_id,
+                action="alert.ingested",
+                resource_id=str(alert.id),
+                details={
+                    "case_id": str(case.id),
+                    "input_sha256": input_sha,
+                    "feature_contract_version": body.feature_contract_version,
+                },
+            )
+        )
+        session.flush()
+    else:
+        if (
+            alert.input_sha256 != input_sha
+            or alert.feature_contract_version != body.feature_contract_version
+            or alert.data_classification != body.data_classification
+        ):
+            raise IngestionConflict("Source identifier was used for different content")
+        case = session.scalar(select(Case).where(Case.alert_id == alert.id))
+        if case is None:
+            raise IngestionStateError("Stored alert is missing its case")
+    response = {
+        "alert_id": str(alert.id),
+        "case_id": str(case.id),
+        "case_status": "open",
+        "scoring_status": "not_requested",
+        "routing_status": "not_evaluated",
+        "feature_contract_version": body.feature_contract_version,
+    }
+    session.add(
+        AlertIngestion(
+            key_sha256=key_sha,
+            request_sha256=request_sha,
+            alert_id=alert.id,
+            case_id=case.id,
+            created_by=actor_id,
+            response_json=response,
+        )
+    )
+    session.flush()
+    return response, created

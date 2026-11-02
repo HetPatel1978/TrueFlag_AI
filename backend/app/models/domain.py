@@ -123,6 +123,87 @@ class CSVValidationIssue(Base):
     )
 
 
+class CSVImportWorker(Identity, Base):
+    __tablename__ = "csv_import_workers"
+    name: Mapped[str] = mapped_column(String(64), unique=True)
+    token_sha256: Mapped[str] = mapped_column(String(64), unique=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    provisioned_by: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+
+
+class CSVImport(Identity, Base):
+    __tablename__ = "csv_imports"
+    __table_args__ = (
+        UniqueConstraint("actor_id", "key_sha256", name="uq_csv_import_actor_key"),
+        UniqueConstraint("validation_id", name="uq_csv_import_validation"),
+        CheckConstraint(
+            "total_rows > 0 AND total_rows <= 10000 AND valid_rows > 0 AND invalid_rows >= 0 AND valid_rows + invalid_rows = total_rows",
+            name="ck_csv_import_total",
+        ),
+        CheckConstraint(
+            "processed_rows >= 0 AND processed_rows <= total_rows AND created_rows >= 0 AND reused_rows >= 0 AND conflict_rows >= 0 AND excluded_rows >= 0 AND excluded_rows <= invalid_rows AND created_rows + reused_rows + conflict_rows + excluded_rows = processed_rows",
+            name="ck_csv_import_progress",
+        ),
+        CheckConstraint(
+            "chunk_size >= 1 AND chunk_size <= 200 AND attempts >= 0 AND attempts <= 3",
+            name="ck_csv_import_limits",
+        ),
+        CheckConstraint(
+            "(status = 'pending' AND lease_token IS NULL AND lease_until IS NULL AND worker_id IS NULL) OR (status = 'running' AND lease_token IS NOT NULL AND lease_until IS NOT NULL AND worker_id IS NOT NULL AND attempts >= 1) OR (status IN ('completed','partially_completed','failed') AND lease_token IS NULL AND lease_until IS NULL AND worker_id IS NULL)",
+            name="ck_csv_import_state",
+        ),
+        CheckConstraint(
+            "status NOT IN ('completed','partially_completed') OR (processed_rows = total_rows AND excluded_rows = invalid_rows)",
+            name="ck_csv_import_finished",
+        ),
+        Index("ix_csv_import_ready", "status", "available_at", "id"),
+        Index("ix_csv_import_expiry", "status", "lease_until"),
+    )
+    upload_id: Mapped[UUID] = mapped_column(ForeignKey("csv_uploads.id"))
+    validation_id: Mapped[UUID] = mapped_column(ForeignKey("csv_validations.id"))
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    request_sha256: Mapped[str] = mapped_column(String(64))
+    validation_sha256: Mapped[str] = mapped_column(String(64))
+    snapshot: Mapped[dict] = mapped_column(JSON)
+    audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
+    source_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[str] = mapped_column(String(30), default="pending")
+    total_rows: Mapped[int] = mapped_column()
+    valid_rows: Mapped[int] = mapped_column()
+    invalid_rows: Mapped[int] = mapped_column()
+    processed_rows: Mapped[int] = mapped_column(default=0)
+    created_rows: Mapped[int] = mapped_column(default=0)
+    reused_rows: Mapped[int] = mapped_column(default=0)
+    conflict_rows: Mapped[int] = mapped_column(default=0)
+    excluded_rows: Mapped[int] = mapped_column(default=0)
+    chunk_size: Mapped[int] = mapped_column()
+    attempts: Mapped[int] = mapped_column(default=0)
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    lease_token: Mapped[UUID | None] = mapped_column(Uuid)
+    worker_id: Mapped[UUID | None] = mapped_column(ForeignKey("csv_import_workers.id"))
+    failure_code: Mapped[str | None] = mapped_column(String(40))
+
+
+class CSVImportRow(Base):
+    __tablename__ = "csv_import_rows"
+    __table_args__ = (
+        CheckConstraint("row_number >= 2 AND row_number <= 10001", name="ck_csv_import_row_number"),
+        CheckConstraint(
+            "(status IN ('created','reused') AND alert_id IS NOT NULL AND case_id IS NOT NULL AND reason_code IS NULL) OR (status IN ('invalid','conflict') AND alert_id IS NULL AND case_id IS NULL AND reason_code IS NOT NULL)",
+            name="ck_csv_import_row_status",
+        ),
+    )
+    import_id: Mapped[UUID] = mapped_column(ForeignKey("csv_imports.id"), primary_key=True)
+    row_number: Mapped[int] = mapped_column(primary_key=True)
+    status: Mapped[str] = mapped_column(String(20))
+    reason_code: Mapped[str | None] = mapped_column(String(40))
+    alert_id: Mapped[UUID | None] = mapped_column(ForeignKey("alerts.id"))
+    case_id: Mapped[UUID | None] = mapped_column(ForeignKey("cases.id"))
+
+
 class Case(Identity, Base):
     __tablename__ = "cases"
     alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"), unique=True)

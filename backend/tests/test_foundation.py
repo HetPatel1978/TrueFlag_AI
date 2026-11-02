@@ -50,6 +50,9 @@ def test_health_and_migrated_readiness(platform):
         "csv_uploads",
         "csv_validations",
         "csv_validation_issues",
+        "csv_imports",
+        "csv_import_rows",
+        "csv_import_workers",
     }
 
 

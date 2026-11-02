@@ -36,7 +36,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
   - [x] Phase 2.9: authorized alert dashboard, safe case results/SHAP/provenance/history, explicit assessment requests and bounded async status workflow.
   - [x] Phase 2.10.1: canonical CSV contract/template, admin-only private staging, owner-scoped metadata, idempotency, expiry and audit.
   - [x] Phase 2.10.2: exact/explicit versioned mapping, full-file canonical validation and value-free paginated diagnostics; no import.
-  - [ ] Phases 2.10.3-2.10.6: approved chunked import, bounded assessment dispatch, batch UI/export and full-workflow acceptance.
+  - [x] Phase 2.10.3: explicit approved PostgreSQL chunk import, row receipts/checkpoints, separate Linux worker, fenced recovery and canonical source idempotency.
+  - [ ] Phases 2.10.4-2.10.6: bounded assessment dispatch, batch UI/export and full-workflow acceptance.
   - [ ] Production deployment acceptance after separate approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.

@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     csv_max_validation_versions: int = Field(default=5, ge=1, le=20)
     csv_max_concurrent_validations: int = Field(default=2, ge=1, le=8)
     csv_validation_timeout_seconds: int = Field(default=10, ge=1, le=30)
+    csv_import_chunk_size: int = Field(default=50, ge=1, le=200)
+    csv_import_queue_capacity: int = Field(default=100, ge=1, le=1000)
+    csv_import_actor_capacity: int = Field(default=3, ge=1, le=20)
+    csv_import_lease_seconds: int = Field(default=60, ge=30, le=120)
+    csv_import_chunk_timeout_seconds: int = Field(default=10, ge=1, le=15)
 
     @field_validator("jwt_secret")
     @classmethod

@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.10.2
+# PostgreSQL schema - Phase 2.10.3
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0009_csv_validation**; 18 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0010_csv_imports**; 21 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -16,6 +16,9 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | csv_uploads | Owner-scoped CSV staging receipt, intent-key hash, private generated reference, trusted SHA/sizes/counts, status/expiry and creation-audit link; no headers/feature values |
 | csv_validations | Upload-scoped mapping/version/digest, units/validator/contract identities, full-file counts and completion-audit link; no row values |
 | csv_validation_issues | Composite validation/row-number key; canonical field/error/warning codes only, paginated and bounded by staged row count |
+| csv_import_workers | Separately provisioned/revocable non-login import execution identity and token hash; no ML/HTTP privileges |
+| csv_imports | Frozen actor/key/approval binding and preview/source references; mutable fenced chunk lease, counters/checkpoint, bounded retries and terminal state |
+| csv_import_rows | Unique import/logical-row receipt, created/reused/invalid/conflict status and authorized success links; no raw row values |
 | operational_metrics | Non-customer per-instance/minute cumulative count/sum/fixed histogram, indexed by minute; bounded best-effort retention |
 | assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
@@ -28,6 +31,10 @@ erDiagram
     USERS ||--o{ CSV_UPLOADS : stages
     CSV_UPLOADS ||--o{ CSV_VALIDATIONS : versions
     CSV_VALIDATIONS ||--o{ CSV_VALIDATION_ISSUES : reports
+    CSV_VALIDATIONS ||--o| CSV_IMPORTS : explicitly_approved
+    CSV_IMPORTS ||--o{ CSV_IMPORT_ROWS : committed_rows
+    CSV_IMPORT_WORKERS ||--o{ CSV_IMPORTS : fenced_execution
+    CSV_IMPORT_ROWS }o--o| CASES : success_link
     USERS ||--o{ CASES : assigned
     ALERTS ||--|| CASES : creates
     CASES ||--o{ ASSESSMENTS : retains_history
@@ -78,3 +85,9 @@ erDiagram
 - Migration 0009 adds only the two preview tables. Unique `(upload_id,mapping_sha256)` and `(upload_id,version)`; FK/audit integrity, bounded count consistency and logical row-number constraints. No canonical domain schema changes.
 - Actor locking serializes version allocation and authorization; mapping, complete diagnostic batches and audit commit together. Service/API history is append-only, without a database-wide tamper-proof claim. Downgrade refuses retained validation records.
 - Original file SHA, mapping/validator/contract versions and units assertion bind preview identity. Retrieval rechecks current role/ownership, TTL and file integrity. Diagnostic receipts contain no cells and remain after byte expiry; institutional metadata retention is pending. See [preview contract](PHASE2_10_2_VALIDATION_PREVIEW.md).
+
+## Phase 2.10.3 durable approved imports
+
+- Migration 0010 adds three tables; no feature/case/ML schema changes. One import/preview and actor/key uniqueness, row PK, FK/state/count/chunk constraints; database guards freeze approval envelopes, terminal imports, row receipts, approved preview diagnostics/source identity and import audit history.
+- Original single-alert wrapper retains its contract; a shared transaction core permits chunk-wide atomic alerts/cases/ingestion receipts/row receipts/checkpoints/audits. Invalid rows are excluded; source conflicts do not overwrite cases. Exact source identities reuse existing canonical cases.
+- PostgreSQL database-clock SKIP LOCKED claims, random fencing, bounded retries/recovery, global advisory admission and fresh admin/worker checks. File TTL is not extended; retained progress/approval receipts remain readable after byte expiry. Failed imports explicitly retain committed and remaining counts. See [import schema and recovery](PHASE2_10_3_DURABLE_IMPORT.md).
