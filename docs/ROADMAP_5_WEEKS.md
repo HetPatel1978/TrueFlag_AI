@@ -34,6 +34,9 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
   - [x] Phase 2.7: protected assessment request/status/history/detail APIs, strict contracts, case scope, request/read audit, queue capacity and shared API budgets.
   - [x] Phase 2.8: internal operational metrics, safe structured correlation and measured bounded synthetic load/recovery acceptance.
   - [x] Phase 2.9: authorized alert dashboard, safe case results/SHAP/provenance/history, explicit assessment requests and bounded async status workflow.
+  - [x] Phase 2.10.1: canonical CSV contract/template, admin-only private staging, owner-scoped metadata, idempotency, expiry and audit.
+  - [ ] Phase 2.10.2: column mapping and full-file validation preview.
+  - [ ] Phases 2.10.3-2.10.6: approved chunked import, bounded assessment dispatch, batch UI/export and full-workflow acceptance.
   - [ ] Production deployment acceptance after separate approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.

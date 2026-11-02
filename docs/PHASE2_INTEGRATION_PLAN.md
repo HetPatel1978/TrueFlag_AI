@@ -82,4 +82,4 @@ KYC 0–2/3–6 is project-defined Standard/High. Only Coverage has a priority o
 7. Simulate unavailable worker/model, timeout, malformed result and failed explanation. Keep case visible/manual review required; no false successful-capture or dismissal credit.
 8. Demonstrate that low-score recommendations do not change case state/visibility/disposition; human decision workflow remains separate. No performance or calibrated-risk claims beyond available evidence.
 
-**Phases 2.1-2.8 accepted locally. Next design gate, after a new request:** Phase 3 evidence-source rights, jurisdiction/institution scope and permission-aware retrieval acceptance. No retrieval/LLM implementation is started here.
+**Phases 2.1-2.9 and 2.10.1 accepted locally. Next implementation gate, after a new request:** Phase 2.10.2 Column Mapping + Validation Preview, using owned, integrity-verified staged CSV bytes and the unchanged 27-predictor contract. See [batch onboarding plan](PHASE2_10_BATCH_ONBOARDING.md). Import, batch dispatch and batch frontend/export remain later subphases; Phase 3 retrieval/LLM implementation is not started.

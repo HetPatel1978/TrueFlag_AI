@@ -52,6 +52,34 @@ class Alert(Identity, Base):
     )
 
 
+class CSVUpload(Identity, Base):
+    """Private staging receipt only; no canonical alerts or ML jobs are created."""
+
+    __tablename__ = "csv_uploads"
+    __table_args__ = (
+        UniqueConstraint("actor_id", "key_sha256", name="uq_csv_actor_key"),
+        CheckConstraint("status IN ('staged','expired')", name="ck_csv_status"),
+        CheckConstraint("size_bytes > 0 AND size_bytes <= 8388608", name="ck_csv_size"),
+        CheckConstraint("row_count > 0 AND row_count <= 10000", name="ck_csv_rows"),
+        CheckConstraint("column_count > 0 AND column_count <= 128", name="ck_csv_columns"),
+        CheckConstraint("expires_at > created_at", name="ck_csv_expiry"),
+        Index("ix_csv_actor_status_expiry", "actor_id", "status", "expires_at"),
+        Index("ix_csv_status_expiry", "status", "expires_at"),
+    )
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str] = mapped_column(String(20), default="staged")
+    size_bytes: Mapped[int] = mapped_column()
+    row_count: Mapped[int] = mapped_column()
+    column_count: Mapped[int] = mapped_column()
+    sha256: Mapped[str] = mapped_column(String(64))
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    storage_key: Mapped[str] = mapped_column(String(40), unique=True)
+    csv_contract_version: Mapped[str] = mapped_column(String(60))
+    feature_contract_version: Mapped[str] = mapped_column(String(100))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
+
+
 class Case(Identity, Base):
     __tablename__ = "cases"
     alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"), unique=True)

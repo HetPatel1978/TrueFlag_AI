@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.8
+# PostgreSQL schema - Phase 2.10.1
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0007_operations**; 15 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0008_csv_staging**; 16 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -13,6 +13,7 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | decisions | Score-linked policy mode/version, recommendation/status/reason; assessment-linked rows immutable |
 | audit_events | Actor/action/resource/details; assessment-linked completion events immutable |
 | login_throttles | HMAC client key, window start and atomic attempt count |
+| csv_uploads | Owner-scoped CSV staging receipt, intent-key hash, private generated reference, trusted SHA/sizes/counts, status/expiry and creation-audit link; no headers/feature values |
 | operational_metrics | Non-customer per-instance/minute cumulative count/sum/fixed histogram, indexed by minute; bounded best-effort retention |
 | assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
@@ -60,3 +61,9 @@ erDiagram
 - Cumulative snapshot primary key: random operational instance ID, minute, fixed metric name and label. Upsert replaces counts and rejects older decreasing snapshots; no double-counting on export retry.
 - Export is outside domain transactions with a dedicated bounded pool and timeout. Best-effort 120-minute cleanup affects only generated telemetry rows. Durable jobs/audits are authoritative; telemetry can be lost during crashes/extended outages.
 - Internal metrics return bounded aggregates, never operational instance IDs, business identifiers or customer features. See PHASE2_8_OPERATIONS for quantile/coverage limits.
+
+## Phase 2.10.1 private CSV staging
+
+- Migration 0008 adds csv_uploads only; existing alert/case/assessment schemas are preserved. Unique actor/key and storage keys, bounded counts and chronological expiry checks.
+- Upload content is on a private API volume, never a DB feature snapshot or public file. Row values and raw headers are not duplicated in metadata. Creation receipt/audit commits together; no alerts/cases/jobs are created.
+- Filesystem and PostgreSQL cannot share an atomic commit. Fsync/rename, rollback cleanup, retained ambiguous-commit bytes and bounded expiry/orphan reconciliation are specified in [staging contracts](PHASE2_10_1_CSV_STAGING.md). Receipt/audit retention survives expiry; downgrade refuses retained upload receipts.

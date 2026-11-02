@@ -13,10 +13,11 @@ logger = logging.getLogger("trueflag.security")
 
 
 class RequestGuardMiddleware:
-    def __init__(self, app, max_request_bytes: int, telemetry=None):
+    def __init__(self, app, max_request_bytes: int, telemetry=None, csv_max_bytes=None):
         self.app = app
         self.limit = max_request_bytes
         self.telemetry = telemetry
+        self.csv_max_bytes = csv_max_bytes
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -43,6 +44,12 @@ class RequestGuardMiddleware:
             await JSONResponse({"detail": detail}, status_code=code)(scope, receive, guarded_send)
 
         try:
+            csv_stream = (
+                self.csv_max_bytes is not None
+                and scope.get("path") == "/api/v1/batch-uploads"
+                and scope.get("method") == "POST"
+            )
+            limit = self.csv_max_bytes if csv_stream else self.limit
             declared = Headers(scope=scope).get("content-length")
             if declared is not None:
                 try:
@@ -51,8 +58,12 @@ class RequestGuardMiddleware:
                     return await reject(400, "Invalid content length")
                 if size < 0:
                     return await reject(400, "Invalid content length")
-                if size > self.limit:
+                if size > limit:
                     return await reject(413, "Request body exceeds configured limit")
+            if csv_stream:
+                # This single route authenticates before consuming bytes and counts every chunk
+                # into a private bounded spool. All existing JSON routes retain their original cap.
+                return await self.app(scope, receive, guarded_send)
             chunks = []
             size = 0
             while True:
