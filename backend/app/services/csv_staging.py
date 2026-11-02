@@ -446,7 +446,13 @@ class CSVStagingService:
 
     @contextmanager
     def open_for_validation(self, actor_id, upload_id):
-        """Future trusted mapper consumes verified bytes, not a caller-selected path."""
+        """Trusted consumer; preserve the original stream-only service interface."""
+        with self.validation_source(actor_id, upload_id) as (_, _, stream):
+            yield stream
+
+    @contextmanager
+    def validation_source(self, actor_id, upload_id):
+        """Share the authorization transaction with the bounded validation writer."""
         try:
             with Session(self.engine) as session, session.begin():
                 _timeouts(session)
@@ -476,7 +482,7 @@ class CSVStagingService:
                     if size != row.size_bytes or digest.hexdigest() != row.sha256:
                         raise StagingUnavailable
                     stream.seek(0)
-                    yield stream
+                    yield session, row, stream
         except (SQLAlchemyError, OSError):
             raise StagingUnavailable from None
 

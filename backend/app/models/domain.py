@@ -80,6 +80,49 @@ class CSVUpload(Identity, Base):
     audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
 
 
+class CSVValidation(Identity, Base):
+    __tablename__ = "csv_validations"
+    __table_args__ = (
+        UniqueConstraint("upload_id", "mapping_sha256", name="uq_csv_validation_mapping"),
+        UniqueConstraint("upload_id", "version", name="uq_csv_validation_version"),
+        CheckConstraint(
+            "version >= 1 AND total_rows > 0 AND total_rows <= 10000",
+            name="ck_csv_validation_version",
+        ),
+        CheckConstraint(
+            "valid_rows >= 0 AND invalid_rows >= 0 AND valid_rows + invalid_rows = total_rows AND warning_rows >= 0 AND warning_rows <= total_rows",
+            name="ck_csv_validation_counts",
+        ),
+    )
+    upload_id: Mapped[UUID] = mapped_column(ForeignKey("csv_uploads.id"))
+    version: Mapped[int] = mapped_column()
+    mapping_sha256: Mapped[str] = mapped_column(String(64))
+    mapping: Mapped[dict] = mapped_column(JSON)
+    mapping_version: Mapped[str] = mapped_column(String(60))
+    validator_version: Mapped[str] = mapped_column(String(60))
+    units: Mapped[str] = mapped_column(String(40))
+    upload_sha256: Mapped[str] = mapped_column(String(64))
+    feature_contract_sha256: Mapped[str] = mapped_column(String(64))
+    total_rows: Mapped[int] = mapped_column()
+    valid_rows: Mapped[int] = mapped_column()
+    invalid_rows: Mapped[int] = mapped_column()
+    warning_rows: Mapped[int] = mapped_column()
+    audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
+
+
+class CSVValidationIssue(Base):
+    __tablename__ = "csv_validation_issues"
+    validation_id: Mapped[UUID] = mapped_column(ForeignKey("csv_validations.id"), primary_key=True)
+    row_number: Mapped[int] = mapped_column(primary_key=True)
+    invalid: Mapped[bool] = mapped_column(Boolean)
+    has_warnings: Mapped[bool] = mapped_column(Boolean)
+    errors: Mapped[list] = mapped_column(JSON)
+    warnings: Mapped[list] = mapped_column(JSON)
+    __table_args__ = (
+        CheckConstraint("row_number >= 2 AND row_number <= 10001", name="ck_csv_issue_row"),
+    )
+
+
 class Case(Identity, Base):
     __tablename__ = "cases"
     alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"), unique=True)

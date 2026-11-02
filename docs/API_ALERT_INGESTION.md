@@ -106,6 +106,6 @@ Object ordering and equivalent numerical spelling (`1`/`1.0`, signed zero) do no
 - Real PostgreSQL tests force concurrent requests to reach insertion together and inject a database-trigger failure after earlier writes, checking rollback and subsequent successful retry.
 - Optional local-only tests compare the exact staged contract and validate the 27-field representation of all 10,000 retained synthetic rows without scoring, storing, or printing them. CI does not require private files.
 
-## Remaining Week 1 work
+## CSV onboarding boundary
 
-Assignment-aware case reads, frontend ingestion/session integration, request correlation, login abuse controls and broader security telemetry remain separate work. Single-alert ingestion is not a CSV upload, batch ingestion, transaction monitoring or an enterprise source connector.
+The existing single-alert ingestion contract remains unchanged. Admin-only private CSV staging and versioned full-file mapping/validation preview are separate APIs; see [CSV staging](PHASE2_10_1_CSV_STAGING.md) and [preview API](PHASE2_10_2_VALIDATION_PREVIEW.md). Preview never calls ingestion or creates canonical records. Explicitly approved durable batch import remains Phase 2.10.3, not implemented. No transaction monitoring or enterprise source connector is claimed.

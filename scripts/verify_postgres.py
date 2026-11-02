@@ -38,6 +38,8 @@ def main() -> None:
             "assessment_api_throttles",
             "operational_metrics",
             "csv_uploads",
+            "csv_validations",
+            "csv_validation_issues",
         }
         if not expected <= tables:
             raise RuntimeError("Missing domain tables")

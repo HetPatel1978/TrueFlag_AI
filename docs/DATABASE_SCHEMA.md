@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.10.1
+# PostgreSQL schema - Phase 2.10.2
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0008_csv_staging**; 16 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0009_csv_validation**; 18 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -14,6 +14,8 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | audit_events | Actor/action/resource/details; assessment-linked completion events immutable |
 | login_throttles | HMAC client key, window start and atomic attempt count |
 | csv_uploads | Owner-scoped CSV staging receipt, intent-key hash, private generated reference, trusted SHA/sizes/counts, status/expiry and creation-audit link; no headers/feature values |
+| csv_validations | Upload-scoped mapping/version/digest, units/validator/contract identities, full-file counts and completion-audit link; no row values |
+| csv_validation_issues | Composite validation/row-number key; canonical field/error/warning codes only, paginated and bounded by staged row count |
 | operational_metrics | Non-customer per-instance/minute cumulative count/sum/fixed histogram, indexed by minute; bounded best-effort retention |
 | assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
@@ -23,6 +25,9 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 
 ```mermaid
 erDiagram
+    USERS ||--o{ CSV_UPLOADS : stages
+    CSV_UPLOADS ||--o{ CSV_VALIDATIONS : versions
+    CSV_VALIDATIONS ||--o{ CSV_VALIDATION_ISSUES : reports
     USERS ||--o{ CASES : assigned
     ALERTS ||--|| CASES : creates
     CASES ||--o{ ASSESSMENTS : retains_history
@@ -67,3 +72,9 @@ erDiagram
 - Migration 0008 adds csv_uploads only; existing alert/case/assessment schemas are preserved. Unique actor/key and storage keys, bounded counts and chronological expiry checks.
 - Upload content is on a private API volume, never a DB feature snapshot or public file. Row values and raw headers are not duplicated in metadata. Creation receipt/audit commits together; no alerts/cases/jobs are created.
 - Filesystem and PostgreSQL cannot share an atomic commit. Fsync/rename, rollback cleanup, retained ambiguous-commit bytes and bounded expiry/orphan reconciliation are specified in [staging contracts](PHASE2_10_1_CSV_STAGING.md). Receipt/audit retention survives expiry; downgrade refuses retained upload receipts.
+
+## Phase 2.10.2 mapping and preview
+
+- Migration 0009 adds only the two preview tables. Unique `(upload_id,mapping_sha256)` and `(upload_id,version)`; FK/audit integrity, bounded count consistency and logical row-number constraints. No canonical domain schema changes.
+- Actor locking serializes version allocation and authorization; mapping, complete diagnostic batches and audit commit together. Service/API history is append-only, without a database-wide tamper-proof claim. Downgrade refuses retained validation records.
+- Original file SHA, mapping/validator/contract versions and units assertion bind preview identity. Retrieval rechecks current role/ownership, TTL and file integrity. Diagnostic receipts contain no cells and remain after byte expiry; institutional metadata retention is pending. See [preview contract](PHASE2_10_2_VALIDATION_PREVIEW.md).

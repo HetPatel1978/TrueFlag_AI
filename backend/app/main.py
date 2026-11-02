@@ -57,6 +57,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.state.engine = database
     app.state.telemetry = telemetry
     app.state.csv_upload_slots = BoundedSemaphore(settings.csv_max_concurrent_uploads)
+    app.state.csv_validation_slots = BoundedSemaphore(settings.csv_max_concurrent_validations)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

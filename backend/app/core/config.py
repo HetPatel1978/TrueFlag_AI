@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     csv_max_active_uploads: int = Field(default=10, ge=1, le=100)
     csv_max_concurrent_uploads: int = Field(default=4, ge=1, le=16)
     csv_cleanup_interval_seconds: int = Field(default=300, ge=30, le=3600)
+    csv_max_validation_versions: int = Field(default=5, ge=1, le=20)
+    csv_max_concurrent_validations: int = Field(default=2, ge=1, le=8)
+    csv_validation_timeout_seconds: int = Field(default=10, ge=1, le=30)
 
     @field_validator("jwt_secret")
     @classmethod

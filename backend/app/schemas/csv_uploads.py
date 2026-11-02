@@ -46,9 +46,10 @@ def csv_contract():
         "missing_values": {"income": [""]},
         "notes": [
             "Only an empty income cell maps to JSON null; numeric zero stays zero.",
-            "No other missing-value tokens, numeric coercion, imputation or state normalization.",
+            "No other missing-value tokens, imputation, unit conversion or state normalization.",
+            "CSV numbers use strict JSON numeric tokens; zero is never treated as missing.",
             "KYC must be a whole-valued finite number from 0 through 6.",
-            "Staging checks syntax and limits only; row values and column mappings are not validated yet.",
+            "Staging checks syntax and limits only; explicit validation preview checks mapped rows before any import.",
         ],
     }
 

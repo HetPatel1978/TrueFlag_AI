@@ -103,4 +103,4 @@ New synthetic tests: `backend/tests/test_csv_staging.py`. Cover exact generated 
 
 ## Stop boundary
 
-2.10.2 Column Mapping + Validation Preview is next, not implemented. No frontend modifications, mapping/preview API, canonical import, batch assessment dispatch, exports or later-phase implementation are included.
+This document records the 2.10.1 boundary. Phase 2.10.2 is now implemented separately: see [mapping and validation preview](PHASE2_10_2_VALIDATION_PREVIEW.md). Next is 2.10.3 approved durable import, not implemented. No batch frontend, import, assessment dispatch or export is included.
