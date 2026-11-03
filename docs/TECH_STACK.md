@@ -23,3 +23,9 @@
 - [Vite prerequisites](https://vite.dev/guide/)
 
 Dependency audit findings and tested versions belong in SETUP_STATUS. Do not use automatic major-version audit fixes without compatibility checks.
+
+## Phase 3.1 design recommendations - not installed/enabled
+
+- Reuse FastAPI/PostgreSQL/SQLAlchemy/React and private blob patterns. Separate proposed investigation jobs/worker profile and provider budget from the pinned ML runtime; no broker or agent platform required.
+- Proposed retrieval: structured SQL/decimal analytics plus PostgreSQL 17 full-text/section lookup. No vector extension, embedding model, graph DB, provider SDK or model selected/installed. Evaluate additions only after held-out relevance/security/cost evidence.
+- [Provider-neutral contract, source classes/versions, temporal retrieval and proposed caps](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md). Provider/data/source/retention/review decisions remain open; no version/price/performance claim for an unselected provider.

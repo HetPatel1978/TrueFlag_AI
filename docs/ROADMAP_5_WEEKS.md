@@ -48,6 +48,10 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
 
 ## Week 3 — AI investigation
 
+- [x] Phase 3.1: [architecture/evidence/retrieval/RAG/security/evaluation design pack](PHASE3_1_INVESTIGATION_ARCHITECTURE.md) prepared; review/approvals pending, no runtime implementation.
+- [ ] Phase 3.2: approve minimum evidence schema/source mapping/generator and migration acceptance before internal implementation; no LLM, RAG, public API or frontend work in this subphase.
+- Later proposed 3.3-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
+
 - **Objective:** a bounded evidence-grounded assistant, not an autonomous investigator.
 - **Tasks:**
   - [ ] Approve provider, data boundary, corpus rights, institution scope and jurisdiction.

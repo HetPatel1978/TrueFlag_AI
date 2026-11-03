@@ -1,5 +1,7 @@
 # Target architecture — five-week MVP and later expansion
 
+Phase 3.1 design proposals are collected in [Investigation architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md), [evidence model](PHASE3_1_EVIDENCE_MODEL.md), [retrieval/RAG contracts](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md) and [security/evaluation](PHASE3_1_SECURITY_EVALUATION.md). They are pending review; no Phase 3 runtime exists.
+
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
 Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.9 include approved ML, immutable results, bounded durable Linux jobs, protected APIs and [internal operational monitoring/load-recovery evidence](PHASE2_8_OPERATIONS.md). The [React workbench](PHASE2_9_FRONTEND.md) consumes scoped overview/request/status/history/detail APIs; production deployment acceptance remains pending; ingestion does not automatically score.

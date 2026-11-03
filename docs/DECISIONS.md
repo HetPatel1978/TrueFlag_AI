@@ -144,3 +144,17 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 - Keep default ingress/import/export/rate limits. Measure 100 and 1000 synthetic rows with two actual workers and deliberate 20-job backpressure; reject 5000 at the 2000-row default. No quota inflation or invented production capacity/SLO.
 - Fix a discovered test timing assumption with PostgreSQL-clock availability and bounded terminal-state polling, retaining exact count assertions. Production scheduler unchanged. Test actual RF/SHAP stage-boundary process loss before publication and real API/dispatcher/browser resume.
 - Local Phase 2.10 acceptance **PASS**, subject to [matrix, measurements and residual gates](PHASE2_10_6_ACCEPTANCE.md). Keep cold per-record initialization unchanged; optimization needs separate evaluated scope. Malware scanning unavailable; no certification, later-phase implementation or push.
+
+## Phase 3.1 proposals - review pending, not implementation approval
+
+| Proposal | Recommendation | Reason / approval boundary |
+|---|---|---|
+| D3-01 | Independently generated new synthetic evidence; no invented historical backfill | Reuse documented 27-field dictionary and contract; approve event mapping/reconciliation and case linkage |
+| D3-02 | One jurisdiction/entity type and explicit as-of context | Select reviewed official corpus; law, guidance, internal and RF routing policies remain distinct |
+| D3-03 | PostgreSQL typed evidence, deterministic analytics and lexical retrieval first | Existing infrastructure; graph/vector/agent additions require measured benefit |
+| D3-04 | Provider-neutral bounded coordinator and separate investigation execution budget | Keep pinned ML queue/runtime isolated; approve model/egress/retention/spend before any call |
+| D3-05 | Independent deterministic verifier plus authorized human semantic review | Citations are not truth/legal applicability; no autonomous case or SAR actions |
+| D3-06 | Append-only version provenance with revocable access and governed retention | Immutability does not require perpetual PII storage; statutory/hold periods require approval |
+| D3-07 | Curated safe text initially; broader intake separately gated | No scanner exists; source authenticity/rights/parse quality remain explicit |
+
+[Full design, tradeoffs, implementation gates and open decisions](PHASE3_1_INVESTIGATION_ARCHITECTURE.md). Phase 3.2 is not started. These proposal IDs are design references, not accepted runtime controls.

@@ -109,3 +109,10 @@ erDiagram
 
 - No migration/table changes: head remains `0011_batch_assessments`, 24 domain tables. Existing assessment/job/result schemas preserved.
 - `batch.assessment.exported` reuses protected batch audit history; stores actor/batch, requested range, actual counts, byte count, export schema, timestamp and SHA, never exported values. Permission/result verification and audit commit precede CSV disclosure; failures roll back and return no file. [Contract](PHASE2_10_5_BATCH_FRONTEND.md).
+
+## Phase 3.1 evidence/investigation design - no schema implementation
+
+- Actual metadata inspected at `0011_batch_assessments`: existing Alert/Case/Evidence/Assessment/AssessmentExplanation columns match the audited model. No migration/DDL/data change in this subphase; 24 domain tables remain the Phase 2 baseline.
+- Existing Evidence is only a case-linked URI/hash/kind/JSON metadata anchor. It supplies no implemented customer/account/transaction/versioned-corpus/retrieval workflow. Existing decisions rows are model recommendations, not human dispositions.
+- [Proposed keys, source/version envelope, typed payloads, case links, revisions, private content and ER model](PHASE3_1_EVIDENCE_MODEL.md) are review artifacts. Use additive migration planning after approval; no implicit legacy-source backfill, invented transaction history or frozen feature-contract change.
+- Corpus/investigation/review records are later subphase proposals. Current schema has no enterprise tenancy/RLS guarantee. Retention/access revocation and source/entity linkage require review before 3.2.
