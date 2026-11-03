@@ -95,9 +95,21 @@ def main():
             "TRUEFLAG_API_PROXY": "http://127.0.0.1:18010",
         }
         npm = shutil.which("npm.cmd" if os.name == "nt" else "npm")
-        return subprocess.run(
-            [npm, "run", "test:e2e"], cwd=ROOT / "frontend", env=env, timeout=480
-        ).returncode
+        completed = subprocess.run(
+            [npm, "run", "test:e2e"],
+            cwd=ROOT / "frontend",
+            env=env,
+            timeout=480,
+            capture_output=True,
+            text=True,
+        )
+        # A failed browser fill assertion must not echo even an ephemeral fixture password.
+        print(
+            (completed.stdout + completed.stderr).replace(
+                ready["password"], "[redacted fixture credential]"
+            )
+        )
+        return completed.returncode
     finally:
         if process:
             process.stdin.close()

@@ -38,7 +38,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
   - [x] Phase 2.10.2: exact/explicit versioned mapping, full-file canonical validation and value-free paginated diagnostics; no import.
   - [x] Phase 2.10.3: explicit approved PostgreSQL chunk import, row receipts/checkpoints, separate Linux worker, fenced recovery and canonical source idempotency.
   - [x] Phase 2.10.4: explicit batch request, bounded atomic dispatch through existing ML workers, shared limits, live counters, verified results and recovery.
-  - [ ] Phases 2.10.5-2.10.6: batch UI/export and full-workflow acceptance.
+  - [x] Phase 2.10.5: authorized React batch workflow, explicit import/assessment, resumable progress, verified results and bounded audited CSV export.
+  - [ ] Phase 2.10.6: full-workflow security/load/recovery acceptance; not started.
   - [ ] Production deployment acceptance after separate approval.
 - **Dependencies:** rights approval for any redistributed source; staged model/contracts; exact scientific dependencies; Week 1 persistence.
 - **Deliverables:** live inference worker, deterministic policies, explanation artifacts and replay evidence.

@@ -16,6 +16,8 @@ import {
 } from './api';
 import { Dashboard, CaseView } from './workbench';
 import { Receipts, type Receipt } from './receipts';
+import { BatchProcessing, type BatchMemory } from './batch';
+import { batchClient, type BatchFactory } from './batch-api';
 
 export type ApiFactory = (signal?: AbortSignal) => Client;
 type Session = { token: string; user: User; controller: AbortController };
@@ -167,19 +169,32 @@ function Workspace({
   );
   const [generation, setGeneration] = useState(0);
   const [receipts] = useState(() => new Map<string, Receipt>());
+  const [batchMemory] = useState<BatchMemory>(() => new Map());
   const onDenied = useCallback(
     (status: number) => {
       if (status === 401) logout('Your session ended. Sign in again.');
       else {
         receipts.clear();
+        batchMemory.clear();
         setDenied(status);
       }
     },
-    [logout, receipts],
+    [logout, receipts, batchMemory],
   );
   const api = useCallback<ApiFactory>(
     (signal) =>
       client(
+        session.token,
+        signal
+          ? AbortSignal.any([session.controller.signal, signal])
+          : session.controller.signal,
+        onDenied,
+      ),
+    [session, onDenied],
+  );
+  const batchApi = useCallback<BatchFactory>(
+    (signal) =>
+      batchClient(
         session.token,
         signal
           ? AbortSignal.any([session.controller.signal, signal])
@@ -233,6 +248,7 @@ function Workspace({
   }, [session, logout, generation]);
 
   const match = /^#\/cases\/([a-f0-9-]{36})(\/assessment)?$/i.exec(hash);
+  const isBatch = hash.startsWith('#/batch');
   return (
     <div className="workspace">
       <a
@@ -248,9 +264,17 @@ function Workspace({
       <aside className="sidebar">
         <Brand />
         <p className="nav-label">WORKSPACE</p>
-        <a className={`nav-item ${!match ? 'active' : ''}`} href="#/">
+        <a
+          className={`nav-item ${!match && !isBatch ? 'active' : ''}`}
+          href="#/"
+        >
           ◫ <span>Alert dashboard</span>
         </a>
+        {session.user.role === 'admin' && (
+          <a className={`nav-item ${isBatch ? 'active' : ''}`} href="#/batch">
+            <span aria-hidden="true">▤</span> <span>Batch Processing</span>
+          </a>
+        )}
         <div className="sidebar-bottom">
           <span className="environment">SYNTHETIC DATA</span>
           <p>
@@ -263,7 +287,8 @@ function Workspace({
       <div className="work-area">
         <header className="topbar">
           <span className="breadcrumb">
-            Workspace <span>/</span> {match ? 'Case review' : 'Alerts'}
+            Workspace <span>/</span>{' '}
+            {isBatch ? 'Batch Processing' : match ? 'Case review' : 'Alerts'}
           </span>
           <div className="account">
             <span>
@@ -305,6 +330,14 @@ function Workspace({
                   Return to authorized cases
                 </button>
               </div>
+            ) : isBatch ? (
+              <BatchProcessing
+                key={`${hash}:${generation}`}
+                api={batchApi}
+                user={session.user}
+                route={hash}
+                memory={batchMemory}
+              />
             ) : match ? (
               <CaseView
                 key={`${hash}:${generation}`}

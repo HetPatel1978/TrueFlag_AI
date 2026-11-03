@@ -22,12 +22,12 @@ flowchart LR
   Start --> Dispatch[2.10.4: bounded existing-job dispatch]
   Dispatch --> Worker[Existing trusted Linux RF/policy/SHAP worker]
   Worker --> Results[Existing immutable results and audit]
-  UI[2.10.5: authorized React batch experience and safe export] -.-> Preview
-  Results -.-> UI
+  UI[2.10.5: authorized React batch experience and safe export] --> Preview
+  Results --> UI
   Acceptance[2.10.6: security, E2E, recovery and bounded load] -.-> UI
 ```
 
-Solid edges are implemented in 2.10.1-2.10.4; dispatch requires a separate explicit Start Assessment request. Dashed edges are interfaces/plans, not shipped functionality.
+Solid edges are implemented in 2.10.1-2.10.5; dispatch requires a separate explicit Start Assessment request. Dashed edges are planned acceptance, not completed work.
 
 | Subphase | Responsibility / acceptance boundary | Status |
 |---|---|---|
@@ -35,7 +35,7 @@ Solid edges are implemented in 2.10.1-2.10.4; dispatch requires a separate expli
 | 2.10.2 | Explicit mapping to existing metadata/27 fields; inspect every logical record; bounded error summaries; strict parsing; no implicit missing-value or category changes | Implemented; [preview contract](PHASE2_10_2_VALIDATION_PREVIEW.md) |
 | 2.10.3 | Explicit approval, versioned mapping/file identity, chunk checkpoints, row/source/idempotency conflicts and restart-safe import through existing semantics | Implemented; [durable import](PHASE2_10_3_DURABLE_IMPORT.md) |
 | 2.10.4 | Authorized bounded dispatch through existing durable queue; progress, quotas and retries; no synchronous model work in HTTP | Implemented; [batch assessment](PHASE2_10_4_BATCH_ASSESSMENT.md) |
-| 2.10.5 | Upload/preview/approval/progress/results screens; authorized bounded export with spreadsheet-formula protections | Not implemented |
+| 2.10.5 | Upload/preview/approval/progress/results screens; authorized bounded export with spreadsheet-formula protections | Implemented; [frontend/export contract](PHASE2_10_5_BATCH_FRONTEND.md) |
 | 2.10.6 | Real-model/browser/load/recovery acceptance for the complete batch workflow, separated from original scientific replay | Not implemented |
 
 ## Reuse and decisions
@@ -49,4 +49,4 @@ Solid edges are implemented in 2.10.1-2.10.4; dispatch requires a separate expli
 
 ## Next design gate
 
-2.10.4 implements separate explicit Start Assessment, bounded durable queue dispatch, current permission/provenance checks and verified paginated results. Next, after a new request: **2.10.5 batch React upload/preview/import/assessment/results workflow and safe export**. No automatic import-triggered assessment, frontend/export or Phase 3 work is implemented.
+2.10.5 adds the authorized React workflow and bounded audited export. Next, after a new request: **2.10.6 complete-workflow security/load/recovery acceptance**. No automatic import-triggered assessment or Phase 3 work is implemented.

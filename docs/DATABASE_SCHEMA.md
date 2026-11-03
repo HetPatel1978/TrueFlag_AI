@@ -104,3 +104,8 @@ erDiagram
 - Migration 0011 adds three tables; existing feature, model, assessment and job schemas are unchanged. Unique import/policy/artifact intent and actor/key receipts; one member/case and one originating link/job. Metadata and terminal links/audits are guarded; history downgrades refuse retained batches.
 - Existing enqueue statements now have a caller-owned transaction core. Group transaction atomically persists queue jobs, member links and audits; database lock release provides dispatcher crash recovery. The original inference lease/retry/fencing state machine remains authoritative.
 - Counters come from one joined SQL aggregate, not mutable cached job counters. Cases with verified prior assessments or compatible active jobs are reused; direct jobs retain their original authority. Originating jobs additionally recheck current bulk permission/provenance before computation and publication. [Batch API, counters and recovery](PHASE2_10_4_BATCH_ASSESSMENT.md).
+
+## Phase 2.10.5 frontend and export
+
+- No migration/table changes: head remains `0011_batch_assessments`, 24 domain tables. Existing assessment/job/result schemas preserved.
+- `batch.assessment.exported` reuses protected batch audit history; stores actor/batch, requested range, actual counts, byte count, export schema, timestamp and SHA, never exported values. Permission/result verification and audit commit precede CSV disclosure; failures roll back and return no file. [Contract](PHASE2_10_5_BATCH_FRONTEND.md).

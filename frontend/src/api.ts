@@ -107,6 +107,10 @@ const messages: Record<number, string> = {
   403: 'Access is no longer permitted. Protected information has been cleared.',
   404: 'Case or assessment unavailable. Access may have changed.',
   409: 'Case changed or request conflicts. Reload the case before creating a new request.',
+  408: 'Upload interrupted. Retry the same file safely.',
+  410: 'This upload expired. Start with a new CSV upload.',
+  413: 'The file or export exceeds the allowed size. Use a smaller file or export range.',
+  415: 'Unsupported file type or encoding. Use UTF-8 CSV.',
   422: 'The request is invalid. Check your filters or reload the case.',
   429: 'Request limit reached. Wait before retrying.',
   503: 'Service unavailable (503). The worker or queue may be unavailable. Retry safely.',
@@ -119,10 +123,11 @@ export class ApiError extends Error {
     super(messages[status] ?? 'Service request failed. Try again.');
   }
 }
-async function request<T>(
+export async function request<T>(
   path: string,
   init: RequestInit = {},
   onDenied?: (status: number) => void,
+  kind: 'json' | 'blob' = 'json',
 ): Promise<T> {
   const signal = init.signal
     ? AbortSignal.any([init.signal, AbortSignal.timeout(10000)])
@@ -148,7 +153,7 @@ async function request<T>(
       Number.isFinite(hint) && hint > 0 ? Math.min(3600, hint) : 0,
     );
   }
-  return response.json() as Promise<T>;
+  return (kind === 'blob' ? response.blob() : response.json()) as Promise<T>;
 }
 export async function health(): Promise<boolean> {
   return (await request<{ status: string }>('/health')).status === 'ok';

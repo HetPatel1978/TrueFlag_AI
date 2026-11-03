@@ -590,66 +590,68 @@ class BatchAssessmentService:
             event(session, batch, "status_read" if offset is None else "results_read")
             if offset is None:
                 return progress(batch, c)
-            rows = session.execute(
-                select(BatchAssessmentItem, AssessmentJob)
-                .outerjoin(AssessmentJob, AssessmentJob.id == BatchAssessmentItem.job_id)
-                .where(BatchAssessmentItem.batch_id == batch_id)
-                .order_by(BatchAssessmentItem.source_row_number)
-                .offset(offset)
-                .limit(limit)
-            ).all()
-            results = []
-            for item, job in rows:
-                _locked_case(session, actor_id, item.case_id)
-                assessment = None
-                stored_id = job.assessment_id if job else item.assessment_id
-                if stored_id:
-                    stored = session.scalar(
-                        select(Assessment).where(
-                            Assessment.id == stored_id, Assessment.case_id == item.case_id
-                        )
-                    )
-                    if stored is None:
-                        raise AssessmentUnavailable("batch_result_unavailable")
-                    assessment = _detail(_read(session, stored))
-                    if (
-                        assessment.model_sha256 != batch.model_sha256
-                        or assessment.selected_policy != batch.policy
-                        or assessment.policy_version != batch.policy_version
-                    ):
-                        raise AssessmentUnavailable("batch_result_unavailable")
-                state = (
-                    (
-                        "queued"
-                        if job.status == "pending"
-                        else "failed_manual_review"
-                        if job.status == "failed"
-                        else job.status
-                    )
-                    if job
-                    else {
-                        "ready": "pending_dispatch",
-                        "failed": "failed_manual_review",
-                        "skipped": "skipped",
-                    }[item.status]
-                )
-                reason = (
-                    job.failure_code if job and job.failure_code in FAILURES else item.reason_code
-                )
-                results.append(
-                    {
-                        "case_id": item.case_id,
-                        "source_row_number": item.source_row_number,
-                        "outcome": state,
-                        "reason_code": reason,
-                        "job_id": job.id if job else None,
-                        "retrying": bool(job and job.status == "pending" and job.attempts > 0),
-                        "attempts": job.attempts if job else 0,
-                        "assessment": assessment,
-                    }
-                )
+            results = list(self._results_in_session(session, batch, offset, limit))
             return BatchResultsPage(
                 batch_id=batch_id, total=c["total_cases"], offset=offset, limit=limit, items=results
+            )
+
+    def _results_in_session(self, session, batch, offset, limit):
+        batch_id = batch.id
+        actor_id = batch.actor_id
+        rows = session.execute(
+            select(BatchAssessmentItem, AssessmentJob)
+            .outerjoin(AssessmentJob, AssessmentJob.id == BatchAssessmentItem.job_id)
+            .where(BatchAssessmentItem.batch_id == batch_id)
+            .order_by(BatchAssessmentItem.source_row_number)
+            .offset(offset)
+            .limit(limit)
+        ).all()
+        for item, job in rows:
+            _locked_case(session, actor_id, item.case_id)
+            assessment = None
+            stored_id = job.assessment_id if job else item.assessment_id
+            if stored_id:
+                stored = session.scalar(
+                    select(Assessment).where(
+                        Assessment.id == stored_id, Assessment.case_id == item.case_id
+                    )
+                )
+                if stored is None:
+                    raise AssessmentUnavailable("batch_result_unavailable")
+                assessment = _detail(_read(session, stored))
+                if (
+                    assessment.model_sha256 != batch.model_sha256
+                    or assessment.selected_policy != batch.policy
+                    or assessment.policy_version != batch.policy_version
+                ):
+                    raise AssessmentUnavailable("batch_result_unavailable")
+            state = (
+                (
+                    "queued"
+                    if job.status == "pending"
+                    else "failed_manual_review"
+                    if job.status == "failed"
+                    else job.status
+                )
+                if job
+                else {
+                    "ready": "pending_dispatch",
+                    "failed": "failed_manual_review",
+                    "skipped": "skipped",
+                }[item.status]
+            )
+            reason = job.failure_code if job and job.failure_code in FAILURES else item.reason_code
+            yield (
+                {
+                    "case_id": item.case_id,
+                    "source_row_number": item.source_row_number,
+                    "outcome": state,
+                    "reason_code": reason,
+                    "job_id": job.id if job else None,
+                    "retrying": bool(job and job.status == "pending" and job.attempts > 0),
+                    "attempts": job.attempts if job else 0,
+                    "assessment": assessment,
+                }
             )
 
 

@@ -18,10 +18,13 @@ from app.core.database import make_engine
 from app.main import create_app
 from app.models import Alert, Case, User
 from app.schemas.alerts import FEATURE_CONTRACT_VERSION, AlertFeatures, AlertIngestionInput
+from app.schemas.csv_uploads import COLUMNS
 from app.security.auth import password_hash
 from app.services.assessment_jobs import AssessmentJobService
+from app.services.csv_imports import CSVImportService
 from app.services.ingestion import fingerprints
 from app.workers.assessment_worker import AssessmentWorker
+from app.workers.csv_import_worker import CSVImportWorker
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateSchema, DropSchema
@@ -48,7 +51,11 @@ def main():
     try:
         command.upgrade(Config("backend/alembic.ini"), "head")
         # Many independent browser logins share loopback; leave production defaults unchanged.
-        settings = Settings(login_attempt_limit=100)
+        settings = Settings(
+            login_attempt_limit=100,
+            csv_staging_root=Path("/tmp/csv-staging"),
+            batch_assessment_dispatch_enabled=True,
+        )
         # Match the existing synthetic fixture's documented Docker guest-clock workaround.
         # Password login/signing/verification/current DB permissions remain the real services.
         # Never change production validation leeway or allow arbitrary/future-issued tokens.
@@ -73,6 +80,7 @@ def main():
                     ("uiother", "analyst"),
                     ("uisupervisor", "supervisor"),
                     ("uiadmin", "admin"),
+                    ("uibatchadmin", "admin"),
                 ]
             }
             session.add_all(users.values())
@@ -123,9 +131,19 @@ def main():
             admin_id=UUID(user_ids["uiadmin"]), name="browser-acceptance", token=token
         )
         worker = AssessmentWorker(queue, token, stop)
+        import_queue = CSVImportService(engine, settings)
+        import_token = secrets.token_hex(32)
+        import_queue.register_worker(
+            UUID(user_ids["uiadmin"]), "browser-import-worker", import_token
+        )
+        import_worker = CSVImportWorker(import_queue, import_token)
 
         def work():
             while not stop.is_set():
+                try:
+                    import_worker.run_once()
+                except Exception:
+                    pass
                 if enabled.is_set():
                     try:
                         if fail_next.is_set():
@@ -156,7 +174,16 @@ def main():
         assert server.started
         # Captured by the host runner in an ignored file; never printed to tool/user logs.
         print(
-            json.dumps({"ready": True, "password": password, "cases": cases, "users": user_ids}),
+            json.dumps(
+                {
+                    "ready": True,
+                    "password": password,
+                    "cases": cases,
+                    "users": user_ids,
+                    "csv_columns": list(COLUMNS),
+                    "feature_contract_version": FEATURE_CONTRACT_VERSION,
+                }
+            ),
             flush=True,
         )
 
@@ -180,6 +207,11 @@ def main():
                             enabled.clear()
                         if request.get("worker") == "start":
                             enabled.set()
+                        if request.get("revoke_batch_admin"):
+                            with Session(engine) as session, session.begin():
+                                session.get(
+                                    User, UUID(user_ids["uibatchadmin"])
+                                ).role = "supervisor"
                         target = control / f"ack.{sequence}.json"
                         target.write_text(json.dumps({"sequence": sequence}))
                 except (ValueError, KeyError, OSError):

@@ -12,7 +12,7 @@ Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phas
 | UI | Memory-only React sessions, authorized alert dashboard, safe case details, verified SHAP/history and asynchronous assessment workflow | Assignment editor, notes, evidence, human approval/report workflows |
 | Scientific worker | Bounded Linux execution, fencing/recovery/retries, stage timing and measured local fault/load acceptance | Production capacity/SLO, HA and operational deployment |
 | Policy engine | Frozen rules, 12000-route parity, immutable recommendations and case-scoped HTTP retrieval | Human review workflow; no automatic case action |
-| Explanation service | Exact SHAP, verified 41-to-27 grouping, immutable storage, bounded worker and redacted case-scoped API retrieval | Workbench integration |
+| Explanation service | Exact SHAP, verified 41-to-27 grouping, immutable storage, bounded worker, redacted APIs and reusable case/batch UI | Production acceptance |
 
 Implemented Phase 2.10.1-2.10.3 staging/preview/import boundary: admin-only contract/template/raw-CSV upload/owned metadata, private durable API volume, upload receipts plus versioned mapping/preview and diagnostic tables, expiry/orphan reconciliation and audit. Only explicit approved import creates canonical alerts/cases; no ML jobs are created. See [phased onboarding](PHASE2_10_BATCH_ONBOARDING.md) and [concrete staging contracts](PHASE2_10_1_CSV_STAGING.md) and [mapping/preview API](PHASE2_10_2_VALIDATION_PREVIEW.md) [durable import](PHASE2_10_3_DURABLE_IMPORT.md) and [explicit bounded batch assessment](PHASE2_10_4_BATCH_ASSESSMENT.md).
 
@@ -36,6 +36,13 @@ flowchart LR
   Dispatch --> AssessmentQueue[(Existing ML jobs and atomic member links)]
   AssessmentQueue --> ML[Existing trusted Linux RF / policy / SHAP worker]
   ML --> BatchResults[Verified results and SQL aggregate progress]
+  React[2.10.5 admin React batch workflow] --> Stream
+  React --> Preview
+  React --> Approval
+  React --> Explicit
+  BatchResults --> React
+  React --> Export[Bounded owned result export and formula protection]
+  Export --> AuditExport[(Committed range and digest audit)]
 ```
 
 Implemented Phase 2.8 operational flow (no frontend or additional service):
@@ -201,3 +208,9 @@ Solid arrows represent intended MVP flows; dashed arrows are future integrations
 | Monitoring/evaluation | Operational failures and drift; reviewed offline experiments and explicit model promotion |
 
 Preserve the baseline namespace in the worker; the API uses `app`. Do not add graph/behavioral features to the frozen 27-predictor pipeline. A graph database, Kafka, Kubernetes and multiple agents are not prerequisites for this MVP.
+
+## Phase 2.10.5 batch browser and export boundary
+
+- `frontend/src/batch.tsx`, `batch-api.ts` and `batch.css` reuse existing authentication, APIs and SHAP/history components. Exact server-generated mapping, separate explicit import/assessment, bounded cancellable polling and resume links; no browser model or raw-cell preview.
+- One minimal backend export route reuses owned batch/current case scope, verified projections, fixed fields and shared rate budget. Bounded CSV bytes and range/digest audit commit before download; no new schema, queue or worker.
+- [Concrete workflow, API, failure behavior and acceptance](PHASE2_10_5_BATCH_FRONTEND.md). Full 2.10.6 acceptance and Phase 3 remain pending; files are unscanned.

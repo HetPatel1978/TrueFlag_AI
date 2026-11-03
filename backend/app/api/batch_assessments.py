@@ -15,6 +15,7 @@ from app.models import User
 from app.schemas.batch_assessments import BatchAssessmentStart, BatchProgress, BatchResultsPage
 from app.services.assessment_api import AssessmentAPIService
 from app.services.batch_assessments import BatchAssessmentService, BatchCapacity
+from app.services.batch_export import ExportLimit, export_results
 from app.services.csv_staging import UploadDenied
 
 router = APIRouter(tags=["Batch AML assessments"])
@@ -109,3 +110,33 @@ def batch_assessment_results(
 ):
     with errors(request):
         return service(request).get(user.id, batch_id, offset=offset, limit=limit)
+
+
+@router.get("/api/v1/batch-assessments/{batch_id}/export")
+def batch_assessment_export(
+    batch_id: UUID,
+    request: Request,
+    offset: Annotated[int, Query(ge=0, le=10000)] = 0,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 500,
+    user: User = Depends(reader),
+):
+    if set(request.query_params) - {"offset", "limit"}:
+        raise HTTPException(422, "Only a bounded export range may be requested")
+    with errors(request):
+        try:
+            payload, total, returned = export_results(
+                service(request), user.id, batch_id, offset, limit
+            )
+        except ExportLimit:
+            raise HTTPException(
+                413, "Export exceeds configured row or byte limits; request a smaller range"
+            ) from None
+    return Response(
+        payload,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="trueflag-results-{batch_id}-{offset + 1}.csv"',
+            "X-Export-Total": str(total),
+            "X-Export-Rows": str(returned),
+        },
+    )

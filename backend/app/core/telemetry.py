@@ -54,6 +54,7 @@ ROUTES = frozenset(
         "start_batch_assessment",
         "batch_assessment_status",
         "batch_assessment_results",
+        "batch_assessment_export",
         "case_assignment",
         "request_assessment",
         "assessment_job",

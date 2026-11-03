@@ -34,7 +34,7 @@ def main():
     if settings.get("jobs_only"):
         paths = ["backend/tests/test_assessment_jobs.py", "backend/tests/test_assessment_worker.py"]
     if settings.get("batch_only"):
-        paths = ["backend/tests/test_batch_assessments.py"]
+        paths = ["backend/tests/test_batch_assessments.py", "backend/tests/test_batch_export.py"]
     return pytest.main(
         [*paths, "-q", "--tb=short", "-p", "no:cacheprovider", "--basetemp", "/tmp/pytest"]
     )

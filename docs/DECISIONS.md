@@ -130,3 +130,10 @@
 ## Upstream engineering references
 
 See TECH_STACK for framework documentation. Guidance informs implementation choices; it does not certify AML compliance or establish actual-data access rights.
+
+## Phase 2.10.5 ? reuse existing batch APIs; add only bounded result export
+
+- Use existing React session/API/SHAP/history foundations and current admin-only bulk permission. Resume from owned import IDs/links; do not add a dataset browser or new roles. Keep import approval and ML Start Assessment separate.
+- Preserve uncertain request content/key in memory; server idempotency remains authoritative. Poll sequentially with five-minute/60-read bound and cleanup; no extra push service.
+- Export one explicit bounded range with fixed fields, current all-member permissions, existing verified projections and committed digest audit. Buffer within row/byte caps to avoid partially disclosed files when later permission/integrity/audit checks fail. Formula quoting/prefix defense on every field; no predictors/source IDs.
+- No migration, scientific logic, extra worker or dependency upgrade. No unscanned-file safety claim; downloaded-file retention remains operational policy. Stop before 2.10.6/Phase 3.

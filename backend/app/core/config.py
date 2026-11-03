@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     batch_assessment_interval_seconds: int = Field(default=2, ge=1, le=30)
     batch_assessment_groups_per_tick: int = Field(default=3, ge=1, le=10)
     batch_assessment_dispatch_enabled: bool = False
+    batch_export_max_rows: int = Field(default=500, ge=1, le=1000)
+    batch_export_max_bytes: int = Field(default=1048576, ge=1024, le=4194304)
 
     @field_validator("jwt_secret")
     @classmethod

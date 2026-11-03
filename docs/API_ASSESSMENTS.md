@@ -90,3 +90,9 @@ See [Phase 2.9](PHASE2_9_FRONTEND.md): explicit 202 workflow, session-scoped run
 ## Explicit batch assessment (Phase 2.10.4)
 
 Owned completed/partially completed imports can request a separate explicit batch through `POST /api/v1/batch-imports/{import_id}/assessments` (202). Protected batch status and bounded verified results reuse the existing job/persistence/projection contracts. The shared API budget and queue limits remain authoritative. No import-triggered inference or new single-case scoring contract. See [batch requests, counters, permissions and reuse](PHASE2_10_4_BATCH_ASSESSMENT.md).
+
+## Authorized batch export and React workflow (Phase 2.10.5)
+
+- `GET /api/v1/batch-assessments/{batch_id}/export?offset=0&limit=500`: current admin, owned batch and all member-case scope; fixed CSV fields, formula neutralization, no predictors/source IDs. Row/byte caps return 413 without partial output; unknown fields 422; existing authorization/rate/sanitized failure semantics apply.
+- Commit `batch.assessment.exported` range/count/bytes/SHA audit before sending bytes. UTF-8 BOM/quoted cells, generated attachment filename and no-store headers; X-Export-Total/X-Export-Rows support explicit bounded ranges.
+- React Batch Processing uses the existing 2.10.1?2.10.4 contracts unchanged; two separate explicit approvals, cancellable bounded polling, persisted import links and case/history drill-down. [Full export allowlist and workflow contract](PHASE2_10_5_BATCH_FRONTEND.md).
