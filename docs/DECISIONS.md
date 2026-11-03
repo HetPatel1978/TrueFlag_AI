@@ -137,3 +137,10 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 - Preserve uncertain request content/key in memory; server idempotency remains authoritative. Poll sequentially with five-minute/60-read bound and cleanup; no extra push service.
 - Export one explicit bounded range with fixed fields, current all-member permissions, existing verified projections and committed digest audit. Buffer within row/byte caps to avoid partially disclosed files when later permission/integrity/audit checks fail. Formula quoting/prefix defense on every field; no predictors/source IDs.
 - No migration, scientific logic, extra worker or dependency upgrade. No unscanned-file safety claim; downloaded-file retention remains operational policy. Stop before 2.10.6/Phase 3.
+
+## Phase 2.10.6 ? accept the existing architecture within measured local limits
+
+- Execute the complete existing pipeline with real Linux/PostgreSQL workers; preserve all model/policy/SHAP/schema/runtime behavior. Add acceptance tools/tests and evidence only. Separate scientific reference parity, operational load and security/fault scenarios.
+- Keep default ingress/import/export/rate limits. Measure 100 and 1000 synthetic rows with two actual workers and deliberate 20-job backpressure; reject 5000 at the 2000-row default. No quota inflation or invented production capacity/SLO.
+- Fix a discovered test timing assumption with PostgreSQL-clock availability and bounded terminal-state polling, retaining exact count assertions. Production scheduler unchanged. Test actual RF/SHAP stage-boundary process loss before publication and real API/dispatcher/browser resume.
+- Local Phase 2.10 acceptance **PASS**, subject to [matrix, measurements and residual gates](PHASE2_10_6_ACCEPTANCE.md). Keep cold per-record initialization unchanged; optimization needs separate evaluated scope. Malware scanning unavailable; no certification, later-phase implementation or push.

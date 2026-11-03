@@ -22,7 +22,15 @@ def main():
     parser.add_argument("--jobs-only", action="store_true")
     parser.add_argument("--batch-only", action="store_true")
     parser.add_argument("--benchmark", action="store_true")
+    parser.add_argument("--batch-benchmark", action="store_true")
+    parser.add_argument(
+        "--batch-smoke",
+        action="store_true",
+        help="Eight real-model cases; no recorded load baseline",
+    )
     args = parser.parse_args()
+    if args.batch_smoke and not args.batch_benchmark:
+        parser.error("--batch-smoke requires --batch-benchmark")
     if args.build:
         result = subprocess.run(
             [
@@ -81,12 +89,51 @@ def main():
             IMAGE,
             "python",
             "-B",
-            "scripts/benchmark_operations.py"
+            "scripts/benchmark_batch.py"
+            if args.batch_benchmark
+            else "scripts/benchmark_operations.py"
             if args.benchmark
             else "scripts/verify_assessment_persistence.py",
         ]
     )
     # No environment/command-line persistence of DB credentials in Docker inspect.
+    if args.batch_benchmark:
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            cwd=ROOT,
+        )
+        process.stdin.write(json.dumps({"database_url": database_url, "smoke": args.batch_smoke}))
+        process.stdin.close()
+        report = None
+        for line in process.stdout:
+            try:
+                value = json.loads(line)
+            except ValueError:
+                continue  # Scientific libraries/driver diagnostics never reach public output.
+            if value.get("event") == "report":
+                report = value
+            elif value.get("event") in {"progress", "workload_complete"}:
+                print(json.dumps(value), flush=True)
+        process.stdout.close()
+        code = process.wait(timeout=60)
+        if report is None:
+            print(json.dumps({"status": "FAIL", "reason": "batch_benchmark_output_invalid"}))
+            return 1
+        if code == 0 and report.get("status") == "PASS":
+            (
+                ROOT
+                / (
+                    "runtime/phase2-10-6-smoke.json"
+                    if args.batch_smoke
+                    else "docs/PHASE2_10_6_BENCHMARK.json"
+                )
+            ).write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(json.dumps(report, sort_keys=True))
+        return code
     if args.benchmark:
         completed = subprocess.run(
             command,
@@ -108,6 +155,26 @@ def main():
         text_report.pop("monitoring", None)
         print(json.dumps(text_report, sort_keys=True))
         return completed.returncode
+    if args.full_backend:
+        process = subprocess.Popen(
+            command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, cwd=ROOT
+        )
+        process.stdin.write(json.dumps({"database_url": database_url, "full_backend": True}))
+        process.stdin.close()
+        evidence = None
+        for line in process.stdout:
+            if line.startswith("TRUEFLAG_BATCH_RECOVERY:"):
+                evidence = json.loads(line.split(":", 1)[1])
+            else:
+                print(line, end="", flush=True)
+        process.stdout.close()
+        code = process.wait(timeout=60)
+        if code == 0 and evidence and evidence["status"] == "PASS":
+            (ROOT / "docs/PHASE2_10_6_RECOVERY.json").write_text(
+                json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            print(json.dumps({"recovery_scenarios": len(evidence["scenarios"]), "status": "PASS"}))
+        return code
     return subprocess.run(
         command,
         input=json.dumps(

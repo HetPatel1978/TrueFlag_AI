@@ -96,3 +96,9 @@ Owned completed/partially completed imports can request a separate explicit batc
 - `GET /api/v1/batch-assessments/{batch_id}/export?offset=0&limit=500`: current admin, owned batch and all member-case scope; fixed CSV fields, formula neutralization, no predictors/source IDs. Row/byte caps return 413 without partial output; unknown fields 422; existing authorization/rate/sanitized failure semantics apply.
 - Commit `batch.assessment.exported` range/count/bytes/SHA audit before sending bytes. UTF-8 BOM/quoted cells, generated attachment filename and no-store headers; X-Export-Total/X-Export-Rows support explicit bounded ranges.
 - React Batch Processing uses the existing 2.10.1?2.10.4 contracts unchanged; two separate explicit approvals, cancellable bounded polling, persisted import links and case/history drill-down. [Full export allowlist and workflow contract](PHASE2_10_5_BATCH_FRONTEND.md).
+
+## Phase 2.10.6 acceptance
+
+- HTTP/DTO contracts unchanged. [Full-workflow matrix and benchmark](PHASE2_10_6_ACCEPTANCE.md) exercise existing protected staging, explicit approval/import, explicit batch dispatch, case/history, immutable results and authorized CSV export.
+- Default staging limit is 2000 rows; 5000-row files return 413 before canonical writes. Exports remain bounded ranges under the existing row/byte allowlist and current all-member authorization.
+- Replaying the same import/policy/artifact intent after API/browser restart returns the original batch; it does not request a new assessment version. Browser reload still requires authentication. The existing decisions table contains model recommendations; human case state/disposition remains separate.

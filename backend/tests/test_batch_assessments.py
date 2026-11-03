@@ -5,6 +5,7 @@ import os
 import secrets
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
@@ -76,7 +77,7 @@ def due(env, batch_id):
     with Session(env["engine"]) as session, session.begin():
         row = session.get(BatchAssessment, UUID(str(batch_id)))
         if row.status == "active":
-            row.available_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+            row.available_at = session.scalar(select(func.clock_timestamp())) - timedelta(seconds=1)
 
 
 def advance(env, batch_id):
@@ -198,18 +199,21 @@ def test_group_size_queue_capacity_and_dynamic_counters(batch_env):
     retry = env["batch"].get(env["actor_id"], UUID(bid))
     assert retry.queued == retry.retrying == 1 and retry.failed_manual_review == 0
     with Session(env["engine"]) as session, session.begin():
-        session.get(AssessmentJob, claim.job_id).available_at = datetime.now(
-            timezone.utc
+        session.get(AssessmentJob, claim.job_id).available_at = session.scalar(
+            select(func.clock_timestamp())
         ) - timedelta(seconds=1)
     claim = env["ml"].claim(env["ml_token"])
     env["ml"].fail(env["ml_token"], claim, "child_failed", retryable=False)
     assert advance(env, bid).failed_manual_review == 1
     assert total(env, AssessmentJob) == 2
-    for _ in range(5):
+    # An idle SKIP LOCKED/due-time poll is not proof of a drained durable queue.
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
         fail_all(env)
         progress = advance(env, bid)
         if progress.status == "failed":
             break
+        time.sleep(0.02)
     assert progress.failed_manual_review == 4 and progress.status == "failed"
     assert total(env, AssessmentJob) == 4
     with Session(env["engine"]) as session:

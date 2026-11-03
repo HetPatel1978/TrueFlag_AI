@@ -24,10 +24,10 @@ flowchart LR
   Worker --> Results[Existing immutable results and audit]
   UI[2.10.5: authorized React batch experience and safe export] --> Preview
   Results --> UI
-  Acceptance[2.10.6: security, E2E, recovery and bounded load] -.-> UI
+  Acceptance[2.10.6: security, E2E, recovery and bounded load] --> UI
 ```
 
-Solid edges are implemented in 2.10.1-2.10.5; dispatch requires a separate explicit Start Assessment request. Dashed edges are planned acceptance, not completed work.
+Solid edges represent implemented 2.10.1-2.10.5 flows and completed 2.10.6 local acceptance; dispatch still requires a separate explicit Start Assessment request. Production acceptance is a separate gate.
 
 | Subphase | Responsibility / acceptance boundary | Status |
 |---|---|---|
@@ -36,7 +36,7 @@ Solid edges are implemented in 2.10.1-2.10.5; dispatch requires a separate expli
 | 2.10.3 | Explicit approval, versioned mapping/file identity, chunk checkpoints, row/source/idempotency conflicts and restart-safe import through existing semantics | Implemented; [durable import](PHASE2_10_3_DURABLE_IMPORT.md) |
 | 2.10.4 | Authorized bounded dispatch through existing durable queue; progress, quotas and retries; no synchronous model work in HTTP | Implemented; [batch assessment](PHASE2_10_4_BATCH_ASSESSMENT.md) |
 | 2.10.5 | Upload/preview/approval/progress/results screens; authorized bounded export with spreadsheet-formula protections | Implemented; [frontend/export contract](PHASE2_10_5_BATCH_FRONTEND.md) |
-| 2.10.6 | Real-model/browser/load/recovery acceptance for the complete batch workflow, separated from original scientific replay | Not implemented |
+| 2.10.6 | Real-model/browser/load/recovery acceptance for the complete batch workflow, separated from original scientific replay | PASS in bounded local synthetic scope; [matrix and measured evidence](PHASE2_10_6_ACCEPTANCE.md) |
 
 ## Reuse and decisions
 
@@ -49,4 +49,4 @@ Solid edges are implemented in 2.10.1-2.10.5; dispatch requires a separate expli
 
 ## Next design gate
 
-2.10.5 adds the authorized React workflow and bounded audited export. Next, after a new request: **2.10.6 complete-workflow security/load/recovery acceptance**. No automatic import-triggered assessment or Phase 3 work is implemented.
+2.10.6 completes bounded local synthetic acceptance of the React/API/import/ML/export workflow. Next, after a new request: **Phase 3 corpus/source rights, permission and retrieval design approval**. No automatic import-triggered assessment or Phase 3 implementation; enterprise deployment/security gates remain separate.

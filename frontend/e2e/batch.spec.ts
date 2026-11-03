@@ -17,6 +17,7 @@ async function control(command: {
   worker?: 'start' | 'pause';
   fail_next?: boolean;
   revoke_batch_admin?: boolean;
+  restart_api?: boolean;
 }) {
   const directory = dirname(fixturePath!);
   const sequence =
@@ -336,4 +337,58 @@ test('analyst restrictions and batch-admin revocation clear protected workflow s
   await expect(
     page.getByRole('button', { name: 'View explanation', exact: true }),
   ).toHaveCount(0);
+});
+
+test('API/dispatcher restart and browser reload resume one durable batch without reassessment', async ({
+  page,
+}) => {
+  test.setTimeout(90000);
+  await control({ worker: 'pause' });
+  await login(page);
+  await validate(page, ['', '0']);
+  const importID = await approve(page);
+  await start(page);
+  await expect(stat(page, 'Queued')).toHaveText('2');
+  const saved = new URL(page.url()).hash;
+  await control({ restart_api: true });
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: 'Welcome back' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('rf-score')).toHaveCount(0);
+  await page.getByLabel('Username', { exact: true }).fill('uiadmin');
+  await page.getByLabel('Password', { exact: true }).fill(fixture.password);
+  await page.getByLabel('Password', { exact: true }).press('Enter');
+  await expect(stat(page, 'Queued')).toHaveText('2');
+  expect(new URL(page.url()).hash).toBe(saved);
+  await control({ worker: 'start' });
+  await expect(stat(page, 'Succeeded')).toHaveText('2', { timeout: 45000 });
+  await page.getByRole('link', { name: 'New upload', exact: true }).click();
+  await page.getByLabel('Import ID', { exact: true }).fill(importID);
+  await page
+    .getByRole('button', { name: 'Resume import', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: 'Start ML assessment', exact: true }),
+  ).toBeVisible();
+  await start(page);
+  expect(new URL(page.url()).hash).toBe(saved);
+  await expect(stat(page, 'Succeeded')).toHaveText('2');
+  await expect(
+    page.getByRole('button', { name: 'View explanation', exact: true }),
+  ).toHaveCount(2);
+  await page
+    .getByRole('link', { name: 'Case & history', exact: true })
+    .first()
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'View assessment version 1' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'View assessment version 2' }),
+  ).toHaveCount(0);
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  expect(
+    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
+  ).toEqual([0, 0]);
 });

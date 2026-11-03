@@ -207,6 +207,28 @@ def main():
                             enabled.clear()
                         if request.get("worker") == "start":
                             enabled.set()
+                        if request.get("restart_api"):
+                            # Exercise real TCP listener/lifespan/dispatcher restart, not a mock response.
+                            server.should_exit = True
+                            server_thread.join(timeout=10)
+                            assert not server_thread.is_alive()
+                            app = create_app(settings, engine)
+                            server = uvicorn.Server(
+                                uvicorn.Config(
+                                    app,
+                                    host="0.0.0.0",
+                                    port=8000,
+                                    log_config=None,
+                                    access_log=False,
+                                    log_level="error",
+                                )
+                            )
+                            server_thread = threading.Thread(target=server.run, daemon=True)
+                            server_thread.start()
+                            ready_until = time.monotonic() + 10
+                            while not server.started and time.monotonic() < ready_until:
+                                stop.wait(0.05)
+                            assert server.started
                         if request.get("revoke_batch_admin"):
                             with Session(engine) as session, session.begin():
                                 session.get(

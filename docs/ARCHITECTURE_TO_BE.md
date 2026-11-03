@@ -214,3 +214,10 @@ Preserve the baseline namespace in the worker; the API uses `app`. Do not add gr
 - `frontend/src/batch.tsx`, `batch-api.ts` and `batch.css` reuse existing authentication, APIs and SHAP/history components. Exact server-generated mapping, separate explicit import/assessment, bounded cancellable polling and resume links; no browser model or raw-cell preview.
 - One minimal backend export route reuses owned batch/current case scope, verified projections, fixed fields and shared rate budget. Bounded CSV bytes and range/digest audit commit before download; no new schema, queue or worker.
 - [Concrete workflow, API, failure behavior and acceptance](PHASE2_10_5_BATCH_FRONTEND.md). Full 2.10.6 acceptance and Phase 3 remain pending; files are unscanned.
+
+## Phase 2.10.6 acceptance boundary
+
+- No new runtime service, public API, schema or scientific behavior. The complete existing CSV/approval/import/dispatch/Linux ML/persistence/React/export architecture is exercised through actual TCP APIs and isolated PostgreSQL schemas.
+- New consolidated cross-stage tests verify rejection/conflict/reuse through history/export; controlled real RF/SHAP stage-boundary SIGKILL tests verify no partial publication; real API/lifespan/dispatcher restart plus browser reload verifies durable resume and no reassessment.
+- Bounded 100/1000-row workloads retain default parser/import/export/rate limits; a test-only 20-job queue measures backpressure. 5000 rows are rejected at the default 2000-row ingress limit. [Acceptance matrix, measurements and residual boundaries](PHASE2_10_6_ACCEPTANCE.md).
+- Local synthetic evidence does not certify production security/capacity. Malware scanning, enterprise identity/SQL roles/tenancy, TLS/retention/HA and source/data governance remain separate gates. No Phase 3 implementation.

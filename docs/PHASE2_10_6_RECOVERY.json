@@ -1,0 +1,76 @@
+{
+  "measurement": "Complete test-call wall time, including fault injection, recovery and assertions; not production MTTR.",
+  "scenarios": [
+    {
+      "outcome": "passed",
+      "scenario_seconds": 1.1014,
+      "test": "tests/test_assessment_worker.py::test_actual_child_dies_when_supervisor_is_killed"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 4.1472,
+      "test": "tests/test_batch_acceptance.py::test_real_scientific_stage_kill_recovers_without_partial_result[rf]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 4.9884,
+      "test": "tests/test_batch_acceptance.py::test_real_scientific_stage_kill_recovers_without_partial_result[shap]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 2.9086,
+      "test": "tests/test_batch_assessments.py::test_actual_batch_result_cannot_publish_after_bulk_permission_revocation[bulk_role]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 3.7462,
+      "test": "tests/test_batch_assessments.py::test_actual_batch_result_cannot_publish_after_bulk_permission_revocation[assignment]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 3.0118,
+      "test": "tests/test_batch_assessments.py::test_real_worker_crash_then_restart_produces_one_assessment"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.2303,
+      "test": "tests/test_batch_assessments.py::test_expired_ml_lease_recovery_is_reflected_in_batch_counts"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.2577,
+      "test": "tests/test_batch_assessments.py::test_dispatch_database_disconnect_rolls_back_jobs_and_links"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 1.1166,
+      "test": "tests/test_batch_assessments.py::test_dispatcher_process_crash_recovers_without_duplicate_jobs[False]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 1.1385,
+      "test": "tests/test_batch_assessments.py::test_dispatcher_process_crash_recovers_without_duplicate_jobs[True]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.1247,
+      "test": "tests/test_csv_imports.py::test_chunk_database_failure_rolls_back_all_writes"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.2179,
+      "test": "tests/test_csv_imports.py::test_database_disconnect_preserves_prior_chunks_and_resumes"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.9313,
+      "test": "tests/test_csv_imports.py::test_real_linux_process_death_and_restart[False]"
+    },
+    {
+      "outcome": "passed",
+      "scenario_seconds": 0.9615,
+      "test": "tests/test_csv_imports.py::test_real_linux_process_death_and_restart[True]"
+    }
+  ],
+  "status": "PASS"
+}
