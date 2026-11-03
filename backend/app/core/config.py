@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     csv_import_actor_capacity: int = Field(default=3, ge=1, le=20)
     csv_import_lease_seconds: int = Field(default=60, ge=30, le=120)
     csv_import_chunk_timeout_seconds: int = Field(default=10, ge=1, le=15)
+    batch_assessment_group_size: int = Field(default=10, ge=1, le=25)
+    batch_assessment_capacity: int = Field(default=20, ge=1, le=100)
+    batch_assessment_actor_capacity: int = Field(default=3, ge=1, le=20)
+    batch_assessment_interval_seconds: int = Field(default=2, ge=1, le=30)
+    batch_assessment_groups_per_tick: int = Field(default=3, ge=1, le=10)
+    batch_assessment_dispatch_enabled: bool = False
 
     @field_validator("jwt_secret")
     @classmethod

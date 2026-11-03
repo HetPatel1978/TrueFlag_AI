@@ -321,65 +321,21 @@ class AssessmentJobService:
             or type(request_audit) is not bool
         ):
             raise JobError("invalid_admission_settings")
-        key_sha = digest({"actor_id": str(actor_id), "key": idempotency_key})
         for attempt in range(2):
             try:
                 with Session(self.engine) as session, session.begin():
                     _timeouts(session)
-                    case = _locked_case(session, actor_id, case_id)
-                    snapshot, _ = _snapshot(session, case)
-                    request_sha = _request(
-                        actor_id, case_id, expected_version, run_id, policy, snapshot
-                    )
-                    rows = session.scalars(
-                        select(AssessmentJob).where(
-                            or_(
-                                AssessmentJob.run_id == run_id,
-                                AssessmentJob.key_sha256 == key_sha,
-                            )
-                        )
-                    ).all()
-                    if rows:
-                        if (
-                            len(rows) != 1
-                            or rows[0].request_sha256 != request_sha
-                            or rows[0].key_sha256 != key_sha
-                            or rows[0].run_id != run_id
-                        ):
-                            raise AssessmentConflict("job_idempotency_conflict")
-                        if request_audit:
-                            _event(session, rows[0], "requested", created=False)
-                        return _view(rows[0]), False
-                    prior = _prior(session, key_sha, run_id, request_sha)
-                    if prior is None and (
-                        case.version != expected_version or case.status == "closed"
-                    ):
-                        raise AssessmentConflict("job_stale_case")
-                    if prior is not None:
-                        _read(session, prior)
-                    else:
-                        _capacity(session, capacity)
-                    job = AssessmentJob(
-                        id=uuid4(),
-                        case_id=case_id,
+                    return self.enqueue_in_transaction(
+                        session,
                         actor_id=actor_id,
-                        run_id=run_id,
+                        case_id=case_id,
                         expected_version=expected_version,
+                        run_id=run_id,
+                        idempotency_key=idempotency_key,
                         policy=policy,
-                        key_sha256=key_sha,
-                        request_sha256=request_sha,
-                        snapshot=snapshot,
-                        attempts=0,
-                        status="succeeded" if prior else "pending",
-                        available_at=_now(session),
-                        assessment_id=prior.id if prior else None,
+                        capacity=capacity,
+                        request_audit=request_audit,
                     )
-                    session.add(job)
-                    session.flush()
-                    _event(session, job, "enqueued", reused_assessment=prior is not None)
-                    if request_audit:
-                        _event(session, job, "requested", created=True)
-                    return _view(job), True
             except IntegrityError as error:
                 if getattr(getattr(error.orig, "diag", None), "constraint_name", None) not in {
                     "uq_job_key",
@@ -388,6 +344,79 @@ class AssessmentJobService:
                     raise
                 if attempt:
                     raise AssessmentConflict("job_idempotency_conflict") from None
+
+    def enqueue_in_transaction(
+        self,
+        session,
+        *,
+        actor_id,
+        case_id,
+        expected_version,
+        run_id,
+        idempotency_key,
+        policy,
+        capacity=1000,
+        request_audit=False,
+    ):
+        """Caller owns the transaction; shared admission/identity/snapshot semantics."""
+        _arguments(actor_id, case_id, expected_version, run_id, idempotency_key, policy)
+        if (
+            type(capacity) is not int
+            or not 1 <= capacity <= 100000
+            or type(request_audit) is not bool
+        ):
+            raise JobError("invalid_admission_settings")
+        key_sha = digest({"actor_id": str(actor_id), "key": idempotency_key})
+        case = _locked_case(session, actor_id, case_id)
+        snapshot, _ = _snapshot(session, case)
+        request_sha = _request(actor_id, case_id, expected_version, run_id, policy, snapshot)
+        rows = session.scalars(
+            select(AssessmentJob).where(
+                or_(
+                    AssessmentJob.run_id == run_id,
+                    AssessmentJob.key_sha256 == key_sha,
+                )
+            )
+        ).all()
+        if rows:
+            if (
+                len(rows) != 1
+                or rows[0].request_sha256 != request_sha
+                or rows[0].key_sha256 != key_sha
+                or rows[0].run_id != run_id
+            ):
+                raise AssessmentConflict("job_idempotency_conflict")
+            if request_audit:
+                _event(session, rows[0], "requested", created=False)
+            return _view(rows[0]), False
+        prior = _prior(session, key_sha, run_id, request_sha)
+        if prior is None and (case.version != expected_version or case.status == "closed"):
+            raise AssessmentConflict("job_stale_case")
+        if prior is not None:
+            _read(session, prior)
+        else:
+            _capacity(session, capacity)
+        job = AssessmentJob(
+            id=uuid4(),
+            case_id=case_id,
+            actor_id=actor_id,
+            run_id=run_id,
+            expected_version=expected_version,
+            policy=policy,
+            key_sha256=key_sha,
+            request_sha256=request_sha,
+            snapshot=snapshot,
+            attempts=0,
+            status="succeeded" if prior else "pending",
+            available_at=_now(session),
+            assessment_id=prior.id if prior else None,
+        )
+        session.add(job)
+        session.flush()
+        _event(session, job, "enqueued", reused_assessment=prior is not None)
+        if request_audit:
+            _event(session, job, "requested", created=True)
+        return _view(job), True
 
     @safe
     def get(self, *, actor_id, case_id, job_id):
@@ -471,6 +500,8 @@ class AssessmentJobService:
 
     @safe
     def prepare(self, token, claim):
+        from app.services.batch_authorization import check_batch_job
+
         with Session(self.engine) as session, session.begin():
             _timeouts(session)
             worker_id = _worker(session, token)
@@ -480,6 +511,7 @@ class AssessmentJobService:
                 raise LeaseLost("job_lease_lost")
             case = _locked_case(session, row.actor_id, row.case_id)
             job = _leased(session, claim, worker_id)
+            check_batch_job(session, job)
             snapshot, features = _snapshot(session, case)
             if (
                 snapshot != job.snapshot
@@ -505,6 +537,8 @@ class AssessmentJobService:
 
     @safe
     def complete(self, token, claim, result):
+        from app.services.batch_authorization import check_batch_job
+
         # Trusted worker-only method. JSON comes from our fixed isolated producer, never HTTP.
         data = self.prepare(token, claim)
         self.assessments._validate_result(
@@ -515,6 +549,7 @@ class AssessmentJobService:
             worker_id = _worker(session, token)
             _locked_case(session, data["actor_id"], data["case_id"])
             job = _leased(session, claim, worker_id)
+            check_batch_job(session, job)
             assessment, _ = self.assessments._persist_in_session(
                 session,
                 job.actor_id,

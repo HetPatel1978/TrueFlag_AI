@@ -19,6 +19,7 @@ class SecurityFormatter(logging.Formatter):
             "telemetry.unavailable",
             "telemetry.recovered",
             "csv.cleanup.unavailable",
+            "batch.dispatch.unavailable",
         }
         payload = {"event": record.msg if record.msg in allowed else "security.event"}
         ident = getattr(record, "request_id", None)

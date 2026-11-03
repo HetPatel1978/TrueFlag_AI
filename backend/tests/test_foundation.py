@@ -53,6 +53,9 @@ def test_health_and_migrated_readiness(platform):
         "csv_imports",
         "csv_import_rows",
         "csv_import_workers",
+        "batch_assessments",
+        "batch_assessment_items",
+        "batch_assessment_requests",
     }
 
 

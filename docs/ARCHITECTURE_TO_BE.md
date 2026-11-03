@@ -8,13 +8,13 @@ Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phas
 |---|---|---|
 | API/security | Current JWT/roles/case scope, protected assessment APIs, strict DTOs, shared per-user request budget, queue admission and sensitive-read audit | Enterprise IAM, tenancy, perimeter and production SQL roles |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, receipts, 21 domain tables, immutable assessments/jobs and bounded operational rollups | Production retention/governance, new sources and least-privilege SQL roles |
+| Data | Synthetic ingestion, receipts, 24 domain tables, immutable assessments/jobs and bounded operational rollups | Production retention/governance, new sources and least-privilege SQL roles |
 | UI | Memory-only React sessions, authorized alert dashboard, safe case details, verified SHAP/history and asynchronous assessment workflow | Assignment editor, notes, evidence, human approval/report workflows |
 | Scientific worker | Bounded Linux execution, fencing/recovery/retries, stage timing and measured local fault/load acceptance | Production capacity/SLO, HA and operational deployment |
 | Policy engine | Frozen rules, 12000-route parity, immutable recommendations and case-scoped HTTP retrieval | Human review workflow; no automatic case action |
 | Explanation service | Exact SHAP, verified 41-to-27 grouping, immutable storage, bounded worker and redacted case-scoped API retrieval | Workbench integration |
 
-Implemented Phase 2.10.1-2.10.3 staging/preview/import boundary: admin-only contract/template/raw-CSV upload/owned metadata, private durable API volume, upload receipts plus versioned mapping/preview and diagnostic tables, expiry/orphan reconciliation and audit. Only explicit approved import creates canonical alerts/cases; no ML jobs are created. See [phased onboarding](PHASE2_10_BATCH_ONBOARDING.md) and [concrete staging contracts](PHASE2_10_1_CSV_STAGING.md) and [mapping/preview API](PHASE2_10_2_VALIDATION_PREVIEW.md) and [durable import](PHASE2_10_3_DURABLE_IMPORT.md).
+Implemented Phase 2.10.1-2.10.3 staging/preview/import boundary: admin-only contract/template/raw-CSV upload/owned metadata, private durable API volume, upload receipts plus versioned mapping/preview and diagnostic tables, expiry/orphan reconciliation and audit. Only explicit approved import creates canonical alerts/cases; no ML jobs are created. See [phased onboarding](PHASE2_10_BATCH_ONBOARDING.md) and [concrete staging contracts](PHASE2_10_1_CSV_STAGING.md) and [mapping/preview API](PHASE2_10_2_VALIDATION_PREVIEW.md) [durable import](PHASE2_10_3_DURABLE_IMPORT.md) and [explicit bounded batch assessment](PHASE2_10_4_BATCH_ASSESSMENT.md).
 
 ```mermaid
 flowchart LR
@@ -31,7 +31,11 @@ flowchart LR
   Queue --> ImportWorker[Separate scoped Linux import worker with read-only CSV]
   ImportWorker --> Chunks[Canonical transaction core and fenced chunk commit]
   Chunks --> Rows[(Alerts, cases, row receipts, checkpoints and audits)]
-  Rows -.-> Dispatch[2.10.4 batch ML dispatch - pending]
+  Rows --> Explicit[Explicit 2.10.4 Start Assessment]
+  Explicit --> Dispatch[Bounded API dispatcher and existing shared budgets]
+  Dispatch --> AssessmentQueue[(Existing ML jobs and atomic member links)]
+  AssessmentQueue --> ML[Existing trusted Linux RF / policy / SHAP worker]
+  ML --> BatchResults[Verified results and SQL aggregate progress]
 ```
 
 Implemented Phase 2.8 operational flow (no frontend or additional service):

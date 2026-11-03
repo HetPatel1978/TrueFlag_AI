@@ -1,3 +1,3 @@
 """Expected migration for this service release; shared by readiness and verification."""
 
-EXPECTED_SCHEMA_REVISION = "0010_csv_imports"
+EXPECTED_SCHEMA_REVISION = "0011_batch_assessments"

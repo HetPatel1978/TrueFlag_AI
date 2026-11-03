@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     Uuid,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -202,6 +203,90 @@ class CSVImportRow(Base):
     reason_code: Mapped[str | None] = mapped_column(String(40))
     alert_id: Mapped[UUID | None] = mapped_column(ForeignKey("alerts.id"))
     case_id: Mapped[UUID | None] = mapped_column(ForeignKey("cases.id"))
+
+
+class BatchAssessment(Identity, Base):
+    __tablename__ = "batch_assessments"
+    __table_args__ = (
+        UniqueConstraint(
+            "import_id",
+            "policy",
+            "model_sha256",
+            "policy_sha256",
+            name="uq_batch_assessment_intent",
+        ),
+        CheckConstraint("policy IN ('Efficiency','Balanced','Coverage')", name="ck_batch_policy"),
+        CheckConstraint(
+            "status IN ('active','completed','partially_completed','failed','stopped')",
+            name="ck_batch_status",
+        ),
+        CheckConstraint(
+            "group_size >= 1 AND group_size <= 25 AND backpressure_count >= 0",
+            name="ck_batch_limits",
+        ),
+        Index("ix_batch_assessment_ready", "status", "available_at", "id"),
+    )
+    import_id: Mapped[UUID] = mapped_column(ForeignKey("csv_imports.id"))
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    import_sha256: Mapped[str] = mapped_column(String(64))
+    policy: Mapped[str] = mapped_column(String(20))
+    model_version: Mapped[str] = mapped_column(String(100))
+    model_sha256: Mapped[str] = mapped_column(String(64))
+    policy_version: Mapped[str] = mapped_column(String(180))
+    policy_sha256: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(30), default="active")
+    reason_code: Mapped[str | None] = mapped_column(String(40))
+    group_size: Mapped[int] = mapped_column()
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    backpressure_count: Mapped[int] = mapped_column(default=0)
+    audit_event_id: Mapped[UUID] = mapped_column(ForeignKey("audit_events.id"), unique=True)
+
+
+class BatchAssessmentRequest(Identity, Base):
+    __tablename__ = "batch_assessment_requests"
+    __table_args__ = (UniqueConstraint("actor_id", "key_sha256", name="uq_batch_assessment_key"),)
+    batch_id: Mapped[UUID] = mapped_column(ForeignKey("batch_assessments.id"))
+    actor_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    key_sha256: Mapped[str] = mapped_column(String(64))
+    request_sha256: Mapped[str] = mapped_column(String(64))
+
+
+class BatchAssessmentItem(Base):
+    __tablename__ = "batch_assessment_items"
+    __table_args__ = (
+        UniqueConstraint("batch_id", "source_row_number", name="uq_batch_assessment_row"),
+        CheckConstraint(
+            "source_row_number >= 2 AND source_row_number <= 10001 AND case_version >= 1",
+            name="ck_batch_item_source",
+        ),
+        CheckConstraint(
+            "(status = 'ready' AND job_id IS NULL AND assessment_id IS NULL AND reason_code IS NULL AND originated = false) OR (status = 'job' AND job_id IS NOT NULL AND assessment_id IS NULL AND reason_code IS NULL) OR (status IN ('skipped','failed') AND job_id IS NULL AND reason_code IS NOT NULL AND originated = false)",
+            name="ck_batch_item_state",
+        ),
+        Index("ix_batch_item_ready", "batch_id", "status", "source_row_number"),
+        Index("ix_batch_item_job", "job_id"),
+        Index(
+            "uq_batch_job_origin",
+            "job_id",
+            unique=True,
+            postgresql_where=text("originated = true"),
+            sqlite_where=text("originated = true"),
+        ),
+    )
+    batch_id: Mapped[UUID] = mapped_column(ForeignKey("batch_assessments.id"), primary_key=True)
+    case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"), primary_key=True)
+    alert_id: Mapped[UUID] = mapped_column(ForeignKey("alerts.id"))
+    source_row_number: Mapped[int] = mapped_column()
+    case_version: Mapped[int] = mapped_column()
+    eligible: Mapped[bool] = mapped_column(Boolean)
+    run_id: Mapped[UUID] = mapped_column(Uuid, unique=True)
+    status: Mapped[str] = mapped_column(String(20), default="ready")
+    reason_code: Mapped[str | None] = mapped_column(String(40))
+    originated: Mapped[bool] = mapped_column(Boolean, default=False)
+    job_id: Mapped[UUID | None] = mapped_column(ForeignKey("assessment_jobs.id"))
+    assessment_id: Mapped[UUID | None] = mapped_column(ForeignKey("assessments.id"))
 
 
 class Case(Identity, Base):

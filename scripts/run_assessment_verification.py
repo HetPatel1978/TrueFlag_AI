@@ -20,6 +20,7 @@ def main():
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--full-backend", action="store_true")
     parser.add_argument("--jobs-only", action="store_true")
+    parser.add_argument("--batch-only", action="store_true")
     parser.add_argument("--benchmark", action="store_true")
     args = parser.parse_args()
     if args.build:
@@ -114,6 +115,7 @@ def main():
                 "database_url": database_url,
                 "full_backend": args.full_backend,
                 "jobs_only": args.jobs_only,
+                "batch_only": args.batch_only,
             }
         ),
         text=True,

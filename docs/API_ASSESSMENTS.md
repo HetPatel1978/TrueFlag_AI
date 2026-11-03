@@ -86,3 +86,7 @@ Admin-only `GET /api/v1/internal/metrics?minutes=15` exposes bounded aggregate A
 ## React consumer
 
 See [Phase 2.9](PHASE2_9_FRONTEND.md): explicit 202 workflow, session-scoped run/key retries, bounded cancellable polling and immutable history/verified result display. No client feature values or model-generated scores are submitted.
+
+## Explicit batch assessment (Phase 2.10.4)
+
+Owned completed/partially completed imports can request a separate explicit batch through `POST /api/v1/batch-imports/{import_id}/assessments` (202). Protected batch status and bounded verified results reuse the existing job/persistence/projection contracts. The shared API budget and queue limits remain authoritative. No import-triggered inference or new single-case scoring contract. See [batch requests, counters, permissions and reuse](PHASE2_10_4_BATCH_ASSESSMENT.md).

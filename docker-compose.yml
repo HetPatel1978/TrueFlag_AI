@@ -27,6 +27,7 @@ services:
     env_file: .env
     environment:
       APP_ENV: compose
+      BATCH_ASSESSMENT_DISPATCH_ENABLED: "true"
       DATABASE_URL: postgresql+psycopg://trueflag:${POSTGRES_PASSWORD}@db:5432/trueflag
     ports: ["127.0.0.1:${BACKEND_PORT:-8010}:8000"]
     volumes: ["csv-staging:/app/runtime/csv-staging"]

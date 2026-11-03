@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.10.3
+# PostgreSQL schema - Phase 2.10.4
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0010_csv_imports**; 21 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0011_batch_assessments**; 24 domain tables plus `alembic_version`.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -19,6 +19,9 @@ Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`.
 | csv_import_workers | Separately provisioned/revocable non-login import execution identity and token hash; no ML/HTTP privileges |
 | csv_imports | Frozen actor/key/approval binding and preview/source references; mutable fenced chunk lease, counters/checkpoint, bounded retries and terminal state |
 | csv_import_rows | Unique import/logical-row receipt, created/reused/invalid/conflict status and authorized success links; no raw row values |
+| batch_assessments | Owned explicit import/policy/model intent, artifact provenance, bounded dispatch scheduling/backpressure and audited completion |
+| batch_assessment_items | Frozen case/version/source-row/run membership; immutable job/reused-result links; aggregate outcomes join the authoritative ML job records |
+| batch_assessment_requests | Immutable actor/key/content receipts; multiple keys for one intent reuse its single batch |
 | operational_metrics | Non-customer per-instance/minute cumulative count/sum/fixed histogram, indexed by minute; bounded best-effort retention |
 | assessment_api_throttles | One current authenticated actor budget: window timestamp and count; no features/IP/raw token |
 | assessment_workers | Dedicated active non-login execution identity; unique high-entropy token hash and provisioning admin |
@@ -35,6 +38,10 @@ erDiagram
     CSV_IMPORTS ||--o{ CSV_IMPORT_ROWS : committed_rows
     CSV_IMPORT_WORKERS ||--o{ CSV_IMPORTS : fenced_execution
     CSV_IMPORT_ROWS }o--o| CASES : success_link
+    CSV_IMPORTS ||--o{ BATCH_ASSESSMENTS : explicitly_requested
+    BATCH_ASSESSMENTS ||--o{ BATCH_ASSESSMENT_ITEMS : freezes_cases
+    BATCH_ASSESSMENTS ||--o{ BATCH_ASSESSMENT_REQUESTS : request_receipts
+    BATCH_ASSESSMENT_ITEMS }o--o| ASSESSMENT_JOBS : dispatches_or_observes
     USERS ||--o{ CASES : assigned
     ALERTS ||--|| CASES : creates
     CASES ||--o{ ASSESSMENTS : retains_history
@@ -91,3 +98,9 @@ erDiagram
 - Migration 0010 adds three tables; no feature/case/ML schema changes. One import/preview and actor/key uniqueness, row PK, FK/state/count/chunk constraints; database guards freeze approval envelopes, terminal imports, row receipts, approved preview diagnostics/source identity and import audit history.
 - Original single-alert wrapper retains its contract; a shared transaction core permits chunk-wide atomic alerts/cases/ingestion receipts/row receipts/checkpoints/audits. Invalid rows are excluded; source conflicts do not overwrite cases. Exact source identities reuse existing canonical cases.
 - PostgreSQL database-clock SKIP LOCKED claims, random fencing, bounded retries/recovery, global advisory admission and fresh admin/worker checks. File TTL is not extended; retained progress/approval receipts remain readable after byte expiry. Failed imports explicitly retain committed and remaining counts. See [import schema and recovery](PHASE2_10_3_DURABLE_IMPORT.md).
+
+## Phase 2.10.4 explicit batch assessment
+
+- Migration 0011 adds three tables; existing feature, model, assessment and job schemas are unchanged. Unique import/policy/artifact intent and actor/key receipts; one member/case and one originating link/job. Metadata and terminal links/audits are guarded; history downgrades refuse retained batches.
+- Existing enqueue statements now have a caller-owned transaction core. Group transaction atomically persists queue jobs, member links and audits; database lock release provides dispatcher crash recovery. The original inference lease/retry/fencing state machine remains authoritative.
+- Counters come from one joined SQL aggregate, not mutable cached job counters. Cases with verified prior assessments or compatible active jobs are reused; direct jobs retain their original authority. Originating jobs additionally recheck current bulk permission/provenance before computation and publication. [Batch API, counters and recovery](PHASE2_10_4_BATCH_ASSESSMENT.md).

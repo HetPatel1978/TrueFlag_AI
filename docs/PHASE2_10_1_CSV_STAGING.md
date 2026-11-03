@@ -103,4 +103,4 @@ New synthetic tests: `backend/tests/test_csv_staging.py`. Cover exact generated 
 
 ## Stop boundary
 
-This document records the 2.10.1 boundary. Phase 2.10.2 is now implemented separately: see [mapping and validation preview](PHASE2_10_2_VALIDATION_PREVIEW.md). Phase 2.10.3 now provides separately [approved durable import](PHASE2_10_3_DURABLE_IMPORT.md). Next is 2.10.4 explicit bounded assessment dispatch; no batch frontend or export is included.
+This document records the 2.10.1 boundary. Phase 2.10.2 is now implemented separately: see [mapping and validation preview](PHASE2_10_2_VALIDATION_PREVIEW.md). Phase 2.10.3 now provides separately [approved durable import](PHASE2_10_3_DURABLE_IMPORT.md). Phase 2.10.4 separately implements explicit bounded assessment. Next is 2.10.5 batch frontend and safe export, not implemented.

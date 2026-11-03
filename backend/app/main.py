@@ -11,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.alerts import router as alerts_router
 from app.api.assessments import router as assessments_router
+from app.api.batch_assessments import router as batch_assessments_router
 from app.api.cases import router as cases_router
 from app.api.csv_imports import router as csv_imports_router
 from app.api.csv_uploads import router as csv_uploads_router
@@ -22,6 +23,7 @@ from app.core.schema import EXPECTED_SCHEMA_REVISION
 from app.core.telemetry import Registry
 from app.security.logging import configure_security_logging
 from app.security.request_guard import RequestGuardMiddleware
+from app.services.batch_assessments import BatchAssessmentService, BatchDispatcher
 from app.services.csv_staging import CSVRetention, CSVStagingService
 from app.services.monitoring import MetricFlusher
 
@@ -38,9 +40,16 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         retention = CSVRetention(
             CSVStagingService(database, settings), settings.csv_cleanup_interval_seconds
         ).start()
+        dispatcher = (
+            BatchDispatcher(BatchAssessmentService(database, settings, telemetry)).start()
+            if settings.batch_assessment_dispatch_enabled
+            else None
+        )
         try:
             yield
         finally:
+            if dispatcher:
+                dispatcher.close()
             retention.close()
             exporter.close()
         if engine is None:
@@ -120,6 +129,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(alerts_router)
     app.include_router(cases_router)
     app.include_router(assessments_router)
+    app.include_router(batch_assessments_router)
     app.include_router(monitoring_router)
     app.include_router(csv_uploads_router)
     app.include_router(csv_imports_router)
