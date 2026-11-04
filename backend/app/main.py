@@ -15,6 +15,7 @@ from app.api.batch_assessments import router as batch_assessments_router
 from app.api.cases import router as cases_router
 from app.api.csv_imports import router as csv_imports_router
 from app.api.csv_uploads import router as csv_uploads_router
+from app.api.evidence import router as evidence_router
 from app.api.monitoring import router as monitoring_router
 from app.api.routes import router
 from app.core.config import Settings
@@ -68,6 +69,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.state.telemetry = telemetry
     app.state.csv_upload_slots = BoundedSemaphore(settings.csv_max_concurrent_uploads)
     app.state.csv_validation_slots = BoundedSemaphore(settings.csv_max_concurrent_validations)
+    app.state.evidence_read_slots = BoundedSemaphore(4)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -133,4 +135,5 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(monitoring_router)
     app.include_router(csv_uploads_router)
     app.include_router(csv_imports_router)
+    app.include_router(evidence_router)
     return app

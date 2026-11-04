@@ -61,3 +61,10 @@ Protected asynchronous assessment APIs reuse this exact current-role/assignment 
 - Existing HTTP contracts are unchanged; no evidence endpoint is published. `app.services.evidence.EvidenceService` is an internal PostgreSQL-only boundary, accepting server-authenticated UUID identities and rechecking current SQL role/assignment/source grants.
 - Manifests expose bounded version/hash/coverage metadata, not raw predictors or customer observations. New synthetic case creation reuses existing atomic ingestion and requires all 27 explicit declared inputs. It does not start assessment jobs.
 - Public evidence retrieval belongs to separately scoped Phase 3.3. [Interfaces, limits and security](PHASE3_2_EVIDENCE_FOUNDATION.md).
+
+## Phase 3.3 authorized evidence reads
+
+- `GET /api/v1/cases/{case_id}/evidence` returns typed context/coverage and a signed snapshot, with optional explicit stored `assessment_id`.
+- Protected read-only POST projections under the same base: `/transactions`, `/customers`, `/related`, `/model`, `/activity`. JSON includes the snapshot and allowlisted typed parameters; no actor, arbitrary SQL/path/URL, feature overrides or generic tools.
+- Current case/source/version predicates, snapshot-bound cursors, audited disclosure, shared rate budget and body/response/scan limits apply. Source observations, deterministic facts and existing model signals remain separate. [Full contracts, limits, arithmetic and errors](PHASE3_3_RETRIEVAL_ANALYTICS.md).
+- No public evidence upload, raw legacy URI/document retrieval, corpus, LLM, frontend or automatic case action.

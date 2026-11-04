@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--jobs-only", action="store_true")
     parser.add_argument("--batch-only", action="store_true")
     parser.add_argument("--evidence-only", action="store_true")
+    parser.add_argument("--retrieval-only", action="store_true")
     parser.add_argument(
         "--phase3-report", action="store_true", help="Keep Phase 2 recovery evidence unchanged"
     )
@@ -177,7 +178,7 @@ def main():
             (
                 ROOT
                 / (
-                    "runtime/phase3-2-recovery.json"
+                    "runtime/phase3-3-recovery.json"
                     if args.phase3_report
                     else "docs/PHASE2_10_6_RECOVERY.json"
                 )
@@ -193,6 +194,7 @@ def main():
                 "jobs_only": args.jobs_only,
                 "batch_only": args.batch_only,
                 "evidence_only": args.evidence_only,
+                "retrieval_only": args.retrieval_only,
             }
         ),
         text=True,

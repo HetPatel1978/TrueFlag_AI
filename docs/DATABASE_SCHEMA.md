@@ -124,3 +124,9 @@ erDiagram
 - Immutable `evidence_case_bindings` proves a newly generated source created its mandatory Alert/Case through existing ingestion. Source access and exact record-version memberships are explicit, case-scoped and revocable. `case_evidence_states` tracks separate evidence/access revisions. No binding or fabricated history for existing cases.
 - PostgreSQL update/delete/truncate guards protect history and evidence audits; deferred constraints require complete releases and exactly one correctly typed payload per record. Money uses exact Decimal/NUMERIC(24,8), explicit currency, offset-aware or unknown timestamps and original time text.
 - Empty downgrade to 0011 is supported. Any evidence state/history or `evidence.%` audit refuses destructive downgrade. Retained-data rollback requires compatible forward migration or separately approved recovery; no auto-purge.
+
+## Phase 3.3 retrieval / analytics persistence boundary
+
+- No DDL or data backfill. Head remains `0012_evidence_foundation`, 36 domain tables. Reuse immutable typed versions, current case/source grants and exact link membership.
+- Sensitive `evidence.retrieval.*` reads append existing guarded audit events atomically before disclosure: actor/case, reference/request/response hashes, snapshot/revisions, counts and retrieval version. No raw observations, predictor values or tokens in audit/log payloads.
+- Frozen latest-authorized linked release selection prevents counting corrected source snapshots twice. Reassignment, link/grant changes invalidate signed contexts; unlinked admission cannot change their results. No derived-fact table, cache or model write is introduced. [Read/reproducibility contract](PHASE3_3_RETRIEVAL_ANALYTICS.md).

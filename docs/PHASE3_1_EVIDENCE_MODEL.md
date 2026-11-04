@@ -1,6 +1,6 @@
 # Phase 3.1 — Proposed evidence model and data strategy
 
-> Historical Phase 3.1 design snapshot. The minimum local synthetic evidence foundation is now implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md); broader retrieval, corpus, investigator and provider proposals remain unimplemented.
+> Historical Phase 3.1 design snapshot. The minimum local synthetic evidence foundation is now implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md); case-authorized retrieval/analytics is implemented in [Phase 3.3](PHASE3_3_RETRIEVAL_ANALYTICS.md). Corpus, investigator and provider proposals remain unimplemented.
 
 **Proposal only.** No tables, migrations, data generation, imports or historical case enrichment are implemented. See [architecture and approval gates](PHASE3_1_INVESTIGATION_ARCHITECTURE.md).
 

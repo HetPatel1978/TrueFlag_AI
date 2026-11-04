@@ -247,3 +247,10 @@ flowchart LR
 - Existing legacy Evidence anchors, alerts, cases, assessments and frozen scientific pipeline are preserved. One generated source can bind only to its newly ingested case. Existing cases retain unavailable raw-history coverage.
 - All 27 RF features are explicit synthetic declarations; zero are claimed ledger-derived. Source coverage and observed transactions are separate from declarations. Unsupported/missing feature input blocks case creation while retaining an evidence-only fixture.
 - Public retrieval/analytics in 3.3 and later RAG/provider/investigator work remain separate scope. No graph/vector/agent infrastructure is required here.
+
+## Implemented Phase 3.3 retrieval and analytics
+
+- [Read service](../backend/app/services/evidence_read.py) builds case-bound signed snapshots, exact authorized version projections, one-hop relationships and stored assessment views. [Decimal analytics](../backend/app/services/evidence_analytics.py) computes allowlisted single-currency/window facts with explicit reversal/coverage rules.
+- [Six bounded API routes](../backend/app/api/evidence.py) share existing authentication, rate budget, PostgreSQL state and audit. No new container, schema, graph/vector service, broker or inference endpoint.
+- Snapshot selection uses one highest authorized linked release per source; correction history is retained without duplicate totals. Withdrawals invalidate later reads/cursors. Existing 27 RF inputs and scientific behavior are unchanged; corrected declarations remain visibly separate from immutable case inputs.
+- [Concrete architecture, parameters, limits and acceptance](PHASE3_3_RETRIEVAL_ANALYTICS.md). Regulatory corpus/LLM/provider/investigator/frontend work remains later scope.

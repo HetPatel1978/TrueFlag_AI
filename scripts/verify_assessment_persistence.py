@@ -91,6 +91,8 @@ def main():
             "backend/tests/test_synthetic_evidence.py",
             "backend/tests/test_evidence_foundation.py",
         ]
+    if settings.get("retrieval_only"):
+        paths = ["backend/tests/test_evidence_read.py", "backend/tests/test_evidence_analytics.py"]
     return pytest.main(
         [*paths, "-q", "--tb=short", "-p", "no:cacheprovider", "--basetemp", "/tmp/pytest"],
         plugins=[BatchRecoveryEvidence()] if settings["full_backend"] else [],

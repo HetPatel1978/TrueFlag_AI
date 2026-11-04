@@ -133,6 +133,6 @@ Verification notes:
 
 ## Deferred work
 
-- Phase 3.3: separately scoped bounded public evidence retrieval. No public evidence endpoint exists here.
+- Phase 3.2 delivered internal foundation only. Case-authorized read APIs and deterministic analytics are subsequently implemented in [Phase 3.3](PHASE3_3_RETRIEVAL_ANALYTICS.md); no corpus/provider capability is implied.
 - Real feed derivations, collections-window ambiguity, currency/codebooks, FX rules, verified PEP status, entity resolution, ledger reconciliation and approved retention/deletion remain unresolved. All 27 declared inputs support synthetic fixtures only.
 - No external provider, LLM/RAG, binary intake/scanner, automatic case action or UI. Malware scanning remains unavailable. Tenant/RLS, production IAM/SQL roles, independent audit storage and certification are not implemented.

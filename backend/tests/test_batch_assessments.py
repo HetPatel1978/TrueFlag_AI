@@ -455,7 +455,15 @@ def test_actual_pipeline_batch_matches_direct_and_reuses_assessments(batch_env, 
     assert first.status_code == 202
     advance(env, first.json()["batch_id"])
     for _ in range(2):
-        assert AssessmentWorker(env["ml"], env["ml_token"]).run_once()["status"] == "succeeded"
+        worker = AssessmentWorker(env["ml"], env["ml_token"])
+        outcome = None
+        deadline = time.monotonic() + 10
+        # A due-time/SKIP LOCKED idle poll is not a failed or lost committed job.
+        while outcome is None and time.monotonic() < deadline:
+            outcome = worker.run_once()
+            if outcome is None:
+                time.sleep(0.02)
+        assert outcome is not None and outcome["status"] == "succeeded"
     status = env["client"].get(first.headers["location"], headers=env["auth"]).json()
     assert status["status"] == "completed" and status["succeeded"] == 2
     results = env["client"].get(first.headers["location"] + "/results", headers=env["auth"]).json()

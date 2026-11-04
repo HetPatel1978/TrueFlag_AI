@@ -50,7 +50,8 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
 
 - [x] Phase 3.1: [architecture/evidence/retrieval/RAG/security/evaluation design pack](PHASE3_1_INVESTIGATION_ARCHITECTURE.md) prepared; review/approvals pending, no runtime implementation.
 - [x] Phase 3.2: internal synthetic evidence implemented and verified: 591 Linux/PostgreSQL tests, 77 evidence tests, 14 recovery scenarios, frozen RF/Policy/SHAP parity. [Frozen schema / 27-field matrix / generator / rollback](PHASE3_2_EVIDENCE_FOUNDATION.md). No LLM, RAG, public API or frontend.
-- Later proposed 3.3-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
+- [x] Phase 3.3: case-authorized retrieval and Decimal analytics verified: 656 Linux/PostgreSQL tests, 65 retrieval/analytics tests, 14 recovery scenarios and unchanged scientific parity. [Contracts and results](PHASE3_3_RETRIEVAL_ANALYTICS.md).
+- Later proposed 3.4-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
 
 - **Objective:** a bounded evidence-grounded assistant, not an autonomous investigator.
 - **Tasks:**

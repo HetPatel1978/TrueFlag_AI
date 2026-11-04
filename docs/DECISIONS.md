@@ -166,3 +166,10 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 - Own/admin-only admission and mutation; explicit case/source access plus existing current-case scope for reads. One generated source binds through existing ingestion to one new case. No legacy backfill/shared entity-derived access/new public roles.
 - Whole source snapshot releases retain immutable typed record versions and predecessors. Exact duplicates collapse; conflicting payloads require a new release. Revocation changes access/membership and atomic revisions/audit, never erases history.
 - Use PostgreSQL locks, uniqueness, deferred completeness and existing audit/ingestion/worker interfaces. Keep evidence internal, resource bounded, synthetic and deterministic; no new infrastructure, public API, provider, RAG, graph or automatic case action.
+
+## Phase 3.3 read-layer decisions
+
+- Reuse PostgreSQL/auth/immutable assessments/audits; no additional schema or infrastructure. Six narrow case-authorized read routes, not public unrestricted tools.
+- Freeze current authorized linked membership and one selected release/source in a signed, short-lived context. Never merge corrected snapshots or silently choose a newer assessment. Explicit model selection and changed-input warnings preserve model/source authority boundaries.
+- Decimal calculations use explicit `[start,end)` windows/currency, gross observation or verified reversal-pair rules and reproducible parameters. No FX, ML predictor derivation or new AML risk score.
+- Status, comparable KYC expectations, sampling metadata and curated documents are absent. Report unavailable/insufficient evidence rather than inventing facts. No corpus/provider/source rights approval inferred. [Implementation contract](PHASE3_3_RETRIEVAL_ANALYTICS.md).
