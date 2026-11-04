@@ -5,7 +5,7 @@ import secrets
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 
@@ -110,7 +110,7 @@ def finish(env):
 def due(env, import_id):
     with Session(env["engine"]) as session, session.begin():
         row = session.get(CSVImport, UUID(str(import_id)))
-        row.available_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        row.available_at = session.scalar(select(func.clock_timestamp())) - timedelta(seconds=1)
 
 
 def test_approval_chunk_progress_invalid_exclusion_features_and_receipts(imports, caplog):
@@ -210,7 +210,9 @@ def test_key_conflicts_one_import_per_preview_and_zero_valid_rejection(imports):
 def test_identical_existing_sources_reused_conflicts_not_overwritten(imports):
     first = approve(imports, prepare(imports, [{}, {"income": "0"}]))
     assert first.status_code == 202
-    finish(imports)
+    initial_results = finish(imports)
+    assert initial_results and initial_results[-1].status == "completed"
+    assert initial_results[-1].created_rows == 2
     with Session(imports["engine"]) as session, session.begin():
         original = session.scalar(select(Alert).where(Alert.source_id == "preview-synthetic-0"))
         case = session.scalar(select(Case).where(Case.alert_id == original.id))
@@ -330,8 +332,8 @@ def test_expired_lease_recovery_and_stale_worker_fencing(imports):
     approve(imports, prepare(imports, [{}]))
     claim = imports["queue"].claim(imports["token"])
     with Session(imports["engine"]) as session, session.begin():
-        session.get(CSVImport, claim.import_id).lease_until = datetime.now(
-            timezone.utc
+        session.get(CSVImport, claim.import_id).lease_until = session.scalar(
+            select(func.clock_timestamp())
         ) - timedelta(seconds=1)
     assert imports["queue"].recover_expired(imports["token"]) == 1
     with pytest.raises(ImportLeaseLost):
@@ -636,22 +638,34 @@ def test_real_linux_process_death_and_restart(imports, after_commit):
     prepared = prepare(imports, [{}, {}, {}])
     reply = approve(imports, prepared)
     iid = UUID(reply.json()["import_id"])
+    due(imports, iid)
     child = r"""
-import json,os,sys,secrets
+import json,os,sys,secrets,time
 from app.core.config import Settings
 from app.core.database import make_engine
 from app.services.csv_imports import CSVImportService
 cfg=json.loads(sys.stdin.read())
 settings=Settings(_env_file=None,jwt_secret=secrets.token_urlsafe(48),database_url=cfg['url'],csv_staging_root=cfg['root'],csv_import_chunk_size=2)
 queue=CSVImportService(make_engine(cfg['url']),settings)
-claim=queue.claim(cfg['token'])
+deadline=time.monotonic()+5
+claim=None
+while claim is None and time.monotonic()<deadline:
+    claim=queue.claim(cfg['token'])
+    if claim is None:
+        time.sleep(0.02)
+if claim is None:
+    os._exit(20)
 if not cfg['after_commit']:
     original=queue._ingest
     def die(*args):
         result=original(*args)
         os._exit(19)
     queue._ingest=die
-queue.process_chunk(cfg['token'],claim)
+try:
+    queue.process_chunk(cfg['token'],claim)
+except Exception as error:
+    print(json.dumps({'failure_stage':'process_chunk','failure_type':type(error).__name__}),flush=True)
+    os._exit(21)
 os._exit(19)
 """
     result = subprocess.run(
@@ -665,20 +679,20 @@ os._exit(19)
             }
         ),
         text=True,
-        stdout=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         timeout=25,
     )
-    assert result.returncode == 19
+    assert result.returncode == 19, (result.returncode, result.stdout)
     progress = imports["queue"].get(imports["actor_id"], iid)
     if after_commit:
         assert progress.processed_rows == progress.created_rows == 2
     else:
         assert progress.processed_rows == 0 and total(imports, Case) == 0
         with Session(imports["engine"]) as session, session.begin():
-            session.get(CSVImport, iid).lease_until = datetime.now(timezone.utc) - timedelta(
-                seconds=1
-            )
+            session.get(CSVImport, iid).lease_until = session.scalar(
+                select(func.clock_timestamp())
+            ) - timedelta(seconds=1)
         assert imports["queue"].recover_expired(imports["token"]) == 1
         due(imports, iid)
     last = finish(imports)[-1]

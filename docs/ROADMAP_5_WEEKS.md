@@ -49,7 +49,7 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
 ## Week 3 — AI investigation
 
 - [x] Phase 3.1: [architecture/evidence/retrieval/RAG/security/evaluation design pack](PHASE3_1_INVESTIGATION_ARCHITECTURE.md) prepared; review/approvals pending, no runtime implementation.
-- [ ] Phase 3.2: approve minimum evidence schema/source mapping/generator and migration acceptance before internal implementation; no LLM, RAG, public API or frontend work in this subphase.
+- [x] Phase 3.2: internal synthetic evidence implemented and verified: 591 Linux/PostgreSQL tests, 77 evidence tests, 14 recovery scenarios, frozen RF/Policy/SHAP parity. [Frozen schema / 27-field matrix / generator / rollback](PHASE3_2_EVIDENCE_FOUNDATION.md). No LLM, RAG, public API or frontend.
 - Later proposed 3.3-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
 
 - **Objective:** a bounded evidence-grounded assistant, not an autonomous investigator.

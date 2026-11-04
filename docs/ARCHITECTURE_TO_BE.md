@@ -1,6 +1,6 @@
 # Target architecture — five-week MVP and later expansion
 
-Phase 3.1 design proposals are collected in [Investigation architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md), [evidence model](PHASE3_1_EVIDENCE_MODEL.md), [retrieval/RAG contracts](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md) and [security/evaluation](PHASE3_1_SECURITY_EVALUATION.md). They are pending review; no Phase 3 runtime exists.
+Phase 3.1 design proposals are collected in [Investigation architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md), [evidence model](PHASE3_1_EVIDENCE_MODEL.md), [retrieval/RAG contracts](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md) and [security/evaluation](PHASE3_1_SECURITY_EVALUATION.md). The investigation/RAG proposals remain pending; Phase 3.2 internal synthetic evidence is implemented below.
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
 
@@ -10,7 +10,7 @@ Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phas
 |---|---|---|
 | API/security | Current JWT/roles/case scope, protected assessment APIs, strict DTOs, shared per-user request budget, queue admission and sensitive-read audit | Enterprise IAM, tenancy, perimeter and production SQL roles |
 | Case service | Scoped list/detail, filtered pagination/sorting, versioned assignment and transactional change audit | Notes, approvals, reports and full review state machine |
-| Data | Synthetic ingestion, receipts, 24 domain tables, immutable assessments/jobs and bounded operational rollups | Production retention/governance, new sources and least-privilege SQL roles |
+| Data | Synthetic ingestion, receipts, 36 domain tables including versioned synthetic evidence, immutable assessments/jobs and bounded operational rollups | Production retention/governance, new sources and least-privilege SQL roles |
 | UI | Memory-only React sessions, authorized alert dashboard, safe case details, verified SHAP/history and asynchronous assessment workflow | Assignment editor, notes, evidence, human approval/report workflows |
 | Scientific worker | Bounded Linux execution, fencing/recovery/retries, stage timing and measured local fault/load acceptance | Production capacity/SLO, HA and operational deployment |
 | Policy engine | Frozen rules, 12000-route parity, immutable recommendations and case-scoped HTTP retrieval | Human review workflow; no automatic case action |
@@ -223,3 +223,27 @@ Preserve the baseline namespace in the worker; the API uses `app`. Do not add gr
 - New consolidated cross-stage tests verify rejection/conflict/reuse through history/export; controlled real RF/SHAP stage-boundary SIGKILL tests verify no partial publication; real API/lifespan/dispatcher restart plus browser reload verifies durable resume and no reassessment.
 - Bounded 100/1000-row workloads retain default parser/import/export/rate limits; a test-only 20-job queue measures backpressure. 5000 rows are rejected at the default 2000-row ingress limit. [Acceptance matrix, measurements and residual boundaries](PHASE2_10_6_ACCEPTANCE.md).
 - Local synthetic evidence does not certify production security/capacity. Malware scanning, enterprise identity/SQL roles/tenancy, TLS/retention/HA and source/data governance remain separate gates. No Phase 3 implementation.
+
+## Implemented Phase 3.2 internal evidence boundary
+
+```mermaid
+flowchart LR
+  Config[Fixed synthetic scenario UUID / seed / versions] --> Generator[Deterministic generator]
+  Generator --> Validate[Regeneration / hashes / 27 declared inputs]
+  Validate --> Store[(Immutable source and typed record versions)]
+  Store --> New[Explicit new-case creation]
+  New --> Ingest[Existing atomic Alert / Case ingestion]
+  Ingest --> Bind[(Immutable binding / source grant / exact version links)]
+  Store --> Manifest[Internal verified manifest / declared coverage]
+  Bind --> Manifest
+  Auth[Current role / assignment / source access] --> Manifest
+  Auth --> New
+  Manifest --> Audit[(Atomic revisions and audit)]
+  Ingest -. explicit separate request .-> Queue[Existing durable assessment queue]
+  Queue --> Worker[Unchanged pinned Linux RF / Policy / SHAP]
+```
+
+- No new service container, public evidence route or frontend. Twelve additive PostgreSQL tables and internal services support future retrieval. Full 27-field matrix, source/case isolation, correction/revocation semantics and tests: [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md).
+- Existing legacy Evidence anchors, alerts, cases, assessments and frozen scientific pipeline are preserved. One generated source can bind only to its newly ingested case. Existing cases retain unavailable raw-history coverage.
+- All 27 RF features are explicit synthetic declarations; zero are claimed ledger-derived. Source coverage and observed transactions are separate from declarations. Unsupported/missing feature input blocks case creation while retaining an evidence-only fixture.
+- Public retrieval/analytics in 3.3 and later RAG/provider/investigator work remain separate scope. No graph/vector/agent infrastructure is required here.

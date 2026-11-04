@@ -116,3 +116,11 @@ erDiagram
 - Existing Evidence is only a case-linked URI/hash/kind/JSON metadata anchor. It supplies no implemented customer/account/transaction/versioned-corpus/retrieval workflow. Existing decisions rows are model recommendations, not human dispositions.
 - [Proposed keys, source/version envelope, typed payloads, case links, revisions, private content and ER model](PHASE3_1_EVIDENCE_MODEL.md) are review artifacts. Use additive migration planning after approval; no implicit legacy-source backfill, invented transaction history or frozen feature-contract change.
 - Corpus/investigation/review records are later subphase proposals. Current schema has no enterprise tenancy/RLS guarantee. Retention/access revocation and source/entity linkage require review before 3.2.
+
+## Phase 3.2 versioned synthetic evidence
+
+- Head: `0012_evidence_foundation`, **36 domain tables**. Twelve additive tables, no legacy rewrite or automatic evidence migration. [Frozen contract and 27-field matrix](PHASE3_2_EVIDENCE_FOUNDATION.md).
+- Source/release/identity/record-version and typed customer/account/relationship/transaction payloads use UUIDs and composite same-source/kind FKs. Source owner/scenario, release number/hash and identity/version are unique. Exact duplicates are one observation; new releases retain explicit predecessor versions.
+- Immutable `evidence_case_bindings` proves a newly generated source created its mandatory Alert/Case through existing ingestion. Source access and exact record-version memberships are explicit, case-scoped and revocable. `case_evidence_states` tracks separate evidence/access revisions. No binding or fabricated history for existing cases.
+- PostgreSQL update/delete/truncate guards protect history and evidence audits; deferred constraints require complete releases and exactly one correctly typed payload per record. Money uses exact Decimal/NUMERIC(24,8), explicit currency, offset-aware or unknown timestamps and original time text.
+- Empty downgrade to 0011 is supported. Any evidence state/history or `evidence.%` audit refuses destructive downgrade. Retained-data rollback requires compatible forward migration or separately approved recovery; no auto-purge.

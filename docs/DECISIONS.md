@@ -158,3 +158,11 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 | D3-07 | Curated safe text initially; broader intake separately gated | No scanner exists; source authenticity/rights/parse quality remain explicit |
 
 [Full design, tradeoffs, implementation gates and open decisions](PHASE3_1_INVESTIGATION_ARCHITECTURE.md). Phase 3.2 is not started. These proposal IDs are design references, not accepted runtime controls.
+
+## Phase 3.2 accepted local synthetic implementation scope
+
+- The Phase 3.2 request authorizes the minimum additive PostgreSQL evidence implementation following the frozen [schema/matrix/generator/rollback contract](PHASE3_2_EVIDENCE_FOUNDATION.md). This supersedes the earlier statement that Phase 3.2 had not started; other Phase 3.1 proposals remain proposals.
+- Preserve the original 27-feature contract. Use 27 explicit versioned synthetic declarations and zero invented transaction equations. Keep the `nbrCollections3y` one-year/three-year dictionary conflict, baseline currency and codebooks unresolved. Missing mandatory support yields evidence-only fixtures, never fabricated inputs/orphan cases.
+- Own/admin-only admission and mutation; explicit case/source access plus existing current-case scope for reads. One generated source binds through existing ingestion to one new case. No legacy backfill/shared entity-derived access/new public roles.
+- Whole source snapshot releases retain immutable typed record versions and predecessors. Exact duplicates collapse; conflicting payloads require a new release. Revocation changes access/membership and atomic revisions/audit, never erases history.
+- Use PostgreSQL locks, uniqueness, deferred completeness and existing audit/ingestion/worker interfaces. Keep evidence internal, resource bounded, synthetic and deterministic; no new infrastructure, public API, provider, RAG, graph or automatic case action.

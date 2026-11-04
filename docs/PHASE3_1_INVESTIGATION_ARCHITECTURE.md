@@ -1,5 +1,7 @@
 # Phase 3.1 — Investigation architecture and evidence design
 
+> Historical Phase 3.1 design snapshot. The minimum local synthetic evidence foundation is now implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md); broader retrieval, corpus, investigator and provider proposals remain unimplemented.
+
 **Design only; proposed, pending review.** Inspected branch `codex/project-initialization` at `c3bd6e3`, 2026-11-03. No LLM, retrieval service, endpoint, migration, generator or additional worker is implemented here. Phase 3.2 is not started.
 
 | Design document | Contents |

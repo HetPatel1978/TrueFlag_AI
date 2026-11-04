@@ -21,6 +21,10 @@ def main():
     parser.add_argument("--full-backend", action="store_true")
     parser.add_argument("--jobs-only", action="store_true")
     parser.add_argument("--batch-only", action="store_true")
+    parser.add_argument("--evidence-only", action="store_true")
+    parser.add_argument(
+        "--phase3-report", action="store_true", help="Keep Phase 2 recovery evidence unchanged"
+    )
     parser.add_argument("--benchmark", action="store_true")
     parser.add_argument("--batch-benchmark", action="store_true")
     parser.add_argument(
@@ -170,9 +174,14 @@ def main():
         process.stdout.close()
         code = process.wait(timeout=60)
         if code == 0 and evidence and evidence["status"] == "PASS":
-            (ROOT / "docs/PHASE2_10_6_RECOVERY.json").write_text(
-                json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
+            (
+                ROOT
+                / (
+                    "runtime/phase3-2-recovery.json"
+                    if args.phase3_report
+                    else "docs/PHASE2_10_6_RECOVERY.json"
+                )
+            ).write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             print(json.dumps({"recovery_scenarios": len(evidence["scenarios"]), "status": "PASS"}))
         return code
     return subprocess.run(
@@ -183,6 +192,7 @@ def main():
                 "full_backend": args.full_backend,
                 "jobs_only": args.jobs_only,
                 "batch_only": args.batch_only,
+                "evidence_only": args.evidence_only,
             }
         ),
         text=True,

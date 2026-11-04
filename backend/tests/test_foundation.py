@@ -56,6 +56,18 @@ def test_health_and_migrated_readiness(platform):
         "batch_assessments",
         "batch_assessment_items",
         "batch_assessment_requests",
+        "evidence_sources",
+        "evidence_source_versions",
+        "evidence_identities",
+        "evidence_record_versions",
+        "evidence_customers",
+        "evidence_accounts",
+        "evidence_relationships",
+        "evidence_transactions",
+        "case_evidence_states",
+        "evidence_case_bindings",
+        "evidence_source_access",
+        "case_evidence_links",
     }
 
 

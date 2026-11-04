@@ -1,5 +1,7 @@
 # Phase 3.1 — Investigation security, governance and evaluation proposal
 
+> Historical Phase 3.1 design snapshot. The minimum local synthetic evidence foundation is now implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md); broader retrieval, corpus, investigator and provider proposals remain unimplemented.
+
 **Design only; no new controls/provider/evaluation results are implemented or claimed.** Existing Phase 2 local acceptance remains historical evidence for that pipeline, not acceptance of the proposed investigator. [Architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md), [evidence model](PHASE3_1_EVIDENCE_MODEL.md), [contracts](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md).
 
 ## 1. Assets, actors and trust assumptions

@@ -55,3 +55,9 @@ New endpoints return server-generated `X-Request-ID` and no-store headers. The A
 ## Assessment integration
 
 Protected asynchronous assessment APIs reuse this exact current-role/assignment scope. See [assessment contracts](API_ASSESSMENTS.md). Ingestion and assignment contracts remain unchanged; no model result changes human case state.
+
+## Phase 3.2 internal evidence boundary
+
+- Existing HTTP contracts are unchanged; no evidence endpoint is published. `app.services.evidence.EvidenceService` is an internal PostgreSQL-only boundary, accepting server-authenticated UUID identities and rechecking current SQL role/assignment/source grants.
+- Manifests expose bounded version/hash/coverage metadata, not raw predictors or customer observations. New synthetic case creation reuses existing atomic ingestion and requires all 27 explicit declared inputs. It does not start assessment jobs.
+- Public evidence retrieval belongs to separately scoped Phase 3.3. [Interfaces, limits and security](PHASE3_2_EVIDENCE_FOUNDATION.md).

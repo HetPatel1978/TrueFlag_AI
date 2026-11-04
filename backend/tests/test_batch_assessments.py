@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from uuid import UUID, uuid4
 
 import pytest
@@ -532,7 +532,7 @@ def test_real_worker_crash_then_restart_produces_one_assessment(batch_env, monke
     assert state.queued == state.retrying == 1 and state.failed_manual_review == 0
     with Session(env["engine"]) as session, session.begin():
         job = session.scalar(select(AssessmentJob))
-        job.available_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        job.available_at = session.scalar(select(func.clock_timestamp())) - timedelta(seconds=1)
     restarted = AssessmentWorker(env["ml"], env["ml_token"])
     assert restarted.run_once()["status"] == "succeeded"
     complete = env["batch"].get(env["actor_id"], UUID(bid))
@@ -552,9 +552,9 @@ def test_expired_ml_lease_recovery_is_reflected_in_batch_counts(batch_env):
     advance(env, first.json()["batch_id"])
     old = env["ml"].claim(env["ml_token"])
     with Session(env["engine"]) as session, session.begin():
-        session.get(AssessmentJob, old.job_id).lease_until = datetime.now(timezone.utc) - timedelta(
-            seconds=1
-        )
+        session.get(AssessmentJob, old.job_id).lease_until = session.scalar(
+            select(func.clock_timestamp())
+        ) - timedelta(seconds=1)
     assert env["ml"].recover_expired(env["ml_token"]) == 1
     with pytest.raises(LeaseLost):
         env["ml"].prepare(env["ml_token"], old)
@@ -569,14 +569,25 @@ def test_two_import_batches_adopt_one_pending_case_job(batch_env):
     second_source = imported(env, [{}])
     second = start(env, second_source)
     assert first.json()["batch_id"] != second.json()["batch_id"]
+    batch_ids = [first.json()["batch_id"], second.json()["batch_id"]]
+    for bid in batch_ids:
+        due(env, bid)
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(
             pool.map(
                 lambda bid: env["batch"].advance(UUID(bid)),
-                [first.json()["batch_id"], second.json()["batch_id"]],
+                batch_ids,
             )
         )
-    assert all(r.queued == 1 for r in results) and total(env, AssessmentJob) == 1
+    # A due-time/nonblocking dispatcher poll need not immediately adopt a committed job.
+    # Require eventual adoption and check uniqueness throughout; never manufacture another job.
+    deadline = time.monotonic() + 10
+    while not all(r is not None and r.queued == 1 for r in results) and time.monotonic() < deadline:
+        assert total(env, AssessmentJob) <= 1
+        results = [advance(env, bid) for bid in batch_ids]
+        time.sleep(0.02)
+    assert all(r is not None and r.queued == 1 for r in results)
+    assert total(env, AssessmentJob) == 1
     with Session(env["engine"]) as session:
         assert (
             session.scalar(
