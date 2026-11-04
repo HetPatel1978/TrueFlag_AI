@@ -23,6 +23,8 @@ def main():
     parser.add_argument("--batch-only", action="store_true")
     parser.add_argument("--evidence-only", action="store_true")
     parser.add_argument("--retrieval-only", action="store_true")
+    parser.add_argument("--references-only", action="store_true")
+    parser.add_argument("--reference-report", action="store_true")
     parser.add_argument(
         "--phase3-report", action="store_true", help="Keep Phase 2 recovery evidence unchanged"
     )
@@ -89,6 +91,11 @@ def main():
         if not path.is_relative_to(ROOT) or not path.is_dir():
             raise RuntimeError("invalid_verification_mount")
         command.extend(["-v", f"{path.as_posix()}:/workspace/{relative}:ro"])
+    # Optional official proposals are read-only and are never treated as approved authority.
+    for relative in ["contracts", "assets/local/regulatory/proposed"]:
+        path = (ROOT / relative).resolve()
+        if path.is_relative_to(ROOT) and path.is_dir():
+            command.extend(["-v", f"{path.as_posix()}:/workspace/{relative}:ro"])
     command.extend(
         [
             IMAGE,
@@ -167,18 +174,28 @@ def main():
         process.stdin.write(json.dumps({"database_url": database_url, "full_backend": True}))
         process.stdin.close()
         evidence = None
+        reference_measurement = None
         for line in process.stdout:
             if line.startswith("TRUEFLAG_BATCH_RECOVERY:"):
                 evidence = json.loads(line.split(":", 1)[1])
+            elif line.startswith("TRUEFLAG_REFERENCE_EVALUATION:"):
+                reference_measurement = json.loads(line.split(":", 1)[1])
+                print(line, end="", flush=True)
             else:
                 print(line, end="", flush=True)
         process.stdout.close()
         code = process.wait(timeout=60)
+        if code == 0 and reference_measurement:
+            (ROOT / "runtime/phase3-4-reference-measurement.json").write_text(
+                json.dumps(reference_measurement, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
         if code == 0 and evidence and evidence["status"] == "PASS":
             (
                 ROOT
                 / (
-                    "runtime/phase3-3-recovery.json"
+                    "runtime/phase3-4-recovery.json"
+                    if args.reference_report
+                    else "runtime/phase3-3-recovery.json"
                     if args.phase3_report
                     else "docs/PHASE2_10_6_RECOVERY.json"
                 )
@@ -195,6 +212,7 @@ def main():
                 "batch_only": args.batch_only,
                 "evidence_only": args.evidence_only,
                 "retrieval_only": args.retrieval_only,
+                "references_only": args.references_only,
             }
         ),
         text=True,

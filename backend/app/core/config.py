@@ -1,4 +1,5 @@
 from pathlib import Path
+from uuid import UUID
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,6 +12,7 @@ class Settings(BaseSettings):
         env_file=PROJECT_ROOT / ".env", env_file_encoding="utf-8", extra="ignore"
     )
     app_env: str = "local"
+    regulatory_context_id: UUID | None = None
     database_url: str = "postgresql+psycopg://trueflag@127.0.0.1:5432/trueflag"
     jwt_secret: SecretStr
     jwt_issuer: str = "trueflag-ai"

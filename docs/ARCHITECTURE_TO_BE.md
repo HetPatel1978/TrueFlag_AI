@@ -254,3 +254,23 @@ flowchart LR
 - [Six bounded API routes](../backend/app/api/evidence.py) share existing authentication, rate budget, PostgreSQL state and audit. No new container, schema, graph/vector service, broker or inference endpoint.
 - Snapshot selection uses one highest authorized linked release per source; correction history is retained without duplicate totals. Withdrawals invalidate later reads/cursors. Existing 27 RF inputs and scientific behavior are unchanged; corrected declarations remain visibly separate from immutable case inputs.
 - [Concrete architecture, parameters, limits and acceptance](PHASE3_3_RETRIEVAL_ANALYTICS.md). Regulatory corpus/LLM/provider/investigator/frontend work remains later scope.
+## Phase 3.4 - Implemented reference boundary; publication gated
+
+```mermaid
+flowchart LR
+    Official[Allowlisted official sources] --> Curated[Curated local UTF-8 XML / HTML / text]
+    Curated --> Hash[Bounded full-section parser and SHA-256 manifests]
+    Hash --> Versions[(Immutable PostgreSQL source versions / chunks)]
+    Human[Authorized human source and release approval] --> Release[(Approved release / historical context / grants)]
+    Versions --> Release
+    Case[Authenticated current case scope] --> Read[Case and context authorization]
+    Release --> Read
+    Read --> Filter[Approval / withdrawal / scope / date filters]
+    Filter --> FTS[PostgreSQL GIN lexical top-five or exact section]
+    FTS --> Verify[Exact hash / locator verification and atomic read audit]
+    Verify --> API[Bounded legal-context citations]
+```
+
+- Additive migration 0013, ten tables; no new service, model, frontend, embedding store or LLM. Reuse current actor/case authorization, safe API guards and audits. Historical scope: U.S. bank / English / November 2, 2026; knowledge cutoff November 4.
+- Runtime never fetches URLs. Curator admission, source approval, release publication, explicit access and server configuration are separate operations. No official source is currently approved/published. Unconfigured authorized retrieval returns `unavailable`; FinCEN historical validity remains blocked.
+- Citations identify exact immutable release/version/chunk/UTF-8 text with authority and limitations; they cannot assert a customer violation or authorize a case action. [Implementation and limits](PHASE3_4_REGULATORY_KNOWLEDGE.md), [human approval dossier](PHASE3_4_APPROVAL_DOSSIER.md).

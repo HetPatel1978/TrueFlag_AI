@@ -1,6 +1,6 @@
 # Phase 3.1 — Proposed authorized retrieval, RAG and investigator contracts
 
-> Historical Phase 3.1 design snapshot. The minimum local synthetic evidence foundation is now implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md); case-authorized retrieval/analytics is implemented in [Phase 3.3](PHASE3_3_RETRIEVAL_ANALYTICS.md). Corpus, investigator and provider proposals remain unimplemented.
+> Historical Phase 3.1 design snapshot. The evidence foundation is implemented in [Phase 3.2](PHASE3_2_EVIDENCE_FOUNDATION.md), case-authorized retrieval/analytics in [Phase 3.3](PHASE3_3_RETRIEVAL_ANALYTICS.md), and reference infrastructure in [Phase 3.4](PHASE3_4_REGULATORY_KNOWLEDGE.md). Official corpus publication and reviewed legal evaluation remain approval-gated; investigator and provider proposals remain unimplemented.
 
 **Design only. All new interfaces below are proposals, not registered APIs/tools.** Existing case/assessment endpoints remain unchanged. Schemas are contract descriptions, not implementation code. [Architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md) and [evidence model](PHASE3_1_EVIDENCE_MODEL.md) define the boundaries.
 

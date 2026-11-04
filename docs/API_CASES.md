@@ -68,3 +68,14 @@ Protected asynchronous assessment APIs reuse this exact current-role/assignment 
 - Protected read-only POST projections under the same base: `/transactions`, `/customers`, `/related`, `/model`, `/activity`. JSON includes the snapshot and allowlisted typed parameters; no actor, arbitrary SQL/path/URL, feature overrides or generic tools.
 - Current case/source/version predicates, snapshot-bound cursors, audited disclosure, shared rate budget and body/response/scan limits apply. Source observations, deterministic facts and existing model signals remain separate. [Full contracts, limits, arithmetic and errors](PHASE3_3_RETRIEVAL_ANALYTICS.md).
 - No public evidence upload, raw legacy URI/document retrieval, corpus, LLM, frontend or automatic case action.
+## Phase 3.4 protected regulatory reference reads
+
+| Route | Request / response |
+|---|---|
+| `POST /api/v1/cases/{case_id}/references/search` | Exactly one bounded `query` or exact `section`; optional strict `limit` 1-5; typed availability outcome and <=5 immutable citations |
+| `GET /api/v1/cases/{case_id}/references/{reference_id}` | Resolve exact stored citation through current case/context access and validity, or hidden 404 |
+
+- Server selects fixed U.S.-bank historical scope and configured approved corpus; clients cannot supply release, jurisdiction, dates, source URLs or permissions. No configured corpus returns authorized `unavailable`, never invented legal text.
+- Citations expose regulatory text/metadata, not customer features: authority class, immutable IDs, publisher URL, exact section/locator/UTF-8 offsets, hashes, dates, parser/release identity and limitations. Regulatory context is not evidence of a customer violation.
+- Current role/assignment plus explicit corpus grant; source/release withdrawal and supersession invalidate saved references. Shared auth rate budget, read slots, no-store, 12 KiB JSON and bounded output. Errors: 401/404/413/415/422/429/sanitized 503. Curator admission/publication APIs are not exposed.
+- [Full contracts and operational limits](PHASE3_4_REGULATORY_KNOWLEDGE.md). Official corpus publication and reviewed legal retrieval evaluation remain pending [human approval](PHASE3_4_APPROVAL_DOSSIER.md).

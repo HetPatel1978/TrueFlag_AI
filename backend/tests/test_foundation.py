@@ -68,6 +68,16 @@ def test_health_and_migrated_readiness(platform):
         "evidence_case_bindings",
         "evidence_source_access",
         "case_evidence_links",
+        "reference_sources",
+        "reference_documents",
+        "reference_versions",
+        "reference_chunks",
+        "reference_approvals",
+        "corpus_releases",
+        "corpus_members",
+        "reference_contexts",
+        "reference_grants",
+        "reference_events",
     }
 
 

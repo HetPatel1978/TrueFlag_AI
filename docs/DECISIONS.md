@@ -173,3 +173,17 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 - Freeze current authorized linked membership and one selected release/source in a signed, short-lived context. Never merge corrected snapshots or silently choose a newer assessment. Explicit model selection and changed-input warnings preserve model/source authority boundaries.
 - Decimal calculations use explicit `[start,end)` windows/currency, gross observation or verified reversal-pair rules and reproducible parameters. No FX, ML predictor derivation or new AML risk score.
 - Status, comparable KYC expectations, sampling metadata and curated documents are absent. Report unavailable/insufficient evidence rather than inventing facts. No corpus/provider/source rights approval inferred. [Implementation contract](PHASE3_3_RETRIEVAL_ANALYTICS.md).
+## Phase 3.4 implementation decisions and approval gates
+
+| Decision | Rationale / boundary |
+|---|---|
+| U.S. bank / English / historical November 2, 2026 | User explicitly selected this boundary because eCFR verified Title 31 only through November 2; knowledge cutoff November 4 |
+| Curated official XML/HTML/plain text, no runtime networking | Avoid arbitrary URL/redirect/SSRF and binary intake; preserve full sections and exceptions; no scanner claim |
+| PostgreSQL lexical GIN plus exact-section lookup | Reuse infrastructure, deterministic bounded top five; embeddings/reranking lack demonstrated need |
+| Separate source approval, release approval, context grant and server selection | Exact hashes and current permissions; source proposals are not publication authority |
+| Dated eCFR snapshot permitted with explicit missing-date limitations | Exact historical text date is distinct from unknown legal commencement/publication dates |
+| FinCEN candidate remains excluded until dates reviewed | No fabricated historic validity or silent substitution |
+| Controlled fixture metrics separate from legal evaluation | Proposed source/label dossiers require actual human review; no fictitious reviewer or legal-quality PASS |
+| Context locks and bounded eligible-chunk resolution | Simple race-safe MVP; shared-context concurrency and <=1,000 chunks are explicit scaling limits |
+
+[Exact source/evaluation hashes and pending approval](PHASE3_4_APPROVAL_DOSSIER.md). No LLM, automatic case action or Phase 3.5 implementation is authorized by completing this infrastructure.

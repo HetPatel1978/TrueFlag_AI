@@ -17,6 +17,7 @@ from app.api.csv_imports import router as csv_imports_router
 from app.api.csv_uploads import router as csv_uploads_router
 from app.api.evidence import router as evidence_router
 from app.api.monitoring import router as monitoring_router
+from app.api.references import router as references_router
 from app.api.routes import router
 from app.core.config import Settings
 from app.core.database import make_engine
@@ -136,4 +137,5 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
     app.include_router(csv_uploads_router)
     app.include_router(csv_imports_router)
     app.include_router(evidence_router)
+    app.include_router(references_router)
     return app

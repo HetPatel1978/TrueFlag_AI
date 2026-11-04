@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 2.10.4
+# PostgreSQL schema - Phase 3.4
 
-Source of truth: `backend/app/models/domain.py` and `backend/alembic/versions/`. Expected revision: **0011_batch_assessments**; 24 domain tables plus `alembic_version`.
+Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0013_reference_corpus**; 46 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -130,3 +130,11 @@ erDiagram
 - No DDL or data backfill. Head remains `0012_evidence_foundation`, 36 domain tables. Reuse immutable typed versions, current case/source grants and exact link membership.
 - Sensitive `evidence.retrieval.*` reads append existing guarded audit events atomically before disclosure: actor/case, reference/request/response hashes, snapshot/revisions, counts and retrieval version. No raw observations, predictor values or tokens in audit/log payloads.
 - Frozen latest-authorized linked release selection prevents counting corrected source snapshots twice. Reassignment, link/grant changes invalidate signed contexts; unlinked admission cannot change their results. No derived-fact table, cache or model write is introduced. [Read/reproducibility contract](PHASE3_3_RETRIEVAL_ANALYTICS.md).
+## Phase 3.4 additive reference corpus
+
+- New head: `0013_reference_corpus`; **46 domain tables**. Previous Phase 3.2/3.3 counts below describe their historical heads. Existing case/evidence/assessment columns and records are preserved.
+- `reference_sources` / `reference_documents`: immutable publisher identity, authoritative URL, scope, language and authority class; RF routing policies remain separate.
+- `reference_versions` / `reference_chunks`: immutable original bytes, extracted text, selected complete sections, independent SHA-256 identities, parser/retrieval/date metadata, predecessors and exact UTF-8 locators. Expression GIN index on `to_tsvector('english'::regconfig, body_text)`; no separate vector service.
+- `reference_approvals` / `corpus_releases` / `corpus_members` / `reference_contexts`: immutable explicit expected-hash human/test provenance and fixed historical release scope. One document version per release; typed same-document version/chunk FKs. Approval does not automatically grant access or configure the server.
+- `reference_grants`: active/revision changes only, audited; grant identity retained. `reference_events`: immutable source/version/release withdrawals. Existing `evidence.%` audit immutability also protects `evidence.reference.%` actions.
+- PostgreSQL triggers reject history update/delete/truncate and incomplete versions at commit. Empty downgrade supported; any retained reference row or reference-read audit blocks downgrade. SQLite migrations are compatibility only; service methods require PostgreSQL. [Contract, limits and acceptance](PHASE3_4_REGULATORY_KNOWLEDGE.md).

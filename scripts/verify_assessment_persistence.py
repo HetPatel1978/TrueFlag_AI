@@ -53,6 +53,20 @@ class BatchRecoveryEvidence:
             )
 
 
+class ReferenceMeasurementEvidence:
+    """Forward only value-free fixture metrics; never source/customer text."""
+
+    def pytest_runtest_logreport(self, report):
+        if report.when == "call" and report.passed:
+            for _, captured in report.sections:
+                for line in captured.splitlines():
+                    if line.startswith("REFERENCE_FIXTURE_EVALUATION:"):
+                        value = json.loads(line.split(":", 1)[1])
+                        print(
+                            "\nTRUEFLAG_REFERENCE_EVALUATION:" + json.dumps(value, sort_keys=True)
+                        )
+
+
 def main():
     import pytest
     from sqlalchemy.engine import make_url
@@ -93,9 +107,15 @@ def main():
         ]
     if settings.get("retrieval_only"):
         paths = ["backend/tests/test_evidence_read.py", "backend/tests/test_evidence_analytics.py"]
+    if settings.get("references_only"):
+        paths = ["backend/tests/test_reference_parser.py", "backend/tests/test_references.py"]
     return pytest.main(
         [*paths, "-q", "--tb=short", "-p", "no:cacheprovider", "--basetemp", "/tmp/pytest"],
-        plugins=[BatchRecoveryEvidence()] if settings["full_backend"] else [],
+        plugins=[BatchRecoveryEvidence(), ReferenceMeasurementEvidence()]
+        if settings["full_backend"]
+        else [ReferenceMeasurementEvidence()]
+        if settings.get("references_only")
+        else [],
     )
 
 

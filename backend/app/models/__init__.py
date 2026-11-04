@@ -42,6 +42,7 @@ from app.models.evidence import (
 )
 
 __all__ = [
+    "REFERENCE_TABLES",
     "EVIDENCE_TABLES",
     "CaseEvidenceLink",
     "CaseEvidenceState",
@@ -81,3 +82,5 @@ __all__ = [
     "OperationalMetric",
     "User",
 ]
+
+from app.models.references import REFERENCE_TABLES  # noqa: E402

@@ -1,0 +1,137 @@
+{
+  "schema_version": "trueflag.reference-source-proposals.v1",
+  "publication_status": "blocked_pending_human_approval",
+  "scope": {
+    "jurisdiction": "US",
+    "entity": "us_bank",
+    "as_of": "2026-11-02",
+    "knowledge_cutoff": "2026-11-04",
+    "language": "en",
+    "purpose": "historical_development_reference_context"
+  },
+  "approval": {
+    "reviewer": null,
+    "approved_at": null,
+    "notes": "Scope date approved by user; source publication and evaluation labels not approved."
+  },
+  "sources": [
+    {
+      "key": "ecfr-us-banks",
+      "url": "https://www.ecfr.gov/api/versioner/v1/full/2026-11-02/title-31.xml?chapter=X&part=1020",
+      "authority": "binding_regulation",
+      "origin": "official_curated",
+      "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+      "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+      "parser_version": "trueflag.reference-parser.v1",
+      "status": "proposed_not_approved",
+      "temporal_basis": "official_dated_snapshot",
+      "snapshot_date": "2026-11-02",
+      "verified_through": "2026-11-02",
+      "publication_date": null,
+      "effective_from": null,
+      "effective_to": null,
+      "sections": [
+        {
+          "section": "1020.210",
+          "locator": "DIV8[@N='1020.210']",
+          "start_byte": 2206,
+          "end_byte": 5530,
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        },
+        {
+          "section": "1020.320",
+          "locator": "DIV8[@N='1020.320']",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "quality_flags": {
+        "replacement_characters_present": false,
+        "c1_controls_present": false
+      },
+      "publisher": "Office of the Federal Register / Government Publishing Office (eCFR)",
+      "title": "31 CFR Part 1020 - selected complete bank AML and SAR provisions",
+      "acquisition_date": "2026-11-04",
+      "rights_review": "pending_human_review",
+      "review_copy": "assets/local/regulatory/proposed/ecfr-us-banks-review.json"
+    },
+    {
+      "key": "fincen-sar-faqs",
+      "url": "https://www.fincen.gov/resources/frequently-asked-questions-regarding-fincen-suspicious-activity-report-sar",
+      "authority": "guidance",
+      "origin": "official_curated",
+      "raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+      "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+      "parser_version": "trueflag.reference-parser.v1",
+      "status": "proposed_not_approved",
+      "temporal_basis": "unknown",
+      "snapshot_date": null,
+      "verified_through": null,
+      "publication_date": null,
+      "effective_from": null,
+      "effective_to": null,
+      "sections": [
+        {
+          "section": "document-context",
+          "locator": "main",
+          "start_byte": 0,
+          "end_byte": 326,
+          "text_sha256": "74916046546b7ee85103f74d445b843d840fd3c5bd46ffdd1cc5ab2c10f09b03"
+        },
+        {
+          "section": "faq-1",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-198",
+          "start_byte": 328,
+          "end_byte": 1872,
+          "text_sha256": "02202ece7cc2d5269a24164e29af9f33335c873e606752c8258f0b7c6aed3477"
+        },
+        {
+          "section": "faq-6",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-203",
+          "start_byte": 5739,
+          "end_byte": 6844,
+          "text_sha256": "3270dd17251a3c4efa9d66181007e4de2479f03b78190cf1b815bfaea6c4ca04"
+        },
+        {
+          "section": "faq-11",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-208",
+          "start_byte": 9880,
+          "end_byte": 10562,
+          "text_sha256": "757bebdad347765ca37829c62f209043fd4316e1846585f690e9eeebbc6540df"
+        },
+        {
+          "section": "faq-16",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-213",
+          "start_byte": 16292,
+          "end_byte": 17702,
+          "text_sha256": "3c039cd9fd29ac5d7aafd5e14f3dc6ac60e6875534bba7e83a12d4fe2174284d"
+        }
+      ],
+      "quality_flags": {
+        "replacement_characters_present": false,
+        "c1_controls_present": false
+      },
+      "publisher": "Financial Crimes Enforcement Network (FinCEN)",
+      "title": "Frequently Asked Questions Regarding the FinCEN Suspicious Activity Report (SAR)",
+      "acquisition_date": "2026-11-04",
+      "rights_review": "pending_human_review",
+      "review_copy": "assets/local/regulatory/proposed/fincen-sar-faqs-review.json"
+    }
+  ],
+  "coverage_gaps": [
+    "Not a complete BSA corpus",
+    "No bank-specific regulator applicability adjudication",
+    "No statutes or all cross-referenced Chapter X provisions",
+    "FinCEN historical validity/issuance not established",
+    "No PDF/Office intake or malware scanner"
+  ],
+  "validity_evidence": {
+    "url": "https://www.ecfr.gov/api/versioner/v1/titles.json",
+    "local_filename": "ecfr-title31-metadata.json",
+    "sha256": "68fc6606201b8cccb96a285deb00555edd5a99f02925d99a88e6eada2d644d61",
+    "title": 31,
+    "up_to_date_as_of": "2026-11-02",
+    "role": "freshness evidence only; not regulatory authority text"
+  }
+}
