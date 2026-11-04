@@ -37,3 +37,10 @@ Hashes identify these exact bytes, not future downloads from mutable official UR
 ## Approval boundary
 
 Next human action: approve or revise the exact eCFR source proposal and relevant evaluation labels; leave FinCEN unpublished unless dated validity is independently established. Then an authorized curator must admit the reviewed bytes, obtain their persisted version/release manifests, explicitly approve the release and grants, and run measured reviewed-case evaluation. Source proposal approval alone does not silently publish/configure a runtime corpus or start Phase 3.5.
+
+## Follow-up approval/acceptance gate - 2026-11-04
+
+- [Source-by-source checklist](PHASE3_4_SOURCE_APPROVAL_CHECKLIST.md) now identifies publisher/canonical URLs, exact versions/hashes, individual amendment evidence, missing historical intervals, institution applicability, exceptions and qualified-review actions. eCFR is an informational compilation; verify official CFR/Federal Register/LSA evidence before adopting legal applicability. FinCEN remains excluded.
+- [Blank independent 19-case packet](../contracts/regulatory_independent_review.json), SHA `e3d8c4e4500e12c8fa8357b6121973b23cbbe3bf96e327397c1210378d184f1c`: all independent reviewer/label fields null. Engineering relevance hints remain separate and unapproved. Review in a private copy; partial human work must not be overwritten.
+- [Measured gate results and recovery evidence](PHASE3_4_APPROVAL_ACCEPTANCE.md): actual candidate SQL diagnostics and API/service isolation tested on a recovered database clone; protected archive restored twice; migration 0013 upgrade/empty rollback/history refusal and 36 legacy-table/schema/trigger/function preservation verified. Running demo remains on 0012.
+- **Still zero human-approved sources, corpus publications or independent ground-truth labels.** Diagnostics are not legal-quality acceptance. This follow-up does not change the frozen original source/evaluation proposal hashes or authorize Phase 3.5.

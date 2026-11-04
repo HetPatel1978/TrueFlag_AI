@@ -1,0 +1,4 @@
+# These review manifests have exact byte identities; never translate their line endings.
+contracts/regulatory_source_proposals.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+contracts/regulatory_evaluation_proposals.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+contracts/regulatory_independent_review.json -text
