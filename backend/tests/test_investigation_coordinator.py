@@ -7,6 +7,7 @@ import select as os_select
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
 from threading import Event
@@ -216,7 +217,18 @@ def test_concurrent_requests_and_worker_claims(env):
 
 
 @pytest.mark.parametrize(
-    "tamper", ["amount", "total", "reference", "context", "questions", "regulatory"]
+    "tamper",
+    [
+        "amount",
+        "total",
+        "reference",
+        "context",
+        "questions",
+        "regulatory",
+        "currency",
+        "count",
+        "window",
+    ],
 )
 def test_independent_validation_rejects_tampered_worker_output(env, tamper):
     submit(env)
@@ -261,6 +273,32 @@ def test_independent_validation_rejects_tampered_worker_output(env, tamper):
         body = body.model_copy(update={"questions": ["File a SAR automatically"]})
     if tamper == "regulatory":
         body = body.model_copy(update={"regulatory_citations": ("unapproved-reference",)})
+    if tamper == "currency":
+        body = body.model_copy(
+            update={
+                "transactions": [body.transactions[0].model_copy(update={"currency": "CAD"})]
+                + body.transactions[1:]
+            }
+        )
+    if tamper in {"count", "window"}:
+        fact = body.facts[0]
+        changed = (
+            {"observed_count": fact.result.observed_count + 1}
+            if tamper == "count"
+            else {
+                "window": fact.result.window.model_copy(
+                    update={"start": fact.result.window.start + timedelta(seconds=1)}
+                )
+            }
+        )
+        body = body.model_copy(
+            update={
+                "facts": [
+                    fact.model_copy(update={"result": fact.result.model_copy(update=changed)})
+                ]
+                + body.facts[1:]
+            }
+        )
     with pytest.raises((VerificationFailed, EvidenceUnavailable)):
         env["service"].complete(env["token"], claim, body)
     with Session(env["platform"][1]) as session:
@@ -488,6 +526,82 @@ def test_capacity_authorization_and_requester_isolation(env, case_team):
         )
 
 
+def test_run_id_cannot_be_reused_under_another_authorized_case(env):
+    from uuid import UUID
+
+    _, _, release = admit(env["foundation"], env["users"]["admin"], seed=23)
+    other_case = env["foundation"].create_case(env["users"]["admin"], release)
+    receipt = submit(env)
+    env["service"].run_once(env["token"])
+    assert env["service"].reader.get_case_context(env["users"]["admin"], other_case)
+    with pytest.raises(EvidenceNotFound, match="^investigation_not_found$"):
+        env["service"].get(env["users"]["admin"], other_case, UUID(receipt["run_id"]))
+    result = view(env, receipt)
+    assert result["packet"]["context"]["case_id"] == str(env["case"])
+    assert result["status"] == "succeeded"
+
+
+@pytest.mark.parametrize("foreign", ["transaction", "evidence_reference", "financial_inputs"])
+def test_other_case_evidence_cannot_contaminate_a_packet(env, foreign):
+    bundle, _, release = admit(env["foundation"], env["users"]["admin"], seed=23)
+    other = {
+        **env,
+        "bundle": bundle,
+        "case": env["foundation"].create_case(env["users"]["admin"], release),
+    }
+    submit(env)
+    first = env["service"].claim(env["token"])
+    body = env["service"].assemble(env["token"], first)
+    submit(other, key="other-case-investigation")
+    second = env["service"].claim(env["token"])
+    other_body = env["service"].assemble(env["token"], second)
+    first_ids = {r.record_version_id for r in body.evidence}
+    other_ids = {r.record_version_id for r in other_body.evidence}
+    assert first_ids.isdisjoint(other_ids)
+    if foreign == "transaction":
+        changed = {"transactions": [other_body.transactions[0]] + body.transactions[1:]}
+    elif foreign == "evidence_reference":
+        changed = {"evidence": [other_body.evidence[0]] + body.evidence[1:]}
+    else:
+        changed = {
+            "facts": [
+                body.facts[0].model_copy(
+                    update={"input_record_ids": other_body.facts[0].input_record_ids}
+                )
+            ]
+            + body.facts[1:]
+        }
+    with pytest.raises(VerificationFailed, match="^investigation_verification_failed$"):
+        env["service"].complete(env["token"], first, body.model_copy(update=changed))
+    with Session(env["platform"][1]) as session:
+        assert session.scalar(select(func.count()).select_from(InvestigationPacket)) == 0
+        assert session.get(InvestigationJob, first.run_id).status == "running"
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(AuditEvent)
+                .where(AuditEvent.action == "evidence.investigation.published")
+            )
+            == 0
+        )
+    # Rejected cross-case output has no committed side effect; both genuine runs still complete.
+    assert env["service"].complete(env["token"], first, body)["status"] == "succeeded"
+    assert env["service"].complete(env["token"], second, other_body)["status"] == "succeeded"
+
+
+def test_cross_analyst_request_cannot_create_a_run(env, case_team):
+    from uuid import UUID
+
+    actor = UUID(case_team["users"]["analyst"])
+    with Session(env["platform"][1]) as session, session.begin():
+        session.get(Case, env["case"]).assigned_to = UUID(case_team["users"]["analysttwo"])
+    with pytest.raises(EvidenceNotFound):
+        env["service"].request(actor, env["case"], "cross-analyst-denied", request(env))
+    with Session(env["platform"][1]) as session:
+        assert session.scalar(select(func.count()).select_from(InvestigationRun)) == 0
+        assert session.scalar(select(func.count()).select_from(InvestigationJob)) == 0
+
+
 def test_schema_drift_and_retained_downgrade(env):
     config = Config(str(Path(__file__).parents[1] / "alembic.ini"))
     command.check(config)
@@ -674,6 +788,21 @@ def test_real_stored_model_signal_is_bound_without_new_inference(env):
     assert packet["model_signal"]["score"] == result["score"]["score"]
     assert packet["model_signal"]["explanation"]["status"] == "verified"
     assert packet["model_interpretation"] == "model_signal_not_fact_or_proof_of_crime"
+    bundle, _, release = admit(env["foundation"], env["users"]["admin"], seed=23)
+    other = {
+        **env,
+        "bundle": bundle,
+        "case": env["foundation"].create_case(env["users"]["admin"], release),
+    }
+    with pytest.raises(EvidenceNotFound):
+        submit(
+            other,
+            key="foreign-assessment-denied",
+            assessment_id=UUID(result["assessment_id"]),
+            without_assessment_reason=None,
+        )
+    with Session(env["platform"][1]) as session:
+        assert session.scalar(select(func.count()).select_from(InvestigationRun)) == 1
 
 
 @pytest.mark.parametrize(
