@@ -17,6 +17,8 @@ class GateReport:
                 for line in captured.splitlines():
                     if line.startswith("REGULATORY_CANDIDATE_REPORT:"):
                         print("\n" + line)
+                    if line.startswith("REGULATORY_V2_REPORT:"):
+                        print("\n" + line)
 
     def pytest_terminal_summary(self, terminalreporter):
         stats = terminalreporter.stats
@@ -45,11 +47,16 @@ def inside():
     os.environ["DATABASE_URL"] = payload["database_url"]
     os.environ["TRUEFLAG_TEST_POSTGRES_URL"] = payload["database_url"]
     os.environ["JWT_SECRET"] = secrets.token_urlsafe(48)
+    paths = [
+        "backend/tests/test_reference_parser.py",
+        "backend/tests/test_references.py",
+        "backend/tests/test_regulatory_approval_gate.py",
+    ]
+    if payload.get("benchmark_v2"):
+        paths.append("backend/tests/test_regulatory_benchmark_v2.py")
     return pytest.main(
         [
-            "backend/tests/test_reference_parser.py",
-            "backend/tests/test_references.py",
-            "backend/tests/test_regulatory_approval_gate.py",
+            *paths,
             "-q",
             "--tb=short",
             "-p",
@@ -61,7 +68,7 @@ def inside():
     )
 
 
-def host():
+def host(*, benchmark_v2=False):
     from app.core.config import Settings
     from sqlalchemy.engine import make_url
 
@@ -96,7 +103,10 @@ def host():
         "--tmpfs",
         "/tmp:rw,nosuid,nodev,size=512m",
     ]
-    for relative in ["backend", "scripts", "contracts", "assets/local/regulatory/proposed"]:
+    mounts = ["backend", "scripts", "contracts", "assets/local/regulatory/proposed"]
+    if benchmark_v2:
+        mounts.append("assets/local/regulatory/research_v2")
+    for relative in mounts:
         path = (ROOT / relative).resolve(strict=True)
         assert path.is_relative_to(ROOT) and path.is_dir()
         command.extend(["-v", f"{path.as_posix()}:/workspace/{relative}:ro"])
@@ -112,12 +122,21 @@ def host():
     process = subprocess.Popen(
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, cwd=ROOT
     )
-    process.stdin.write(json.dumps({"database_url": url.render_as_string(hide_password=False)}))
+    process.stdin.write(
+        json.dumps(
+            {
+                "database_url": url.render_as_string(hide_password=False),
+                "benchmark_v2": benchmark_v2,
+            }
+        )
+    )
     process.stdin.close()
-    report = counts = None
+    report = counts = v2_report = None
     for line in process.stdout:
         if line.startswith("REGULATORY_CANDIDATE_REPORT:"):
             report = json.loads(line.split(":", 1)[1])
+        elif line.startswith("REGULATORY_V2_REPORT:"):
+            v2_report = json.loads(line.split(":", 1)[1])
         elif line.startswith("REGULATORY_GATE_TEST_COUNTS:"):
             counts = json.loads(line.split(":", 1)[1])
         else:
@@ -134,6 +153,25 @@ def host():
         == 0
     )
     report["test_counts"] = counts
+    if benchmark_v2:
+        assert v2_report and v2_report["unique_cases"] == 31
+        assert (
+            v2_report["independent_labels"]
+            == v2_report["approved_official_sources"]
+            == v2_report["published_official_releases"]
+            == 0
+        )
+        v2_report["test_counts"] = counts
+        (ROOT / "runtime/phase3-4-1-candidate.json").write_text(
+            json.dumps(v2_report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        summary = {
+            k: v
+            for k, v in v2_report.items()
+            if k not in {"observations", "controls", "runtime_observations"}
+        }
+        print(json.dumps(summary, sort_keys=True))
+        return 0
     (ROOT / "runtime/phase3-4-approval-candidate.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -144,7 +182,9 @@ def host():
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(inside() if "--inside" in sys.argv else host())
+        raise SystemExit(
+            inside() if "--inside" in sys.argv else host(benchmark_v2="--benchmark-v2" in sys.argv)
+        )
     except Exception:
         print(
             json.dumps(

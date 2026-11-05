@@ -1,0 +1,511 @@
+{
+  "all_19_questions": {
+    "answer_generation": "not_implemented; retrieval observations are not generated legal answers",
+    "answered_unavailable_cases": null,
+    "candidate_coverage": {
+      "available_or_partial_queries_with_relevant_passages": 12,
+      "correctly_unavailable_queries": 6,
+      "false_abstentions": 1,
+      "partial_source_coverage": 0,
+      "unavailable_queries_returning_passages": 0
+    },
+    "independently_adjudicated_metrics": null,
+    "label_basis": "engineering_proposals_not_independent_ground_truth",
+    "mrr": 0.631578947368421,
+    "precision_at_5": 0.12631578947368421,
+    "recall_at_5": 0.631578947368421,
+    "unique_questions": 19
+  },
+  "applicability": {
+    "independently_reviewed_legal_applicability": null,
+    "technical_correct_returned_sources": 13,
+    "technical_filter_violations": 0
+  },
+  "applicable_candidate_questions": {
+    "answer_generation": "not_implemented; retrieval observations are not generated legal answers",
+    "answered_unavailable_cases": null,
+    "candidate_coverage": {
+      "available_or_partial_queries_with_relevant_passages": 12,
+      "correctly_unavailable_queries": 0,
+      "false_abstentions": 1,
+      "partial_source_coverage": 0,
+      "unavailable_queries_returning_passages": 0
+    },
+    "independently_adjudicated_metrics": null,
+    "label_basis": "engineering_proposals_not_independent_ground_truth",
+    "mrr": 0.9230769230769231,
+    "precision_at_5": 0.18461538461538463,
+    "recall_at_5": 0.9230769230769231,
+    "unique_questions": 13
+  },
+  "approved_official_sources": 0,
+  "approved_only_runtime": {
+    "correctly_unavailable": 19,
+    "disclosed_passages": 0,
+    "queries": 19
+  },
+  "benchmark_sha256": "8fe10486b6b14469f3f16c15e4b74c776864b9d516fe6e33d825b69da82a039d",
+  "candidate_operations": {
+    "latency_ms_p50": 4.710174980573356,
+    "latency_ms_p95": 6.066575006116182,
+    "query_counter": "SQLAlchemy cursor executions, including SET LOCAL timeout statements",
+    "sql_query_count": 78,
+    "sql_query_count_max": 3,
+    "sql_query_count_min": 2,
+    "timed_queries": 28
+  },
+  "citation_support": {
+    "independently_reviewed_claim_support_coverage": null,
+    "source_reference_integrity_checked": 13,
+    "source_reference_integrity_coverage": 1.0,
+    "source_reference_integrity_errors": 0,
+    "unreviewed_answer_keys": 31
+  },
+  "controls": [
+    {
+      "id": "wrong-jurisdiction",
+      "latency_ms": 3.1435389537364244,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    {
+      "id": "wrong-entity",
+      "latency_ms": 3.237422031816095,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    {
+      "id": "wrong-date",
+      "latency_ms": 3.3665630035102367,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    {
+      "coverage": "candidate_exclusion_simulation; real synthetic successor covered by test_references",
+      "id": "superseded",
+      "latency_ms": 4.659517959225923,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 2
+    },
+    {
+      "full_section_preserved": true,
+      "id": "exceptions",
+      "latency_ms": 3.2840140047483146,
+      "passed": true,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 2
+    },
+    {
+      "coverage": "parser-data boundary only; no future LLM safety claim",
+      "id": "embedded-instructions",
+      "instructions_executed": false,
+      "passed": true
+    },
+    {
+      "http_status": 404,
+      "id": "forged-reference",
+      "passed": true
+    },
+    {
+      "http_status": 404,
+      "id": "unauthorized",
+      "passed": true
+    },
+    {
+      "id": "empty",
+      "latency_ms": 4.7608320019207895,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    {
+      "id": "ambiguous",
+      "latency_ms": 2.647943969350308,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 2
+    },
+    {
+      "id": "unapproved-guidance",
+      "latency_ms": 3.1270880135707557,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 2
+    },
+    {
+      "id": "withdrawn",
+      "latency_ms": 3.1725779990665615,
+      "passed": true,
+      "returned": [],
+      "sql_query_count": 2
+    }
+  ],
+  "independent_labels": 0,
+  "limits": {
+    "corpus": "7 selected immutable sections; only 2 temporally eligible eCFR sections",
+    "execution": "2 CPUs / 3 GiB / isolated clone schemas",
+    "query_characters": 256,
+    "query_words": 40,
+    "returned_rows_per_query": 5,
+    "statement_timeout_seconds": 5
+  },
+  "measurement_scope": "2026-11-04 America/New_York; local pinned Linux/PostgreSQL; provisional labels only",
+  "observations": {
+    "amended-sar": {
+      "latency_ms": 4.225870012305677,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "aml-program": {
+      "latency_ms": 5.6832319824025035,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.210",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "bank-category-program": {
+      "latency_ms": 5.185538029763848,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.210",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "below-threshold": {
+      "latency_ms": 5.101014976389706,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "cdd-coverage-boundary": {
+      "latency_ms": 4.78924298658967,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.210",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "continuing-guidance-conflict": {
+      "latency_ms": 4.383412015158683,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "continuing-sar": {
+      "latency_ms": 5.503121006768197,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "critical-items": {
+      "latency_ms": 4.574268008582294,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "historical-not-current": {
+      "latency_ms": 4.212068975903094,
+      "returned": [],
+      "sql_query_count": 2
+    },
+    "identified-suspect-clock": {
+      "latency_ms": 5.459512991365045,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "near-ctr-insufficient-facts": {
+      "latency_ms": 4.407310974784195,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "qualified-reporting-exception": {
+      "latency_ms": 5.170618009287864,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "recordkeeping": {
+      "latency_ms": 4.510077997110784,
+      "returned": [],
+      "sql_query_count": 3
+    },
+    "sar-bank": {
+      "latency_ms": 10.086609981954098,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        },
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.210",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "sar-confidentiality-request": {
+      "latency_ms": 4.959601035807282,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "sar-exceptions": {
+      "latency_ms": 5.158087005838752,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "supporting-document-request": {
+      "latency_ms": 6.066575006116182,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "threshold-with-conditions": {
+      "latency_ms": 5.020511976908892,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    },
+    "unidentified-suspect-clock": {
+      "latency_ms": 5.594914022367448,
+      "returned": [
+        {
+          "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "section": "1020.320",
+          "source_key": "ecfr-us-banks",
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "sql_query_count": 3
+    }
+  },
+  "original_7_queries": {
+    "answer_generation": "not_implemented; retrieval observations are not generated legal answers",
+    "answered_unavailable_cases": null,
+    "candidate_coverage": {
+      "available_or_partial_queries_with_relevant_passages": 3,
+      "correctly_unavailable_queries": 3,
+      "false_abstentions": 1,
+      "partial_source_coverage": 0,
+      "unavailable_queries_returning_passages": 0
+    },
+    "independently_adjudicated_metrics": null,
+    "label_basis": "engineering_proposals_not_independent_ground_truth",
+    "mrr": 0.42857142857142855,
+    "precision_at_5": 0.08571428571428572,
+    "recall_at_5": 0.42857142857142855,
+    "unique_questions": 7
+  },
+  "provisional_answer_sha256": "f3b0ac4dd8f7e67f50f27273f63ccd5c1de2ea6a255444828855f1c8cb790784",
+  "published_official_releases": 0,
+  "runtime_observations": [
+    {
+      "id": "sar-bank",
+      "latency_ms": 4.034659010358155,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "aml-program",
+      "latency_ms": 2.6348279789090157,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "sar-exceptions",
+      "latency_ms": 2.5361289735883474,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "critical-items",
+      "latency_ms": 2.7639000327326357,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "amended-sar",
+      "latency_ms": 2.5410319794900715,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "recordkeeping",
+      "latency_ms": 2.6370639679953456,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "continuing-sar",
+      "latency_ms": 2.6238380232825875,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "threshold-with-conditions",
+      "latency_ms": 2.758761984296143,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "below-threshold",
+      "latency_ms": 2.9702960164286196,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "identified-suspect-clock",
+      "latency_ms": 2.6475709746591747,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "unidentified-suspect-clock",
+      "latency_ms": 2.7910699718631804,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "continuing-guidance-conflict",
+      "latency_ms": 2.724348974879831,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "sar-confidentiality-request",
+      "latency_ms": 2.617846999783069,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "qualified-reporting-exception",
+      "latency_ms": 2.6042070239782333,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "bank-category-program",
+      "latency_ms": 2.9088089941069484,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "cdd-coverage-boundary",
+      "latency_ms": 2.962657017633319,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "supporting-document-request",
+      "latency_ms": 2.6781470514833927,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "historical-not-current",
+      "latency_ms": 2.906512003391981,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    },
+    {
+      "id": "near-ctr-insufficient-facts",
+      "latency_ms": 2.488055033609271,
+      "sql_query_count": 8,
+      "status": "unavailable"
+    }
+  ],
+  "runtime_operations": {
+    "latency_ms_p50": 2.6781470514833927,
+    "latency_ms_p95": 4.034659010358155,
+    "query_counter": "SQLAlchemy cursor executions, including SET LOCAL timeout statements",
+    "sql_query_count": 152,
+    "sql_query_count_max": 8,
+    "sql_query_count_min": 8,
+    "timed_queries": 19
+  },
+  "security": {
+    "controls": 12,
+    "forged_citations_accepted": 0,
+    "llm_prompt_injection_safety": "not_testable_no_LLM",
+    "parser_instruction_boundary_violations": 0,
+    "passed": 12,
+    "unauthorized_disclosures": 0,
+    "wrong_scope_results": 0
+  },
+  "status": "UNREVIEWED_ENGINEERING_DIAGNOSTICS_ONLY",
+  "test_counts": {
+    "failed": 0,
+    "passed": 108,
+    "skipped": 0
+  },
+  "unique_cases": 31
+}

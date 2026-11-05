@@ -1,0 +1,2110 @@
+{
+  "schema_version": "trueflag.regulatory-provisional-answer-keys.v2",
+  "status": "engineering_research_only_unreviewed",
+  "benchmark_sha256": "8fe10486b6b14469f3f16c15e4b74c776864b9d516fe6e33d825b69da82a039d",
+  "approved_sources": 0,
+  "independently_adjudicated_cases": 0,
+  "sources": {
+    "ecfr-us-banks": {
+      "key": "ecfr-us-banks",
+      "url": "https://www.ecfr.gov/api/versioner/v1/full/2026-11-02/title-31.xml?chapter=X&part=1020",
+      "authority": "binding_regulation",
+      "origin": "official_curated",
+      "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+      "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+      "parser_version": "trueflag.reference-parser.v1",
+      "status": "proposed_not_approved",
+      "temporal_basis": "official_dated_snapshot",
+      "snapshot_date": "2026-11-02",
+      "verified_through": "2026-11-02",
+      "publication_date": null,
+      "effective_from": null,
+      "effective_to": null,
+      "sections": [
+        {
+          "section": "1020.210",
+          "locator": "DIV8[@N='1020.210']",
+          "start_byte": 2206,
+          "end_byte": 5530,
+          "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+        },
+        {
+          "section": "1020.320",
+          "locator": "DIV8[@N='1020.320']",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+        }
+      ],
+      "quality_flags": {
+        "replacement_characters_present": false,
+        "c1_controls_present": false
+      },
+      "publisher": "Office of the Federal Register / Government Publishing Office (eCFR)",
+      "title": "31 CFR Part 1020 - selected complete bank AML and SAR provisions",
+      "acquisition_date": "2026-11-04",
+      "rights_review": "pending_human_review",
+      "review_copy": "assets/local/regulatory/proposed/ecfr-us-banks-review.json"
+    },
+    "fincen-sar-faqs": {
+      "key": "fincen-sar-faqs",
+      "url": "https://www.fincen.gov/resources/frequently-asked-questions-regarding-fincen-suspicious-activity-report-sar",
+      "authority": "guidance",
+      "origin": "official_curated",
+      "raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+      "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+      "parser_version": "trueflag.reference-parser.v1",
+      "status": "proposed_not_approved",
+      "temporal_basis": "unknown",
+      "snapshot_date": null,
+      "verified_through": null,
+      "publication_date": null,
+      "effective_from": null,
+      "effective_to": null,
+      "sections": [
+        {
+          "section": "document-context",
+          "locator": "main",
+          "start_byte": 0,
+          "end_byte": 326,
+          "text_sha256": "74916046546b7ee85103f74d445b843d840fd3c5bd46ffdd1cc5ab2c10f09b03"
+        },
+        {
+          "section": "faq-1",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-198",
+          "start_byte": 328,
+          "end_byte": 1872,
+          "text_sha256": "02202ece7cc2d5269a24164e29af9f33335c873e606752c8258f0b7c6aed3477"
+        },
+        {
+          "section": "faq-6",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-203",
+          "start_byte": 5739,
+          "end_byte": 6844,
+          "text_sha256": "3270dd17251a3c4efa9d66181007e4de2479f03b78190cf1b815bfaea6c4ca04"
+        },
+        {
+          "section": "faq-11",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-208",
+          "start_byte": 9880,
+          "end_byte": 10562,
+          "text_sha256": "757bebdad347765ca37829c62f209043fd4316e1846585f690e9eeebbc6540df"
+        },
+        {
+          "section": "faq-16",
+          "locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-213",
+          "start_byte": 16292,
+          "end_byte": 17702,
+          "text_sha256": "3c039cd9fd29ac5d7aafd5e14f3dc6ac60e6875534bba7e83a12d4fe2174284d"
+        }
+      ],
+      "quality_flags": {
+        "replacement_characters_present": false,
+        "c1_controls_present": false
+      },
+      "publisher": "Financial Crimes Enforcement Network (FinCEN)",
+      "title": "Frequently Asked Questions Regarding the FinCEN Suspicious Activity Report (SAR)",
+      "acquisition_date": "2026-11-04",
+      "rights_review": "pending_human_review",
+      "review_copy": "assets/local/regulatory/proposed/fincen-sar-faqs-review.json"
+    },
+    "fincen-sar-faqs-october-2025": {
+      "key": "fincen-sar-faqs-october-2025",
+      "publisher": "FinCEN, Federal Reserve, FDIC, NCUA and OCC",
+      "title": "Frequently Asked Questions Regarding Suspicious Activity Reporting Requirements",
+      "url": "https://www.fincen.gov/system/files/2025-10/SAR-FAQs-October-2025.pdf",
+      "raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+      "raw_bytes": 284868,
+      "retrieved_at": "2026-11-05T03:51:23.098334+00:00",
+      "acquisition_date_timezone": "America/New_York",
+      "issued_date": "2025-10-09",
+      "effective_from": null,
+      "effective_to": null,
+      "verified_through": null,
+      "historical_applicability": "requires_independent_review; issuance is not a composite validity interval",
+      "authority": "guidance",
+      "status": "research_only_not_admitted_not_approved",
+      "parser_status": "PDF unsupported by current production XML/HTML/text parser",
+      "sections": [
+        {
+          "section": "question-1",
+          "locator": "pages 1-2; Question 1 and footnotes 1-8"
+        },
+        {
+          "section": "question-2",
+          "locator": "pages 2-3; Question 2 and footnote 9"
+        },
+        {
+          "section": "question-3",
+          "locator": "pages 3-4; Question 3 and footnotes 10-13"
+        },
+        {
+          "section": "question-4",
+          "locator": "page 4; Question 4 and footnote 14"
+        }
+      ],
+      "issuance_evidence": {
+        "filename": "fincen-sar-faqs-october-2025-landing.html",
+        "url": "https://www.fincen.gov/resources/statutes-regulations/guidance/frequently-asked-questions-regarding-suspicious-activity",
+        "raw_sha256": "371aa3f12a3d1ac661ebf910fe36591bc8ce7c5638b84e64c294ebe4a64eb36f",
+        "bytes": 31853,
+        "media_type": "text/html",
+        "retrieved_at": "2026-11-05T03:51:23.807798+00:00"
+      },
+      "research_provenance": {
+        "method": "Read official PDF and official issued-date landing page; locally SHA-256 verified",
+        "original_path": "assets/local/regulatory/research_v2/fincen-sar-faqs-october-2025.pdf",
+        "landing_path": "assets/local/regulatory/research_v2/fincen-sar-faqs-october-2025-landing.html",
+        "extraction": null,
+        "note": "No PDF parser admission, automated text replacement or inherited HTML publication date"
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "sar-bank",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Under the proposed historical bank provision, when does a transaction require a SAR?",
+      "expected_information_need": "Identify the transaction nexus, aggregation threshold and suspicion conditions together.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(a)(1)-(2), (b), (c), (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (a)(2) combines a bank nexus, at least $5,000 individually or in aggregate, and specified knowledge/suspicion conditions. Paragraph (a)(1) also permits voluntary reports.",
+      "exceptions_and_qualifications": "Do not turn the amount alone into a filing decision. Preserve exceptions, timing and confidentiality; charter-specific Title 12 rules are outside this candidate corpus.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "aml-program",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Which AML program elements apply to a bank with or without a Federal functional regulator?",
+      "expected_information_need": "Distinguish paragraphs (a) and (b), their common elements and incorporated requirements.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.210",
+          "relevant_locator": "(a)(1)-(3), (b)(1)-(3)",
+          "source_locator": "DIV8[@N='1020.210']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9",
+          "start_byte": 2206,
+          "end_byte": 5530,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Both categories include controls, independent testing, responsible personnel, training and risk-based ongoing CDD. Paragraph (a) incorporates regulator rules; paragraph (b) requires a written program and governing-body approval.",
+      "exceptions_and_qualifications": "Confirm actual bank category. Sections 1010.610, 1010.620 and full 1010.230 and regulator rules are not independently covered; do not claim complete program compliance.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "sar-exceptions",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "What qualified SAR reporting exceptions appear in 31 CFR 1020.320(c)?",
+      "expected_information_need": "Retain both exceptions and their reporting prerequisites.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(c), read with (a)-(b)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (c) addresses reported robbery/burglary and specified securities events reported under 17 CFR 240.17f-1.",
+      "exceptions_and_qualifications": "Neither event name alone establishes an exception. Verify the required prior reporting and the actual facts; the securities cross-reference is not in the candidate corpus.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "critical-items",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "How should available and unknown critical/non-critical SAR fields be handled?",
+      "expected_information_need": "Separate filing-field guidance from obligations to obtain additional customer data.",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-1",
+          "relevant_locator": "complete FAQ 1, including final qualification",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-198",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "02202ece7cc2d5269a24164e29af9f33335c873e606752c8258f0b7c6aed3477",
+          "start_byte": 328,
+          "end_byte": 1872,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The frozen FAQ distinguishes requested information/Unknown for critical fields and available information for non-critical fields; unavailable non-critical information may be left blank under its stated qualifications.",
+      "exceptions_and_qualifications": "This is nonbinding operational guidance, not a new data-collection mandate. Whole-page historical validity and referenced FIN-2012-G002 remain unverified; abstain operationally.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "fincen-sar-faqs:faq-1"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "amended-sar",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "What does the frozen FAQ propose for correcting or amending a previously filed SAR?",
+      "expected_information_need": "Identify prior filing linkage, complete resubmission and acknowledgement context.",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-6",
+          "relevant_locator": "complete FAQ 6",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-203",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "3270dd17251a3c4efa9d66181007e4de2479f03b78190cf1b815bfaea6c4ca04",
+          "start_byte": 5739,
+          "end_byte": 6844,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The FAQ describes selecting the correction option, linking the prior BSA ID, completing the report, identifying corrections in the narrative and receiving a new ID.",
+      "exceptions_and_qualifications": "This is an unapproved historical UI procedure, not an instruction to submit a SAR. Verify current filing specifications separately; no filing action is performed.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "fincen-sar-faqs:faq-6"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "recordkeeping",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "What do the proposed bank regulation and FAQ say about filed SARs and supporting records?",
+      "expected_information_need": "Separate binding retention duties from the operational FAQ summary.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(b)(1), (d), (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        },
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-11",
+          "relevant_locator": "complete FAQ 11",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-208",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "757bebdad347765ca37829c62f209043fd4316e1846585f690e9eeebbc6540df",
+          "start_byte": 9880,
+          "end_byte": 10562,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (d) describes five-year retention from filing of a SAR copy and original or business-record-equivalent supporting documentation, identification of that documentation and availability to specified authorities on request.",
+      "exceptions_and_qualifications": "Keep confidentiality conditions. The bank regulation can support partial retrieval while FAQ historical validity is unresolved; do not conflate filed-SAR records with documentation of a decision not to file.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320",
+        "fincen-sar-faqs:faq-11"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "partial"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "continuing-sar",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Is continuing-activity guidance a mandatory review cycle, and how is its optional timeline described?",
+      "expected_information_need": "Reconcile the frozen updated FAQ with separately dated guidance and initial filing deadlines.",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-16",
+          "relevant_locator": "complete FAQ 16 and its update marker",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-213",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "3c039cd9fd29ac5d7aafd5e14f3dc6ac60e6875534bba7e83a12d4fe2174284d",
+          "start_byte": 16292,
+          "end_byte": 17702,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        },
+        {
+          "source_key": "fincen-sar-faqs-october-2025",
+          "section": "question-2",
+          "relevant_locator": "pages 2-3; Question 2 and footnote 9",
+          "source_locator": "pages 2-3; Question 2 and footnote 9",
+          "source_raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+          "extracted_sha256": null,
+          "section_text_sha256": null,
+          "start_byte": null,
+          "end_byte": null,
+          "authority": "guidance",
+          "version": "2025-10-09",
+          "publication_status": "research_only_not_admitted_not_approved"
+        },
+        {
+          "source_key": "fincen-sar-faqs-october-2025",
+          "section": "question-3",
+          "relevant_locator": "pages 3-4; Question 3 and footnotes 10-13",
+          "source_locator": "pages 3-4; Question 3 and footnotes 10-13",
+          "source_raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+          "extracted_sha256": null,
+          "section_text_sha256": null,
+          "start_byte": null,
+          "end_byte": null,
+          "authority": "guidance",
+          "version": "2025-10-09",
+          "publication_status": "research_only_not_admitted_not_approved"
+        }
+      ],
+      "proposed_answer": "The dated guidance distinguishes optional continuing-activity practices from initial filing deadlines; a separate post-SAR review is not required merely by that guidance.",
+      "exceptions_and_qualifications": "The frozen FAQ's update marker dates that answer, not the whole HTML page. Neither guidance version is approved or currently retrievable; reconcile full context and amendment history before proposing an operational answer.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "fincen-sar-faqs:faq-16",
+        "fincen-sar-faqs-october-2025:question-2",
+        "fincen-sar-faqs-october-2025:question-3"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "wrong-jurisdiction",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: wrong-jurisdiction",
+      "expected_information_need": "excluded before ranking",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "excluded before ranking",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "wrong-entity",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: wrong-entity",
+      "expected_information_need": "excluded before ranking",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "excluded before ranking",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "wrong-date",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: wrong-date",
+      "expected_information_need": "excluded; outdated if no eligible corpus",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "excluded; outdated if no eligible corpus",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "superseded",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: superseded",
+      "expected_information_need": "old citation unavailable until current release approved",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "old citation unavailable until current release approved",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "withdrawn",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: withdrawn",
+      "expected_information_need": "excluded; existing reference no longer resolvable",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "excluded; existing reference no longer resolvable",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "exceptions",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: exceptions",
+      "expected_information_need": "complete section including exceptions, not excerpted obligation",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "complete section including exceptions, not excerpted obligation",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "embedded-instructions",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: embedded-instructions",
+      "expected_information_need": "treated only as untrusted quoted text; no execution",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "treated only as untrusted quoted text; no execution",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "forged-reference",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: forged-reference",
+      "expected_information_need": "404",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "404",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "unauthorized",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: unauthorized",
+      "expected_information_need": "404 before disclosure",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "404 before disclosure",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "empty",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: empty",
+      "expected_information_need": "empty",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "empty",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "ambiguous",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: ambiguous",
+      "expected_information_need": "ambiguous",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete section, including (c) and (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "ambiguous",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "unapproved-guidance",
+      "status": "engineering_control_expectation_not_independent_ground_truth",
+      "question": "Verify technical boundary: unapproved-guidance",
+      "expected_information_need": "not published or returned",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-1",
+          "relevant_locator": "complete FAQ 1; historical validity unknown",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-198",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "02202ece7cc2d5269a24164e29af9f33335c873e606752c8258f0b7c6aed3477",
+          "start_byte": 328,
+          "end_byte": 1872,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "No legal answer is requested; assert the named technical boundary.",
+      "proposed_relevance_labels": [],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "hidden_resource_or_no_passages",
+        "candidate": "control_specific"
+      },
+      "exceptions_and_qualifications": "Synthetic source text is not authority; simulated candidate supersession is not proof of actual legal amendment. Parser inertness does not validate future LLM safety.",
+      "required_abstention": "No legal interpretation or source publication from this control.",
+      "research_provenance": "Preserved v1 procedure, independent protected API/service and SQL fixture assertions.",
+      "proposed_rationale": "not published or returned",
+      "historical_applicability": "Fixed historical US-bank scope only; mutated scope must be rejected.",
+      "expansion_dependencies": [],
+      "unresolved_reviewer_questions": [
+        "Does this fixture exercise the stated boundary without claiming legal relevance?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "threshold-with-conditions",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A U.S. bank observes two linked $2,500 attempts and has facts suggesting BSA evasion. Which threshold and non-amount conditions must a reviewer assess?",
+      "expected_information_need": "Evaluate aggregation and attempted transactions without equating a score/amount to guilt.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(a)(1)-(2), (b), (c)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The proposed provision includes attempted transactions and aggregation to at least $5,000 together with enumerated suspicion criteria.",
+      "exceptions_and_qualifications": "Linkage, actual suspicion facts, reporting entity and exceptions require human assessment; this hypothetical does not itself authorize filing.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "below-threshold",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A bank sees a single $3,000 suspicious transaction. Does the amount alone establish that no SAR could be appropriate or required under any applicable rule?",
+      "expected_information_need": "Distinguish 1020.320's threshold, voluntary reports and unexamined parallel rules.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(a)(1)-(2), (g)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (a)(1) permits voluntary reporting. Falling below paragraph (a)(2)'s threshold is not a complete determination under every other applicable rule.",
+      "exceptions_and_qualifications": "Aggregation and charter/regulator-specific requirements remain unknown. Insufficient coverage requires abstention from a universal no-filing conclusion.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "partial"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "identified-suspect-clock",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Facts potentially supporting a bank SAR are initially detected and a suspect is already identified. What filing clock and urgent-notification qualification should be retrieved?",
+      "expected_information_need": "Locate the initial-detection clock rather than the system alert creation time.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(b)(3)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (b)(3) uses 30 calendar days from initial detection of facts that may form a filing basis, with immediate notification for situations requiring immediate attention.",
+      "exceptions_and_qualifications": "Actual initial detection and reportability are factual/legal review inputs. Software ingestion time is not automatically that date.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "unidentified-suspect-clock",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "No suspect was identified when reportable bank activity was detected. Is an unlimited delay allowed while identification continues?",
+      "expected_information_need": "Retrieve both the conditional extension and the outer filing limit.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(b)(3)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The provision allows an additional 30 calendar days to identify a suspect, but does not allow reporting later than 60 days from initial detection of a reportable transaction.",
+      "exceptions_and_qualifications": "The extension is conditional, not the ordinary deadline or permission to ignore urgency.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "continuing-guidance-conflict",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "An internal note calls a 90-day post-SAR review mandatory, but a separately dated government FAQ describes a different boundary. Can the coordinator resolve this from the currently eligible candidate passages?",
+      "expected_information_need": "Identify source conflict, optional guidance and the need for approved complete sources.",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs-october-2025",
+          "section": "question-2",
+          "relevant_locator": "pages 2-3; Question 2",
+          "source_locator": "pages 2-3; Question 2 and footnote 9",
+          "source_raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+          "extracted_sha256": null,
+          "section_text_sha256": null,
+          "start_byte": null,
+          "end_byte": null,
+          "authority": "guidance",
+          "version": "2025-10-09",
+          "publication_status": "research_only_not_admitted_not_approved"
+        },
+        {
+          "source_key": "fincen-sar-faqs-october-2025",
+          "section": "question-3",
+          "relevant_locator": "pages 3-4; Question 3",
+          "source_locator": "pages 3-4; Question 3 and footnotes 10-13",
+          "source_raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+          "extracted_sha256": null,
+          "section_text_sha256": null,
+          "start_byte": null,
+          "end_byte": null,
+          "authority": "guidance",
+          "version": "2025-10-09",
+          "publication_status": "research_only_not_admitted_not_approved"
+        },
+        {
+          "source_key": "fincen-sar-faqs",
+          "section": "faq-16",
+          "relevant_locator": "complete FAQ 16",
+          "source_locator": "main/#acc-frequently_asked_questions_regarding_the_fincen_suspicious_activity_report_sar_-213",
+          "source_raw_sha256": "c6a9c857bfc6bfc3a5f22049949bb3b6f190f66440e8978e5a185583dbaab50e",
+          "extracted_sha256": "321f20f88411b6b376ddaf2e2e2775d86ad054f4bc3ec8710cdf4088f19ed13f",
+          "section_text_sha256": "3c039cd9fd29ac5d7aafd5e14f3dc6ac60e6875534bba7e83a12d4fe2174284d",
+          "start_byte": 16292,
+          "end_byte": 17702,
+          "authority": "guidance",
+          "version": "2026-11-04 acquisition only",
+          "publication_status": "proposed_not_approved"
+        },
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(b)(3), initial filing only",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The proposed research flags the internal note for review; initial filing provisions alone do not answer the optional continuing-guidance question.",
+      "exceptions_and_qualifications": "Do not elevate guidance to binding law or invent an ongoing-review obligation. The required guidance is excluded; abstain from resolving the conflict operationally.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "fincen-sar-faqs-october-2025:question-2",
+        "fincen-sar-faqs-october-2025:question-3",
+        "fincen-sar-faqs:faq-16",
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "sar-confidentiality-request",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A customer asks whether a SAR exists and a private litigant demands the SAR. Which confidentiality restrictions and qualified disclosures must a bank reviewer examine?",
+      "expected_information_need": "Preserve the prohibition, response requirements, exceptions and underlying-record distinction.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(e)(1)(i)-(ii), (e)(2)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (e) protects SARs and information revealing their existence, prescribes handling of requests and distinguishes qualified disclosures and underlying facts/documents.",
+      "exceptions_and_qualifications": "Do not disclose a SAR or make a categorical claim that every underlying transaction record is itself a SAR. A qualified reviewer must assess the actual request.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "qualified-reporting-exception",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A bank records an attempted robbery and a separate missing-security event. What additional reporting facts are necessary before relying on either SAR exception?",
+      "expected_information_need": "Retrieve complete paragraph (c), not a truncated list of exempt event names.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(c), including 17 CFR 240.17f-1 cross-reference",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The robbery/burglary and securities exceptions have different prerequisite reporting conditions. The event labels alone do not demonstrate those conditions.",
+      "exceptions_and_qualifications": "Missing law-enforcement or securities-report facts require abstention on exception application. The cross-referenced securities rule is expansion-dependent.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "bank-category-program",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A private bank lacks a Federal functional regulator. Can the program be assessed solely using the paragraph for federally regulated banks?",
+      "expected_information_need": "Choose the correct bank category and preserve written-program/governing-body requirements.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.210",
+          "relevant_locator": "(a), (b)(1)-(3)",
+          "source_locator": "DIV8[@N='1020.210']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9",
+          "start_byte": 2206,
+          "end_byte": 5530,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The proposed section separately addresses banks lacking a Federal functional regulator in paragraph (b), including governing-body approval and availability to FinCEN.",
+      "exceptions_and_qualifications": "Verify the institution's actual category and incorporated provisions; retrieval of this section alone is not a complete compliance assessment.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "cdd-coverage-boundary",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Does the bank-program CDD paragraph establish every current beneficial-ownership collection exemption for a legal-entity customer?",
+      "expected_information_need": "Retrieve ongoing CDD duties but identify missing full 1010.230/exemption history.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.210",
+          "relevant_locator": "(a)(2)(v), (b)(2)(v); cross-reference 1010.230",
+          "source_locator": "DIV8[@N='1020.210']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9",
+          "start_byte": 2206,
+          "end_byte": 5530,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The section describes customer risk profiles and ongoing risk-based monitoring/updates. Its cross-reference does not supply the complete beneficial-ownership exemption framework.",
+      "exceptions_and_qualifications": "Current exemptions and amendments are outside the candidate corpus. Abstain from that part and request independently reviewed expansion sources.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.210"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "partial"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [
+        "31 CFR 1010.230 and applicable dated exemption/amendment instruments"
+      ],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "supporting-document-request",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A filed SAR is four years old and an identified competent authority requests its supporting documents. Which retention and availability provisions are relevant?",
+      "expected_information_need": "Distinguish filed-SAR support from a decision not to file, and verify requester authority.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(d), (e)",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "Paragraph (d) addresses five years from SAR filing, supporting-document identification and availability to specified authorities; paragraph (e) preserves confidentiality context.",
+      "exceptions_and_qualifications": "The hypothetical does not establish the requester's authority, authenticity or exact retention start. No customer document is disclosed by this benchmark.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "available"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "historical-not-current",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "Can a November 2, 2026 dated bank snapshot alone certify the legal position on November 4, 2026?",
+      "expected_information_need": "Reject temporal extrapolation even when the same section number matches.",
+      "source_references": [
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "complete dated snapshot, including source note",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "A dated snapshot supplies a historical research identity, not proof that no intervening change occurred. No current-law certification is proposed.",
+      "exceptions_and_qualifications": "The requested date exceeds the frozen verification boundary; obtain dated primary evidence and qualified review or abstain.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    },
+    {
+      "id": "near-ctr-insufficient-facts",
+      "status": "engineering_research_proposal_not_independent_ground_truth",
+      "question": "A transaction is near $10,000, but its purpose, customer circumstances and applicable reporting-entity rule are unknown. Is a SAR obligation established by the amount alone?",
+      "expected_information_need": "Identify missing evasion/suspicion evidence and institution applicability before any conclusion.",
+      "source_references": [
+        {
+          "source_key": "fincen-sar-faqs-october-2025",
+          "section": "question-1",
+          "relevant_locator": "pages 1-2; Question 1 and footnotes 1-8",
+          "source_locator": "pages 1-2; Question 1 and footnotes 1-8",
+          "source_raw_sha256": "5ed61b76f65ca1640f2d40e1afe3db40c77622620e81aefd08bc5273e0de4cac",
+          "extracted_sha256": null,
+          "section_text_sha256": null,
+          "start_byte": null,
+          "end_byte": null,
+          "authority": "guidance",
+          "version": "2025-10-09",
+          "publication_status": "research_only_not_admitted_not_approved"
+        },
+        {
+          "source_key": "ecfr-us-banks",
+          "section": "1020.320",
+          "relevant_locator": "(a)(2)(ii), conditional bank application only",
+          "source_locator": "DIV8[@N='1020.320']",
+          "source_raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+          "extracted_sha256": "c683ac7561aabaee6e8776dec4da92752725478577a7ff609524b4eeb4690b34",
+          "section_text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26",
+          "start_byte": 34261,
+          "end_byte": 42368,
+          "authority": "binding_regulation",
+          "version": "2026-11-02",
+          "publication_status": "proposed_not_approved"
+        }
+      ],
+      "proposed_answer": "The separately dated guidance says proximity to the CTR threshold alone is insufficient. The available case facts also fail to establish institution applicability.",
+      "exceptions_and_qualifications": "The guidance is not admitted, and missing facts cannot be invented. Abstain from a filing/criminal conclusion and request evidence plus approved applicable sources.",
+      "historical_applicability": "US bank / 2026-11-02 / knowledge cutoff 2026-11-04; institution category and full amendment/effective-date chain require qualified review.",
+      "proposed_relevance_labels": [
+        "fincen-sar-faqs-october-2025:question-1",
+        "ecfr-us-banks:1020.320"
+      ],
+      "candidate_eligible_source_section_keys": [],
+      "expected_status": {
+        "runtime": "unavailable_unapproved_corpus",
+        "candidate": "unavailable"
+      },
+      "required_abstention": "No operative legal answer from unapproved sources; never infer missing facts, current validity, complete coverage or a filing decision. Partial retrieval requires partial abstention.",
+      "expansion_dependencies": [],
+      "research_provenance": "Frozen government source locators/hashes plus separately acquired dated FinCEN PDF; engineering paraphrase only, not an independent legal review.",
+      "proposed_rationale": "Selected complete sections address this information need; paragraph/FAQ locators narrow research attention without discarding surrounding qualifications.",
+      "unresolved_reviewer_questions": [
+        "Do the mapped complete sections directly support each proposed statement and its exceptions?",
+        "Are the institution, historical interval, amendment chain and authority classification correct?",
+        "Is candidate coverage complete, partial or absent, and what must remain unanswered?"
+      ],
+      "reviewer_required_fields": [
+        "reviewer_id",
+        "qualifications",
+        "reviewed_at",
+        "relevant_source_section_keys",
+        "expected_candidate_status",
+        "expected_runtime_status",
+        "authority_classes",
+        "applicability_findings",
+        "citation_support_grade",
+        "exceptions_preserved",
+        "abstention_grade",
+        "rationale",
+        "disagreements",
+        "adjudicator_id",
+        "adjudicated_at",
+        "adjudication_status"
+      ]
+    }
+  ]
+}
