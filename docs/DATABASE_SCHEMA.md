@@ -1,6 +1,6 @@
-# PostgreSQL schema - Phase 3.4
+# PostgreSQL schema - Phase 3.5.1
 
-Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0013_reference_corpus**; 46 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts.
+Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0014_investigation_foundation**; 51 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts.
 
 | Table | Responsibility / relationships |
 |---|---|
@@ -138,3 +138,15 @@ erDiagram
 - `reference_approvals` / `corpus_releases` / `corpus_members` / `reference_contexts`: immutable explicit expected-hash human/test provenance and fixed historical release scope. One document version per release; typed same-document version/chunk FKs. Approval does not automatically grant access or configure the server.
 - `reference_grants`: active/revision changes only, audited; grant identity retained. `reference_events`: immutable source/version/release withdrawals. Existing `evidence.%` audit immutability also protects `evidence.reference.%` actions.
 - PostgreSQL triggers reject history update/delete/truncate and incomplete versions at commit. Empty downgrade supported; any retained reference row or reference-read audit blocks downgrade. SQLite migrations are compatibility only; service methods require PostgreSQL. [Contract, limits and acceptance](PHASE3_4_REGULATORY_KNOWLEDGE.md).
+## Phase 3.5.1 investigation foundation
+
+| Table | Responsibility / integrity |
+|---|---|
+| `investigation_runs` | Immutable requester/case/alert/assessment identity, bounded input manifest/SHA and coordinator version; unique frozen intent |
+| `investigation_requests` | Immutable requester/key -> exact run/manifest binding; composite FK prevents cross-actor/hash bindings |
+| `investigation_jobs` | One job/run, bounded attempts, Pending/Running/Succeeded/Abstained/Failed/Invalidated, not-before, worker lease/token/deadline and sanitized error |
+| `investigation_workers` | Separate purpose-bound token digest, admin provenance; identity immutable, revocation permanent |
+| `investigation_packets` | Immutable run/manifest-bound packet/SHA and independent source verification report; unique run; <=512 KiB application bound |
+
+- Deferred guards require job/idempotency envelopes at run commit and packet/job consistency at publication. No legacy model/evidence/case column rewrite. Existing `evidence.%` audit protection covers new `evidence.investigation.%` events.
+- Empty 0014 rollback is supported; retained run/worker/request/job/packet/audit history blocks destructive downgrade. Existing demo remains on its prior running schema; acceptance uses isolated PostgreSQL/SQLite environments. [Detailed contract](PHASE3_5_1_EVIDENCE_COORDINATOR.md).

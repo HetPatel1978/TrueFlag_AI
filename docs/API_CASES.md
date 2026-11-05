@@ -79,3 +79,6 @@ Protected asynchronous assessment APIs reuse this exact current-role/assignment 
 - Citations expose regulatory text/metadata, not customer features: authority class, immutable IDs, publisher URL, exact section/locator/UTF-8 offsets, hashes, dates, parser/release identity and limitations. Regulatory context is not evidence of a customer violation.
 - Current role/assignment plus explicit corpus grant; source/release withdrawal and supersession invalidate saved references. Shared auth rate budget, read slots, no-store, 12 KiB JSON and bounded output. Errors: 401/404/413/415/422/429/sanitized 503. Curator admission/publication APIs are not exposed.
 - [Full contracts and operational limits](PHASE3_4_REGULATORY_KNOWLEDGE.md). Official corpus publication and reviewed legal retrieval evaluation remain pending [human approval](PHASE3_4_APPROVAL_DOSSIER.md).
+## Phase 3.5.1 investigation foundation
+
+No new HTTP route is exposed. The deterministic investigation coordinator is an internal authenticated-identity service plus bounded purpose-token Linux worker. Existing case/evidence/assessment APIs are unchanged. Future API/tool gateways must bind actor/case scope on the server; they cannot forward arbitrary model-selected identities, source contexts or SQL. [Interfaces, output separation, authority and acceptance](PHASE3_5_1_EVIDENCE_COORDINATOR.md).

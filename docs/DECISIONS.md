@@ -187,3 +187,15 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 | Context locks and bounded eligible-chunk resolution | Simple race-safe MVP; shared-context concurrency and <=1,000 chunks are explicit scaling limits |
 
 [Exact source/evaluation hashes and pending approval](PHASE3_4_APPROVAL_DOSSIER.md). No LLM, automatic case action or Phase 3.5 implementation is authorized by completing this infrastructure.
+## Phase 3.5.1 evidence-only implementation decisions
+
+| Decision | Scope / rationale |
+|---|---|
+| Evidence-only coordinator can proceed while regulatory review is pending | Explicit user authorization after `e7a954c`; no regulatory lookup/citations/publication or provider activation |
+| Reuse scoped evidence projections and stored assessments | Preserve scientific behavior and source access; no transaction history fabricated from 27 aggregate predictors |
+| Separate durable jobs and purpose-bound workers | Do not mix general investigation execution or credentials into the frozen ML queue |
+| Immutable intent/packet, fresh authority and independent raw-record math | Reproducibility and rollback without trusting producer/model verification claims |
+| Requester-only internal service/worker MVP | No public API/frontend/reviewer permissions added; managers can request their own authorized packets |
+| Structured codes and explicit abstention | Bounded machine-readable facts/gaps/questions; no generated legal/criminal conclusion or case action |
+
+[Frozen scope, interfaces, worker operation and remaining gates](PHASE3_5_1_EVIDENCE_COORDINATOR.md). This is deterministic investigation preparation, not a validated AI investigator.

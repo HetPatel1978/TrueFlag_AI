@@ -52,7 +52,9 @@ Current acceptance: [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md), [assessme
 - [x] Phase 3.2: internal synthetic evidence implemented and verified: 591 Linux/PostgreSQL tests, 77 evidence tests, 14 recovery scenarios, frozen RF/Policy/SHAP parity. [Frozen schema / 27-field matrix / generator / rollback](PHASE3_2_EVIDENCE_FOUNDATION.md). No LLM, RAG, public API or frontend.
 - [x] Phase 3.3: case-authorized retrieval and Decimal analytics verified: 656 Linux/PostgreSQL tests, 65 retrieval/analytics tests, 14 recovery scenarios and unchanged scientific parity. [Contracts and results](PHASE3_3_RETRIEVAL_ANALYTICS.md).
 - [ ] Phase 3.4: reference infrastructure technically verified: full Linux/PostgreSQL 736 plus final reference 87 checks; Windows 237 + 5, SQLite 428 + 2 with 311 + 2 expected skips, 178 ML tests and frozen scientific parity. Official corpus publication, deployment and reviewed legal evaluation remain gated by the [exact-hash approval dossier](PHASE3_4_APPROVAL_DOSSIER.md); no LLM or Phase 3.5 work.
-- Later proposed 3.5-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
+- Remaining proposed 3.5-3.7 scopes and acceptance gates are in the design pack; no calendar/implementation approval is inferred.
+- [x] Phase 3.5.1: explicit evidence-only authorization implemented a deterministic coordinator, immutable manifests/packets and separate durable worker; full Linux/PostgreSQL 795 and final investigation 50 tests passed. No LLM/provider, regulatory retrieval, frontend or case/SAR action. [Scope, tests and remaining gates](PHASE3_5_1_EVIDENCE_COORDINATOR.md).
+- [ ] Phase 3.5.2 and later: not started; require a separate request and relevant provider/data/egress/human-evaluation approvals. Phase 3.4 source/label approval remains pending for any regulatory retrieval.
 
 - **Objective:** a bounded evidence-grounded assistant, not an autonomous investigator.
 - **Tasks:**
