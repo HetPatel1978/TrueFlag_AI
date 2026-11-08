@@ -199,3 +199,9 @@ See TECH_STACK for framework documentation. Guidance informs implementation choi
 | Structured codes and explicit abstention | Bounded machine-readable facts/gaps/questions; no generated legal/criminal conclusion or case action |
 
 [Frozen scope, interfaces, worker operation and remaining gates](PHASE3_5_1_EVIDENCE_COORDINATOR.md). This is deterministic investigation preparation, not a validated AI investigator.
+## Phase 3.5.2 - Provider-neutral simulation integration
+
+- Reuse Phase 3.5.1 via a shared transactional admission core; preserve its public request behavior. A small durable child queue is necessary because immutable parent packet jobs cannot be reopened or repurposed as provider jobs. Reuse PostgreSQL, worker identity, source locks and independent packet verifier; no duplicate analytics or external orchestrator.
+- Register only the deterministic fake, default off. A real network adapter is optional after explicit approval, so none is implemented now. Unsupported external activation fails closed; no provider credentials are requested, stored or logged. Existing unrelated environment/startup edits remain separate.
+- Restrict provider output to typed references/numeric assertions and uncertain question templates; render factual summaries on the server. Unrestricted narrative would need semantic entailment evaluation that deterministic checks cannot supply. Structural verification remains distinct from factual truth, legal applicability and human conclusions.
+- Persist immutable budget reservations and usage/failure receipts before/after each attempt. Retain conservative charges for unknown delivery/usage; bound attempts, execution and output. Fake byte-unit accounting and USD 0 are simulation metadata, never an invented real-provider price/usage measurement. Do not enable regulatory retrieval or automatic case actions.

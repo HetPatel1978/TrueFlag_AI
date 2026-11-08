@@ -230,6 +230,10 @@ class InvestigationCoordinator:
 
     @atomic
     def request(self, session, actor_id, case_id, idempotency_key, request):
+        return self.request_in_transaction(session, actor_id, case_id, idempotency_key, request)
+
+    def request_in_transaction(self, session, actor_id, case_id, idempotency_key, request):
+        """Shared atomic admission core for the optional child draft stage; same behavior."""
         self._gate(session)
         if (
             not isinstance(request, InvestigationRequest)

@@ -1,6 +1,19 @@
-# PostgreSQL schema - Phase 3.5.1
+# PostgreSQL schema - Phase 3.5.2
 
-Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0014_investigation_foundation**; 51 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts.
+Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0015_investigation_drafts**; 57 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts. No automatic live-demo migration is performed.
+
+## Phase 3.5.2 additive tables
+
+| Table | Responsibility |
+|---|---|
+| investigation_draft_runs | Immutable parent/requester/manifest, provider configuration and prompt fingerprints |
+| investigation_draft_requests | Immutable actor/idempotency-key to exact child intent bindings |
+| investigation_draft_jobs | Fenced child state/attempt/deadline/lease/recovery scheduling; references existing investigation worker identities |
+| investigation_draft_attempts | Immutable request, packet/minimized-input hashes and conservative input/output reservations before delivery |
+| investigation_draft_receipts | Immutable completion/failure hash, observed simulated usage or explicit unknown, attempt elapsed time |
+| investigation_drafts | Immutable structurally checked simulation draft, exact parent/attempt/manifest linkage and provenance |
+
+Composite FKs bind parent/actor/manifest and result/attempt/run. PostgreSQL deferred guards enforce complete envelopes, terminal result/receipt consistency and reservation limits. History cannot be updated/deleted/truncated; retained rows/audits block downgrade. No provider secret, raw source document or copied 27-feature snapshot is stored here. [Phase 3.5.2](PHASE3_5_2_LLM_INVESTIGATOR.md).
 
 | Table | Responsibility / relationships |
 |---|---|

@@ -82,3 +82,8 @@ Protected asynchronous assessment APIs reuse this exact current-role/assignment 
 ## Phase 3.5.1 investigation foundation
 
 No new HTTP route is exposed. The deterministic investigation coordinator is an internal authenticated-identity service plus bounded purpose-token Linux worker. Existing case/evidence/assessment APIs are unchanged. Future API/tool gateways must bind actor/case scope on the server; they cannot forward arbitrary model-selected identities, source contexts or SQL. [Interfaces, output separation, authority and acceptance](PHASE3_5_1_EVIDENCE_COORDINATOR.md).
+
+## Phase 3.5.2 simulation-only draft service
+
+- No new HTTP endpoint or frontend. Trusted internal `InvestigationDraftService.request(actor, case, key, InvestigationRequest, ProviderConfig)` atomically reuses parent packet admission and creates an explicitly requested child draft job. `get(actor, case, draft_run)` rechecks current requester/case/source scope; worker methods require the existing purpose-bound token and fenced claim.
+- Simulation is disabled by default; real provider configuration/credentials/egress are not supported or approved. Inputs contain no client-supplied scores, provider-selected case IDs, arbitrary tools, URLs or SQL. Output is an immutable, explicitly simulated, structurally checked draft with server-rendered facts and mandatory human semantic review. [Contracts, limits and remaining live-provider gates](PHASE3_5_2_LLM_INVESTIGATOR.md).

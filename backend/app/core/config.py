@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     )
     app_env: str = "local"
     regulatory_context_id: UUID | None = None
+    investigation_simulation_enabled: bool = False
+    investigation_external_enabled: bool = False
     database_url: str = "postgresql+psycopg://trueflag@127.0.0.1:5432/trueflag"
     jwt_secret: SecretStr
     jwt_issuer: str = "trueflag-ai"

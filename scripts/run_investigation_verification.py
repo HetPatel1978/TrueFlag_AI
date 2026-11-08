@@ -46,6 +46,8 @@ def inside():
         if payload["full"]
         else ["backend/tests/test_investigation_coordinator.py"]
     )
+    if payload.get("drafts") and not payload["full"]:
+        paths = ["backend/tests/test_investigation_drafts.py"]
     return pytest.main(
         [
             *paths,
@@ -60,7 +62,7 @@ def inside():
     )
 
 
-def main(full):
+def main(full, drafts=False):
     from app.core.config import Settings
     from sqlalchemy.engine import make_url
 
@@ -104,6 +106,7 @@ def main(full):
         "scripts",
         "contracts",
         "assets/local/regulatory/proposed",
+        "assets/local/regulatory/research_v2",
         "assets/local/baseline",
         "assets/local/explanation_reference",
     ]:
@@ -123,7 +126,13 @@ def main(full):
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, cwd=ROOT
     )
     process.stdin.write(
-        json.dumps({"database_url": url.render_as_string(hide_password=False), "full": full})
+        json.dumps(
+            {
+                "database_url": url.render_as_string(hide_password=False),
+                "full": full,
+                "drafts": drafts,
+            }
+        )
     )
     process.stdin.close()
     counts = None
@@ -135,14 +144,20 @@ def main(full):
     process.stdout.close()
     code = process.wait(timeout=60)
     if counts:
-        (
-            ROOT
-            / (
+        filename = (
+            (
+                "runtime/phase3-5-2-full-tests.json"
+                if full
+                else "runtime/phase3-5-2-draft-tests.json"
+            )
+            if drafts
+            else (
                 "runtime/phase3-5-1-full-tests.json"
                 if full
                 else "runtime/phase3-5-1-investigation-tests.json"
             )
-        ).write_text(json.dumps(counts, indent=2) + "\n", encoding="utf-8")
+        )
+        (ROOT / filename).write_text(json.dumps(counts, indent=2) + "\n", encoding="utf-8")
         print(json.dumps(counts, sort_keys=True))
     return code
 
@@ -151,9 +166,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full", action="store_true")
     parser.add_argument("--inside", action="store_true")
+    parser.add_argument("--drafts", action="store_true")
     args = parser.parse_args()
     try:
-        raise SystemExit(inside() if args.inside else main(args.full))
+        raise SystemExit(inside() if args.inside else main(args.full, args.drafts))
     except Exception:
         print(
             json.dumps(
