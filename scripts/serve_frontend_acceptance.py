@@ -29,6 +29,32 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 from sqlalchemy.schema import CreateSchema, DropSchema
 
+DEFAULT_LIFETIME_SECONDS = 600
+MIN_LIFETIME_SECONDS = 60
+MAX_LIFETIME_SECONDS = 3600
+
+
+def start_listener(settings, engine, timeout=10):
+    """Start one real uvicorn listener on :8000; raise if it is not serving within timeout."""
+    server = uvicorn.Server(
+        uvicorn.Config(
+            create_app(settings, engine),
+            host="0.0.0.0",
+            port=8000,
+            log_config=None,
+            access_log=False,
+            log_level="error",
+        )
+    )
+    thread = threading.Thread(target=server.run, daemon=True)
+    thread.start()
+    until = time.monotonic() + timeout
+    while not server.started and thread.is_alive() and time.monotonic() < until:
+        time.sleep(0.05)
+    if not server.started:
+        raise RuntimeError("listener_unavailable")
+    return server, thread
+
 
 def main():
     config = json.loads(sys.stdin.readline())
@@ -375,87 +401,91 @@ def main():
 
         threading.Thread(target=eof, daemon=True).start()
         sequence = 0
-        deadline = time.monotonic() + 600
+        # Bounded fixture lifetime: default 600 s; the host harness may raise it per run
+        # (TRUEFLAG_E2E_FIXTURE_LIFETIME_SECONDS) without a code change.
+        lifetime = int(config.get("lifetime_seconds", DEFAULT_LIFETIME_SECONDS))
+        assert MIN_LIFETIME_SECONDS <= lifetime <= MAX_LIFETIME_SECONDS
+        deadline = time.monotonic() + lifetime
         while not stop.is_set() and time.monotonic() < deadline:
             for path in sorted(control.glob("command.*.json")):
                 try:
                     request = json.loads(path.read_text())
                     if request["sequence"] > sequence:
                         sequence = request["sequence"]
-                        if request.get("fail_next"):
-                            fail_next.set()
-                        if request.get("worker") == "pause":
-                            enabled.clear()
-                        if request.get("worker") == "start":
-                            enabled.set()
-                        if (
-                            config.get("investigation_workbench")
-                            and request.get("clock_fault") is True
-                            and clock_fault is None
-                        ):
-                            from datetime import datetime, timedelta, timezone
+                        error = None
+                        try:
+                            if request.get("fail_next"):
+                                fail_next.set()
+                            if request.get("worker") == "pause":
+                                enabled.clear()
+                            if request.get("worker") == "start":
+                                enabled.set()
+                            if (
+                                config.get("investigation_workbench")
+                                and request.get("clock_fault") is True
+                                and clock_fault is None
+                            ):
+                                from datetime import datetime, timedelta, timezone
 
-                            from app.models.snapshot_clock import SnapshotClock
-                            from app.services.snapshot_clock import SnapshotTime
-                            from sqlalchemy import text
+                                from app.models.snapshot_clock import SnapshotClock
+                                from app.services.snapshot_clock import SnapshotTime
+                                from sqlalchemy import text
 
-                            sys.path.insert(0, "backend/tests")
-                            from test_snapshot_clock_integrity import clock_view
+                                sys.path.insert(0, "backend/tests")
+                                from test_snapshot_clock_integrity import clock_view
 
-                            with Session(engine) as session:
-                                instant = max(
-                                    session.scalar(text("SELECT clock_timestamp()")),
-                                    datetime.fromtimestamp(
-                                        session.get(SnapshotClock, 1).high_water, timezone.utc
-                                    ),
+                                with Session(engine) as session:
+                                    instant = max(
+                                        session.scalar(text("SELECT clock_timestamp()")),
+                                        datetime.fromtimestamp(
+                                            session.get(SnapshotClock, 1).high_water, timezone.utc
+                                        ),
+                                    )
+                                clock_fault = clock_view(engine, instant)
+                                simulated = clock_fault.__enter__()
+                                SnapshotTime(engine).observe()
+                                simulated[0] = instant - timedelta(seconds=1)
+                            if request.get("clock_fault") is False and clock_fault is not None:
+                                clock_fault.__exit__(None, None, None)
+                                clock_fault = None
+                            if (
+                                config.get("investigation_workbench")
+                                and request.get("revoke_source") in connected_sources
+                            ):
+                                name = request["revoke_source"]
+                                foundation.set_source_access(
+                                    UUID(user_ids["uiadmin"]),
+                                    UUID(cases[name]),
+                                    connected_sources[name],
+                                    False,
                                 )
-                            clock_fault = clock_view(engine, instant)
-                            simulated = clock_fault.__enter__()
-                            SnapshotTime(engine).observe()
-                            simulated[0] = instant - timedelta(seconds=1)
-                        if request.get("clock_fault") is False and clock_fault is not None:
-                            clock_fault.__exit__(None, None, None)
-                            clock_fault = None
-                        if (
-                            config.get("investigation_workbench")
-                            and request.get("revoke_source") in connected_sources
-                        ):
-                            name = request["revoke_source"]
-                            foundation.set_source_access(
-                                UUID(user_ids["uiadmin"]),
-                                UUID(cases[name]),
-                                connected_sources[name],
-                                False,
-                            )
-                        if request.get("restart_api"):
-                            # Exercise real TCP listener/lifespan/dispatcher restart, not a mock response.
-                            server.should_exit = True
-                            server_thread.join(timeout=10)
-                            assert not server_thread.is_alive()
-                            app = create_app(settings, engine)
-                            server = uvicorn.Server(
-                                uvicorn.Config(
-                                    app,
-                                    host="0.0.0.0",
-                                    port=8000,
-                                    log_config=None,
-                                    access_log=False,
-                                    log_level="error",
-                                )
-                            )
-                            server_thread = threading.Thread(target=server.run, daemon=True)
-                            server_thread.start()
-                            ready_until = time.monotonic() + 10
-                            while not server.started and time.monotonic() < ready_until:
-                                stop.wait(0.05)
-                            assert server.started
-                        if request.get("revoke_batch_admin"):
-                            with Session(engine) as session, session.begin():
-                                session.get(
-                                    User, UUID(user_ids["uibatchadmin"])
-                                ).role = "supervisor"
+                            if request.get("restart_api"):
+                                # Exercise real TCP listener/lifespan/dispatcher restart, not a mock response.
+                                server.should_exit = True
+                                server_thread.join(timeout=10)
+                                assert not server_thread.is_alive()
+                                server, server_thread = start_listener(settings, engine)
+                            if request.get("revoke_batch_admin"):
+                                with Session(engine) as session, session.begin():
+                                    session.get(
+                                        User, UUID(user_ids["uibatchadmin"])
+                                    ).role = "supervisor"
+                        except Exception as failure:
+                            error = "command_failed:" + type(failure).__name__
+                            if request.get("restart_api") and not (
+                                server_thread.is_alive() and server.started
+                            ):
+                                # Keep later tests usable: bring a fresh listener up. If that
+                                # also fails, the harness health check reports the fixture down.
+                                try:
+                                    server, server_thread = start_listener(settings, engine)
+                                except Exception:
+                                    pass
                         target = control / f"ack.{sequence}.json"
-                        target.write_text(json.dumps({"sequence": sequence}))
+                        ack = {"sequence": sequence}
+                        if error:
+                            ack["error"] = error
+                        target.write_text(json.dumps(ack))
                 except (ValueError, KeyError, OSError):
                     pass
             stop.wait(0.05)
