@@ -32,6 +32,7 @@ from app.models import (
 )
 from app.services.csv_imports import (
     CSVImportService,
+    ImportClaim,
     ImportLeaseLost,
     ImportUnavailable,
     ImportWorkerDenied,
@@ -521,7 +522,7 @@ def test_chunk_deadline_rolls_back_and_retries(imports, monkeypatch):
     assert result.status == "pending"
 
 
-def test_distinct_admin_imports_share_source_constraints(imports, platform):
+def test_distinct_admin_imports_share_source_constraints(imports, platform, monkeypatch):
     first_prepared = prepare(imports, [{}])
     first = approve(imports, first_prepared)
     with Session(imports["engine"]) as session, session.begin():
@@ -535,8 +536,18 @@ def test_distinct_admin_imports_share_source_constraints(imports, platform):
     second["actor_id"] = other_id
     reply = approve(second, prepare(second, [{}]))
     assert first.status_code == reply.status_code == 202
+    # This test exercises the source uniqueness race, not clock eligibility.
+    # A normal queue poll may return None (not due / SKIP LOCKED); never pass
+    # that sentinel to process_chunk as though it were an authenticated claim.
+    with Session(imports["engine"]) as session:
+        eligible_at = session.scalar(select(func.max(CSVImport.available_at)))
+    assert eligible_at is not None
+    claim_time = eligible_at + timedelta(seconds=1)
+    monkeypatch.setattr("app.services.csv_imports._now", lambda _: claim_time)
     with ThreadPoolExecutor(max_workers=2) as pool:
         claims = list(pool.map(lambda _: imports["queue"].claim(imports["token"]), range(2)))
+    assert all(type(claim) is ImportClaim for claim in claims)
+    assert len({claim.import_id for claim in claims}) == 2
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(
             pool.map(lambda claim: imports["queue"].process_chunk(imports["token"], claim), claims)

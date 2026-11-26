@@ -3,6 +3,12 @@ import { ApiError, request, type AssessmentDetail, type Policy } from './api';
 export type CSVContract = {
   metadata: { name: string }[];
   predictors: { name: string }[];
+  limits?: {
+    max_bytes: number;
+    max_rows: number;
+    max_columns: number;
+    max_field_bytes: number;
+  };
 };
 export type Upload = {
   upload_id: string;
@@ -59,6 +65,8 @@ export type Import = {
   excluded_rows: number;
   unprocessed_rows: number;
   failure_code: string | null;
+  /** Imported cases with an assessment of their current version (read-only count). */
+  assessed_cases?: number;
 };
 export type ImportRow = {
   row_number: number;
@@ -157,7 +165,12 @@ export function batchClient(
   return {
     contract: () => get<CSVContract>('/api/v1/batch-uploads/contract'),
     template: () => get<Blob>('/api/v1/batch-uploads/template', {}, 'blob'),
-    upload: (file: File, key: string, progress: (percent: number) => void) =>
+    upload: (
+      file: File,
+      key: string,
+      progress: (percent: number) => void,
+      sessionId?: string,
+    ) =>
       new Promise<Upload>((resolve, reject) => {
         if (file.size > 1048576 || !file.size) {
           reject(new ApiError(file.size ? 413 : 422));
@@ -174,6 +187,7 @@ export function batchClient(
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.setRequestHeader('Content-Type', 'text/csv');
         xhr.setRequestHeader('Idempotency-Key', key);
+        if (sessionId) xhr.setRequestHeader('X-Upload-Session-ID', sessionId);
         const abort = () => xhr.abort();
         signal.addEventListener('abort', abort, { once: true });
         const cleanup = () => signal.removeEventListener('abort', abort);

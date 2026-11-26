@@ -94,6 +94,12 @@ function mockApi() {
     contract: vi.fn(async () => ({
       metadata: fields.slice(0, 3).map((name) => ({ name })),
       predictors: fields.slice(3).map((name) => ({ name })),
+      limits: {
+        max_bytes: 1048576,
+        max_rows: 2000,
+        max_columns: 64,
+        max_field_bytes: 4096,
+      },
     })),
     template: vi.fn(async () => new Blob(['header'])),
     upload: vi.fn(async () => ({
@@ -177,7 +183,57 @@ afterEach(() => {
   window.location.hash = '';
 });
 
+it('preserves a selected file across a same-session component remount', async () => {
+  const memory = new Map<string, unknown>();
+  const first = setup('#/batch/new', memory);
+  await waitFor(() => expect(first.methods.contract).toHaveBeenCalled());
+  const file = new File(['synthetic'], 'selected-synthetic.csv', {
+    type: 'text/csv',
+  });
+  fireEvent.change(screen.getByLabelText('Choose a CSV file'), {
+    target: { files: [file] },
+  });
+  first.unmount();
+  setup('#/batch/new', memory);
+  await screen.findByText('selected-synthetic.csv');
+  await waitFor(() =>
+    expect(
+      screen
+        .getByRole('button', { name: 'Upload CSV' })
+        .hasAttribute('disabled'),
+    ).toBe(false),
+  );
+});
+
 describe('batch workflow components (synthetic UI fixtures, no scientific success substitution)', () => {
+  it('explains row and size limits and clears progress after a rejected upload', async () => {
+    const { methods, memory } = setup();
+    expect(
+      (await screen.findAllByText(/2,000 data rows/)).length,
+    ).toBeGreaterThan(0);
+    methods.upload.mockImplementation(async () => {
+      throw new ApiError(413);
+    });
+    fireEvent.change(screen.getByLabelText('Choose a CSV file'), {
+      target: {
+        files: [
+          new File(['source_id\nsynthetic\n'], 'synthetic.csv', {
+            type: 'text/csv',
+          }),
+        ],
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Upload CSV' }));
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('CSV exceeds an upload limit.');
+    expect(alert.textContent).toContain(
+      '2,000 data rows (excluding the header)',
+    );
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(memory.has('pending-upload')).toBe(false);
+    expect(methods.approve).not.toHaveBeenCalled();
+    expect(methods.start).not.toHaveBeenCalled();
+  });
   it('requires all 30 distinct source mappings and explicit units', async () => {
     const { methods } = setup(`#/batch/upload/${uid}`);
     await screen.findByRole('heading', { name: 'Column mapping' });
@@ -187,7 +243,7 @@ describe('batch workflow components (synthetic UI fixtures, no scientific succes
     });
     expect((validate as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(
-      screen.getByLabelText(/Values use the original baseline units/),
+      screen.getByLabelText(/Values use the required source units/),
     );
     fireEvent.change(screen.getByLabelText('Map income'), {
       target: { value: 'state' },
@@ -246,17 +302,67 @@ describe('batch workflow components (synthetic UI fixtures, no scientific succes
   });
   it('does not start inference on import completion', async () => {
     const { methods } = setup(`#/batch/import/${iid}`);
-    await screen.findByRole('heading', { name: 'Start ML assessment' });
+    await screen.findByRole('heading', { name: 'Assess imported alerts' });
     expect(methods.start).not.toHaveBeenCalled();
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Start ML Assessment' }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'Start assessments' }));
     await waitFor(() => expect(methods.start).toHaveBeenCalledTimes(1));
     expect(window.location.hash).toContain(`/assessment/${bid}`);
   });
+  it('shows already-assessed imports with re-assessment as a secondary action', async () => {
+    const methods = mockApi();
+    methods.imported = vi.fn(async () => ({
+      ...imported,
+      created_rows: 2,
+      assessed_cases: 2,
+    }));
+    const api: BatchFactory = () => methods;
+    render(
+      <BatchProcessing
+        api={api}
+        user={user}
+        route={`#/batch/import/${iid}`}
+        memory={new Map()}
+      />,
+    );
+    await screen.findByText('Already assessed (2 of 2)');
+    expect(screen.getByRole('button', { name: 'View cases' })).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Start assessments' }),
+    ).toBeNull();
+    // Counts are one line, not tiles.
+    expect(screen.queryByText('Rejected')).toBeNull();
+    expect(screen.getAllByText(/rejected/).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Assess again' }));
+    expect(screen.getByLabelText('Review policy')).toBeTruthy();
+    const again = screen.getByRole('button', { name: 'Assess again' });
+    expect(again.className).not.toContain('primary');
+    fireEvent.click(again);
+    await waitFor(() => expect(methods.start).toHaveBeenCalledTimes(1));
+  });
+  it('keeps Start assessments primary while some imported cases are unassessed', async () => {
+    const methods = mockApi();
+    methods.imported = vi.fn(async () => ({
+      ...imported,
+      created_rows: 3,
+      assessed_cases: 1,
+    }));
+    const api: BatchFactory = () => methods;
+    render(
+      <BatchProcessing
+        api={api}
+        user={user}
+        route={`#/batch/import/${iid}`}
+        memory={new Map()}
+      />,
+    );
+    await screen.findByText('Already assessed (1 of 3)');
+    const start = screen.getByRole('button', { name: 'Start assessments' });
+    expect(start.className).toContain('primary');
+    expect(screen.queryByRole('button', { name: 'Assess again' })).toBeNull();
+  });
   it('resumes by ID without storing credentials or predictor values', async () => {
     setup();
-    await screen.findByRole('heading', { name: 'Resume an import' });
+    fireEvent.click(await screen.findByText('Resume an existing import'));
     fireEvent.change(screen.getByLabelText('Import ID'), {
       target: { value: iid },
     });
@@ -268,8 +374,9 @@ describe('batch workflow components (synthetic UI fixtures, no scientific succes
   it('distinguishes terminal manual review from missing/fabricated scores', async () => {
     setup(`#/batch/import/${iid}/assessment/${bid}`);
     await screen.findByRole('heading', { name: 'Batch results' });
-    expect(await screen.findByText('Manual review required')).toBeTruthy();
-    expect(screen.getByText('Child failed')).toBeTruthy();
+    expect(
+      await screen.findByText('Manual review required · Child failed'),
+    ).toBeTruthy();
     expect(screen.queryByText(/25.00%/)).toBeNull();
   });
   it('has admin-only entry even with a direct batch URL', () => {
@@ -297,7 +404,7 @@ describe('batch workflow components (synthetic UI fixtures, no scientific succes
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => {});
     const { methods } = setup(`#/batch/import/${iid}/assessment/${bid}`);
-    await screen.findByRole('heading', { name: 'Safe CSV export' });
+    fireEvent.click(await screen.findByText('Export results'));
     fireEvent.change(screen.getByLabelText('Maximum rows'), {
       target: { value: '10' },
     });

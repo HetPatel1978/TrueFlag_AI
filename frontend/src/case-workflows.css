@@ -1,0 +1,92 @@
+.assignment-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 3rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgb(23 35 56 / 18%);
+}
+.assignment-dialog::backdrop {
+  background: rgb(15 23 42 / 35%);
+  backdrop-filter: blur(4px);
+}
+.assignment-dialog h2 {
+  margin-top: 0.4rem;
+}
+.assignment-dialog label {
+  display: block;
+  margin: 1rem 0 0.4rem;
+}
+.activity-panel {
+  padding: var(--space-6);
+}
+.filters > .queue-selector {
+  min-width: 245px;
+}
+.assignment-dialog input,
+.assignment-dialog select {
+  width: 100%;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.assignment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+.assignment-row p {
+  margin: 0;
+}
+.activity-panel > select {
+  max-width: 22rem;
+}
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+.activity-list li {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-list li > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.activity-list p,
+.activity-list small {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.queue-link {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.9rem;
+}
+@media (max-width: 600px) {
+  .activity-panel {
+    padding: var(--space-4);
+  }
+  .assignment-dialog {
+    padding: 1.2rem;
+  }
+  .activity-list li > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

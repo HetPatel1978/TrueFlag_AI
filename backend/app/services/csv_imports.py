@@ -14,7 +14,10 @@ from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.core.release import require_session_compatible
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.models import (
+    Assessment,
     AuditEvent,
     Case,
     CSVImport,
@@ -99,6 +102,8 @@ def safe(method):
             return method(*args, **kwargs)
         except (ImportErrorBase, UploadDenied, UploadExpired, UploadNotFound):
             raise
+        except ReleaseCompatibilityError as error:
+            raise ImportUnavailable(error.code) from None
         except (SQLAlchemyError, StagingUnavailable, OSError):
             raise ImportUnavailable from None
         except Exception:
@@ -121,6 +126,7 @@ def _token_hash(token):
 
 
 def _worker(session, token):
+    require_session_compatible(session)
     row = session.scalar(
         select(CSVImportWorker)
         .where(CSVImportWorker.token_sha256 == _token_hash(token), CSVImportWorker.active.is_(True))
@@ -184,9 +190,44 @@ def _snapshot(row, upload):
     }
 
 
-def _view(row):
+def _assessed_cases(session, row, actor_id):
+    """Imported cases (visible to the reader) whose latest assessment is completed and passes
+    the integrity check, whatever import, batch or case version produced it. Same rule as the
+    Cases list score. Read-only; counted once the import is terminal (not while polling)."""
+    from app.services.assessments import AssessmentUnavailable, _read
+
+    if row.status not in {"completed", "partially_completed"}:
+        return 0
+    user = session.get(User, actor_id)
+    cases = session.scalars(
+        select(Case.id)
+        .join(CSVImportRow, CSVImportRow.case_id == Case.id)
+        .where(CSVImportRow.import_id == row.id, visible_cases(user))
+        .distinct()
+    ).all()
+    assessed = 0
+    for case_id in cases:
+        latest = session.scalar(
+            select(Assessment)
+            .where(Assessment.case_id == case_id)
+            .order_by(Assessment.version.desc(), Assessment.id.desc())
+            .limit(1)
+        )
+        if latest is None:
+            continue
+        try:
+            content = _read(session, latest)
+        except AssessmentUnavailable:
+            continue  # A record failing the integrity check never counts as assessed.
+        if content["score"]["status"] == "processed":
+            assessed += 1
+    return assessed
+
+
+def _view(row, assessed_cases=0):
     snap = row.snapshot
     return ImportSummary(
+        assessed_cases=assessed_cases,
         import_id=row.id,
         upload_id=row.upload_id,
         validation_id=row.validation_id,
@@ -456,7 +497,7 @@ class CSVImportService:
                 raise UploadNotFound
             _event(session, row, "read")
             if offset is None:
-                return _view(row)
+                return _view(row, _assessed_cases(session, row, actor_id))
             conditions = [CSVImportRow.import_id == row.id]
             if status:
                 conditions.append(CSVImportRow.status == status)

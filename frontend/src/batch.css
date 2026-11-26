@@ -23,28 +23,28 @@
   gap: 0.5rem;
   align-items: center;
   padding: 0.8rem;
-  border-bottom: 3px solid #dbe4f1;
-  color: #52647f;
-  font-size: 0.82rem;
+  border-bottom: 3px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 .batch-steps li span {
-  font-weight: 700;
+  font-weight: 600;
 }
 .batch-steps li.reached {
-  border-color: #235bbb;
-  color: #174487;
+  border-color: var(--blue);
+  color: var(--blue-hover);
 }
 .batch-steps li[aria-current] {
-  background: #eaf1fc;
+  background: var(--surface-selected);
   border-radius: 6px 6px 0 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 .batch-drop {
   display: block;
   padding: 1.5rem;
-  background: #f7f9fd;
-  border: 1px dashed #8da6cc;
-  border-radius: 8px;
+  background: var(--surface-subtle);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
   margin: 1rem 0;
 }
 .batch-drop input {
@@ -59,20 +59,20 @@
   margin: 1rem 0;
 }
 .batch-stats div {
-  background: #f3f6fc;
-  border: 1px solid #dbe4f1;
-  border-radius: 8px;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 0.9rem;
 }
 .batch-stats dt {
-  font-size: 0.76rem;
-  color: #52647f;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 .batch-stats dd {
   font-size: 1.55rem;
-  font-weight: 650;
+  font-weight: 600;
   margin: 0.2rem 0 0;
-  color: #112554;
+  color: var(--ink);
 }
 .batch-mapping {
   display: grid;
@@ -87,14 +87,14 @@
   align-items: center;
   border-bottom: 1px solid #e7edf7;
   padding: 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   overflow-wrap: anywhere;
 }
 .batch-mapping small,
 .batch-workspace td small {
   display: block;
-  font-size: 0.72rem;
-  color: #52647f;
+  font-size: 0.9rem;
+  color: var(--text-muted);
   margin-top: 0.25rem;
 }
 .batch-workspace select,
@@ -106,7 +106,7 @@
   gap: 0.65rem;
   align-items: flex-start;
   margin: 1.2rem 0;
-  font-size: 0.86rem;
+  font-size: 0.9rem;
 }
 .batch-confirm input {
   width: 18px;
@@ -125,7 +125,7 @@
 .batch-export label {
   flex: 1;
   min-width: 160px;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 .batch-export label input,
 .batch-export label select {
@@ -143,22 +143,22 @@
 .batch-workspace progress {
   width: 100%;
   height: 0.8rem;
-  accent-color: #235bbb;
+  accent-color: var(--blue);
 }
 .batch-upload-progress {
   margin: 1rem 0;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 .batch-id {
   overflow-wrap: anywhere;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 .batch-disclaimer {
-  background: #edf7fc;
-  border-left: 3px solid #087f96;
+  background: var(--info-bg);
+  border-left: 3px solid var(--chart-lower);
   padding: 0.8rem;
-  font-size: 0.83rem;
-  color: #144661;
+  font-size: 0.9rem;
+  color: var(--info-text);
 }
 .batch-alert {
   margin-bottom: 1rem;
@@ -183,7 +183,7 @@
   }
   .batch-steps li {
     padding: 0.5rem;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -197,7 +197,7 @@
     gap: 0.3rem;
   }
   .batch-steps li {
-    font-size: 0.62rem;
+    font-size: 0.9rem;
     padding: 0.4rem 0.2rem;
   }
   .batch-stats {

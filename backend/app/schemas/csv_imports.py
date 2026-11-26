@@ -54,6 +54,8 @@ class ImportSummary(BaseModel):
     validator_version: str
     units: str
     validation_sha256: str
+    # Imported cases (visible to the reader) with an assessment of their current case version.
+    assessed_cases: int = 0
 
 
 class ImportRowResult(BaseModel):

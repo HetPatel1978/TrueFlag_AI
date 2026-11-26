@@ -21,6 +21,7 @@ from test_foundation import headers
 from app.models import (
     Alert,
     Assessment,
+    AssessmentAPIThrottle,
     AssessmentJob,
     BatchAssessment,
     BatchAssessmentItem,
@@ -140,6 +141,86 @@ def test_invalid_start_contract(batch_env, field, value):
     body[field] = value
     assert start(batch_env, source, body=body).status_code == 422
     assert total(batch_env, BatchAssessment) == total(batch_env, AssessmentJob) == 0
+
+
+def test_fresh_import_reports_no_assessed_cases(batch_env):
+    source = imported(batch_env)
+    assert source["status"] == "completed" and source["assessed_cases"] == 0
+
+
+def _stored_assessment(env, case_id, *, valid=True):
+    """Fixture: a completed assessment stored exactly as the app stores one (no ML runtime).
+
+    It is linked to no batch and no import, like a case reused from an earlier session."""
+    from app.models import AssessmentExplanation, AuditEvent, Decision, ModelScore
+    from app.models.domain import utcnow
+    from app.services.assessments import PERSISTENCE_SCHEMA, _content
+    from app.services.ingestion import digest
+
+    with Session(env["engine"]) as session, session.begin():
+        case = session.get(Case, case_id)
+        now = utcnow()
+        score = ModelScore(
+            id=uuid4(), created_at=now, alert_id=case.alert_id, model_version="fixture",
+            model_sha256="a" * 64, input_sha256="b" * 64, status="processed", score=0.649,
+        )
+        session.add(score)
+        session.flush()
+        decision = Decision(
+            id=uuid4(), created_at=now, score_id=score.id, policy_version="fixture",
+            mode="Balanced", route="retain_human_review", processing_status="processed",
+            reason_code="fixture",
+        )
+        explanation = AssessmentExplanation(id=uuid4(), created_at=now, payload={}, verification={})
+        audit = AuditEvent(
+            id=uuid4(), created_at=now, actor_id=env["actor_id"],
+            action="assessment.completed", resource_id=str(case_id), details={},
+        )
+        session.add_all([decision, explanation, audit])
+        session.flush()
+        assessment = Assessment(
+            id=uuid4(), created_at=now, case_id=case_id, alert_id=case.alert_id,
+            actor_id=env["actor_id"], run_id=uuid4(), version=1, case_version=case.version,
+            status="completed", key_sha256=secrets.token_hex(32),
+            request_sha256="c" * 64, input_sha256="b" * 64, score_id=score.id,
+            decision_id=decision.id, explanation_id=explanation.id, audit_event_id=audit.id,
+            provenance={"schema": PERSISTENCE_SCHEMA},
+        )
+        assessment.content_sha256 = (
+            digest(_content(assessment, score, decision, explanation, audit))
+            if valid
+            else "0" * 64
+        )
+        audit.details = {
+            "assessment_id": str(assessment.id),
+            "case_id": str(case_id),
+            "run_id": str(assessment.run_id),
+            "assessment_version": 1,
+            "content_sha256": assessment.content_sha256,
+        }
+        session.flush()
+        session.add(assessment)
+
+
+def test_reused_cases_with_earlier_verified_assessments_count_as_assessed(batch_env):
+    env = batch_env
+    source = imported(env, [{}, {"income": "0"}, {"income": "1"}])
+    rows = env["client"].get(
+        "/api/v1/batch-imports/" + source["import_id"] + "/rows", headers=env["auth"]
+    ).json()["items"]
+    reused, tampered, fresh = [UUID(r["case_id"]) for r in rows]
+    _stored_assessment(env, reused)
+    _stored_assessment(env, tampered, valid=False)
+    # The case moved on after it was assessed (e.g. reassigned): it still counts as assessed.
+    with Session(env["engine"]) as session, session.begin():
+        session.get(Case, reused).version += 1
+    view = env["client"].get(
+        "/api/v1/batch-imports/" + source["import_id"], headers=env["auth"]
+    ).json()
+    # Valid earlier assessment counts; a record failing the integrity check and an
+    # unassessed case do not.
+    assert view["assessed_cases"] == 1
+    assert fresh not in (reused, tampered)
 
 
 def test_import_must_be_terminal_and_identity_match(batch_env):
@@ -326,20 +407,71 @@ def test_concurrent_requests_and_dispatch_are_idempotent(batch_env):
     assert total(env, AssessmentJob) == 2 and total(env, BatchAssessment) == 1
 
 
-def test_shared_rate_limit_and_batch_capacity(batch_env):
+def test_dispatch_and_http_rate_limits_are_independent_and_capacity_is_preserved(batch_env):
     env = batch_env
     source = imported(env, [{}, {}, {}])
     env["settings"].assessment_api_rate_limit = 2
+    env["settings"].batch_assessment_dispatch_rate_limit = 2
     first = start(env, source)
     result = advance(env, first.json()["batch_id"])
-    assert (
-        result.queued == 1 and result.pending_dispatch == 2 and result.reason_code == "rate_limit"
-    )
+    assert result.queued == 2 and result.pending_dispatch == 1
+    # Two dispatches did not debit HTTP budget: start consumed one, this read consumes two.
+    assert env["client"].get(first.headers["location"], headers=env["auth"]).status_code == 200
     assert env["client"].get(first.headers["location"], headers=env["auth"]).status_code == 429
+    blocked = advance(env, first.json()["batch_id"])
+    assert (
+        blocked.queued == 2
+        and blocked.pending_dispatch == 1
+        and blocked.reason_code == "rate_limit"
+    )
     env["settings"].assessment_api_rate_limit = 120
     env["settings"].batch_assessment_actor_capacity = 1
     assert start(env, source, policy="Coverage").status_code == 429
     assert start(env, source).status_code == 202
+
+
+def test_exhausted_http_budget_does_not_stop_bounded_dispatch(batch_env):
+    env = batch_env
+    first = start(env, imported(env, [{}, {}, {}]))
+    with Session(env["engine"]) as session, session.begin():
+        row = session.get(AssessmentAPIThrottle, env["actor_id"])
+        row.request_count = env["settings"].assessment_api_rate_limit
+    value = advance(env, first.json()["batch_id"])
+    assert value.queued == 2 and value.pending_dispatch == 1
+    with Session(env["engine"]) as session:
+        assert (
+            session.get(AssessmentAPIThrottle, env["actor_id"]).request_count
+            == env["settings"].assessment_api_rate_limit
+        )
+
+
+def test_dispatch_budget_survives_restart_and_is_shared_across_concurrent_batches(
+    batch_env, monkeypatch
+):
+    env = batch_env
+    source = imported(env, [{}, {}])
+    first = start(env, source, policy="Efficiency").json()["batch_id"]
+    second = start(env, source, policy="Coverage").json()["batch_id"]
+    env["settings"].batch_assessment_dispatch_rate_limit = 1
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        list(pool.map(lambda bid: advance(env, bid), [first, second]))
+    assert total(env, AssessmentJob) == 1
+    restarted = BatchAssessmentService(env["engine"], env["settings"])
+    due(env, first)
+    due(env, second)
+    restarted.advance(UUID(first))
+    restarted.advance(UUID(second))
+    assert total(env, AssessmentJob) == 1
+    # Simulate time only for the isolated budget read; immutable job history is untouched.
+    import app.services.batch_assessments as module
+
+    original_now = module._now
+    with monkeypatch.context() as patch:
+        patch.setattr(module, "_now", lambda session: original_now(session) + timedelta(seconds=61))
+        with Session(env["engine"]) as session, session.begin():
+            session.scalar(select(User.id).where(User.id == env["actor_id"]).with_for_update())
+            restarted._dispatch_budget(session, env["actor_id"])
+    assert total(env, AssessmentJob) == 1
 
 
 def test_atomic_group_rollback_after_queue_writes(batch_env):
@@ -483,6 +615,7 @@ def test_actual_pipeline_batch_matches_direct_and_reuses_assessments(batch_env, 
     assert total(env, Assessment) == 2 and total(env, AssessmentJob) == 2
     # Reimport same sources/cases: new batch skips compatible verified results, no new ML jobs.
     other = imported(env, [{}, {"income": "0"}])
+    assert other["assessed_cases"] == 2  # the import view shows these as already assessed
     again = start(env, other, policy=policy)
     outcome = advance(env, again.json()["batch_id"])
     assert outcome.already_assessed == outcome.skipped == 2 and total(env, AssessmentJob) == 2
