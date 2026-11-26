@@ -268,6 +268,30 @@ export function sourceRows(
   }));
 }
 
+/**
+ * Indicator text. A coverage gap names the missing evidence only when the data shows it:
+ * settlement status is listed as missing and every supporting record is a transaction whose
+ * settlement status is not recorded. Otherwise the plain indicator label is kept.
+ */
+export function indicatorText(
+  h: SimulationDraft['hypotheses'][number],
+  draft: Pick<SimulationDraft, 'missing_evidence'>,
+  transactions: Transaction[],
+) {
+  if (
+    h.question_code === 'coverage_gap_requires_more_evidence' &&
+    draft.missing_evidence.includes('settlement_status') &&
+    h.supporting_evidence.length > 0 &&
+    h.supporting_evidence.every(
+      (id) =>
+        transactions.find((t) => t.reference.record_version_id === id)
+          ?.settlement_status === 'not_recorded',
+    )
+  )
+    return 'Settlement status unknown for';
+  return label(h.question_code);
+}
+
 export function systemSummary(
   draft: SimulationDraft,
   keyFindings: KeyFinding[],
@@ -279,7 +303,7 @@ export function systemSummary(
     return `Not enough evidence to support a finding. The AI abstained${missing.length ? `; missing evidence includes ${missing.join(' and ')}` : ''}.`;
   const lead = keyFindings[0]?.text;
   return lead
-    ? `${lead}. These verified observations are selected for analyst review.`
+    ? `${lead}.`
     : 'Verified observations were selected for analyst review.';
 }
 
@@ -375,6 +399,18 @@ export function InvestigationResult({
       </button>
     ));
   };
+  // Indicator text reads as a list: "T1, T2" or "T1-T3, T5", never chips separated by a space.
+  const commaChips = (records: string[]) =>
+    tChips(records)?.flatMap((chip, i) =>
+      i
+        ? [
+            <span key={`sep-${i}`} className="chip-sep">
+              {', '}
+            </span>,
+            chip,
+          ]
+        : [chip],
+    );
   const rChips = (refs: string[]) =>
     sources
       .filter((s) => refs.includes(s.referenceId))
@@ -549,8 +585,10 @@ export function InvestigationResult({
           <ul className="plain-list">
             {indicators.map((h) => (
               <li key={h.question_code}>
-                {label(h.question_code)}{' '}
-                <span className="chips">{tChips(h.supporting_evidence)}</span>
+                {indicatorText(h, draft, transactions)}{' '}
+                <span className="chips chip-list">
+                  {commaChips(h.supporting_evidence)}
+                </span>
               </li>
             ))}
           </ul>
@@ -589,12 +627,11 @@ function RetrievalNote({
   const strong = retrieval.strong_matches;
   return (
     <>
-      <p className="hint retrieval-note">
-        Top {retrieval.results.length} of {retrieval.total_chunks} sections ·
-        text-match ranking
-      </p>
       <details className="retrieval-how">
-        <summary>How sources were retrieved</summary>
+        <summary>
+          How sources were retrieved · Top {retrieval.results.length} of{' '}
+          {retrieval.total_chunks} sections · text-match ranking
+        </summary>
         <p className="hint">
           {retrieval.total_chunks} sections searched
           {strong !== undefined

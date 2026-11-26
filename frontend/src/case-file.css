@@ -1138,3 +1138,11 @@ time.has-tip {
 .source-rows .used-in::before {
   content: '· ';
 }
+
+/* Indicator chips read as a list ("T1, T2"); the separator text carries the spacing. */
+.chips.chip-list {
+  gap: 0;
+}
+.chips.chip-list .chip-sep {
+  white-space: pre;
+}

@@ -18,6 +18,7 @@ import {
   sourceRows,
   supportedIndicators,
   systemSummary,
+  indicatorText,
 } from './investigation-result';
 
 afterEach(cleanup);
@@ -372,14 +373,13 @@ describe('AI Investigation Result card', () => {
     expect(
       within(also as HTMLElement).getByText('Not sent: request size limit'),
     ).toBeTruthy();
-    expect(
-      screen.getByText('Top 3 of 24 sections · text-match ranking'),
-    ).toBeTruthy();
-    // Query and case inputs live in a collapsed section, with human labels only.
+    // Query and case inputs live in a collapsed section, with human labels only; its
+    // summary line carries the ranking note (no separate line under the rows).
     const how = basis.querySelector('details.retrieval-how')!;
     expect(how.querySelector('summary')!.textContent).toBe(
-      'How sources were retrieved',
+      'How sources were retrieved · Top 3 of 24 sections · text-match ranking',
     );
+    expect(basis.querySelector('p.retrieval-note')).toBeNull();
     expect(how.textContent).toContain('24 sections searched · top 3 kept');
     expect(how.textContent).toContain(
       'Query words: cash, currency, transaction, records',
@@ -509,6 +509,42 @@ describe('AI Investigation Result card', () => {
     expect(how.textContent).not.toMatch(/totalMerchCred90d/i);
     expect(screen.getAllByText('Not cited by the AI')).toHaveLength(2);
     expect(screen.queryByText(/request size limit/)).toBeNull();
+  });
+
+  it('ends the system summary after the figures', () => {
+    const text = systemSummary(base, mergeFacts(base.findings));
+    expect(text).toBe('12 transactions, $649.57, 100% with one counterparty.');
+  });
+
+  it('names missing settlement status in the coverage gap only when the records show it', () => {
+    const gap = {
+      question_code: 'coverage_gap_requires_more_evidence' as const,
+      supporting_evidence: [ids[0], ids[1]],
+      contradictory_evidence: [],
+      uncertainty: 'unconfirmed_requires_human_review' as const,
+    };
+    expect(indicatorText(gap, base, transactions)).toBe(
+      'Settlement status unknown for',
+    );
+    renderCard({ ...base, hypotheses: [gap] });
+    const item = screen
+      .getByText(/Settlement status unknown for/)
+      .closest('li')!;
+    expect(item.textContent).toBe('Settlement status unknown for T1, T2');
+    // Not listed as missing, or a record that has a settlement status: plain label kept.
+    expect(
+      indicatorText(
+        gap,
+        { ...base, missing_evidence: ['curated_documents'] },
+        transactions,
+      ),
+    ).toBe('Coverage gap requires more evidence');
+    const settled = transactions.map((t, i) =>
+      i === 1 ? { ...t, settlement_status: 'settled' } : t,
+    );
+    expect(indicatorText(gap, base, settled)).toBe(
+      'Coverage gap requires more evidence',
+    );
   });
 
   it('hides indicators without records and shows the hypothesis label once', () => {
