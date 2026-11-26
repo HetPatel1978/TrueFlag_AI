@@ -32,6 +32,19 @@ def generate_scenario(
         or as_of.utcoffset() is None
     ):
         raise ValueError("Invalid synthetic configuration")
+    if profile == "g1_demo_catalog":
+        # Catalog v2 demo cases are fixed, reviewed record sets keyed by their scenario ID;
+        # admission regenerates them here, exactly as for every other profile.
+        from app.services import demo_case_catalog
+
+        catalog_bundle = demo_case_catalog.bundle_for_scenario(scenario_id)
+        if (
+            catalog_bundle is not None
+            and seed == catalog_bundle.seed
+            and source_revision == catalog_bundle.source_revision
+            and as_of == catalog_bundle.as_of
+        ):
+            return catalog_bundle
     rng = random.Random(seed)
     income = (
         None
@@ -47,7 +60,11 @@ def generate_scenario(
         observed_at=as_of - timedelta(days=100),
         annual_income=income,
         currency="USD",
-        kyc_score=5 if profile in ("g1_high_kyc", "g1_demo_priority") else 1 if profile == "g1_ordinary" else 3,
+        kyc_score=5
+        if profile in ("g1_high_kyc", "g1_demo_priority")
+        else 1
+        if profile == "g1_ordinary"
+        else 3,
     )
     account = AccountObservation(
         key="account-main",

@@ -7,6 +7,7 @@ PROFILE_EXPECTATIONS = {
     "g1_flow_change": (12, "complete_declared_window"),
     "g1_high_kyc": (12, "complete_declared_window"),
     "g1_demo_priority": (12, "complete_declared_window"),
+    "g1_demo_catalog": (12, "complete_declared_window"),
     "g1_partial_customer": (12, "complete_declared_window"),
     "normal": (12, "complete_declared_window"),
     "burst": (12, "complete_declared_window"),

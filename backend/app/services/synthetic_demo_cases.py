@@ -8,6 +8,7 @@ from sqlalchemy import select
 from app.models import Alert, CSVImport, CSVImportRow
 from app.models.evidence import CaseEvidenceState, EvidenceCaseBinding, EvidenceSourceAccess
 from app.schemas.alerts import FEATURE_CONTRACT_VERSION, AlertFeatures, AlertIngestionInput
+from app.services import demo_case_catalog
 from app.services.evidence import (
     EvidenceBlocked,
     EvidenceConflict,
@@ -33,6 +34,8 @@ SPECS = {
 
 
 def demo_bundle(key):
+    if type(key) is str and key in demo_case_catalog.CASES:
+        return demo_case_catalog.bundle(key)
     if type(key) is not str or key not in SPECS:
         raise EvidenceBlocked("unknown_demo_scenario")
     seed, profile = SPECS[key]
@@ -40,6 +43,10 @@ def demo_bundle(key):
 
 
 def demo_source_id(bundle):
+    # Catalog v2 cases upload under their own SYN- identifier (the CSV source_id).
+    for case_id in demo_case_catalog.CASES:
+        if bundle.scenario_id == demo_case_catalog.scenario_id(case_id):
+            return case_id
     return "synthetic-upload-demo-v1-" + bundle.scenario_id.hex
 
 
