@@ -1,7 +1,10 @@
-"""Typed provider boundary. Only a deterministic simulation is registered; no network adapter."""
+"""Provider-neutral boundary; offline simulation and a separately gated candidate adapter."""
 
 import json
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from app.schemas.provider_live import LiveProviderConfig
 
 from app.schemas.investigation_drafts import (
     ProviderConfig,
@@ -25,7 +28,9 @@ class ProviderLimit(ProviderFailure):
 
 
 class InvestigationLLMProvider(Protocol):
-    def propose(self, packet: ProviderInput, config: ProviderConfig) -> ProviderReply: ...
+    def propose(
+        self, packet: ProviderInput, config: "ProviderConfig | LiveProviderConfig"
+    ) -> ProviderReply: ...
 
 
 def strict_json(raw, limit):
@@ -82,6 +87,14 @@ class DeterministicFakeProvider:
             abstain=packet.evidence_requires_abstention,
             uncertainty="requires_human_semantic_review",
         )
+        if hasattr(packet, "regulatory_passages"):
+            from app.schemas.regulatory_investigation import GroundedSimulationProposal
+
+            proposal = GroundedSimulationProposal(
+                **proposal.model_dump(),
+                regulatory_binding_sha256=packet.regulatory_binding_sha256,
+                regulatory_citations=[c.reference_id for c in packet.regulatory_passages],
+            )
         content = proposal.model_dump_json(warnings="error")
         if len(content.encode()) > config.max_output_tokens:
             raise ProviderLimit("provider_response_limit")

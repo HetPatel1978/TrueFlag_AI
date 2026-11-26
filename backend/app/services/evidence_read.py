@@ -7,7 +7,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 import jwt
 from pydantic import ValidationError
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.models import Alert, Assessment, User
 from app.models.evidence import (
@@ -57,6 +57,7 @@ from app.services.evidence import (
 )
 from app.services.evidence_analytics import calculate, in_window
 from app.services.ingestion import digest
+from app.services.snapshot_clock import SnapshotTime
 
 MAX_RESPONSE_BYTES = 262144
 SNAPSHOT_SECONDS = 900
@@ -88,6 +89,7 @@ class Context:
     payloads: dict
     refs: list
     historical_excluded: int
+    clock_epoch: int
 
 
 def reference(row):
@@ -108,9 +110,10 @@ def normalized(body):
 class EvidenceReadService:
     def __init__(self, engine, settings):
         self.engine, self.settings = engine, settings
+        self.clock = SnapshotTime(engine)
         self.key = hmac.digest(
             settings.jwt_secret.get_secret_value().encode(),
-            b"trueflag.evidence-read.signing.v1",
+            b"trueflag.evidence-read.signing.v2",
             "sha256",
         )
         self.issuer = settings.jwt_issuer + ":evidence"
@@ -132,22 +135,32 @@ class EvidenceReadService:
                 issuer=self.issuer,
                 options={"verify_exp": False, "verify_iat": False, "verify_nbf": False},
             )
-            expected = {"kind", "scope", "actor", "case", "expires", "iss", "aud"}
+            expected = {"kind", "scope", "actor", "case", "expires", "clock_epoch", "iss", "aud"}
             expected |= {"assessment"} if kind == "snapshot" else {"query", "operation", "offset"}
-            now = int(session.scalar(select(func.clock_timestamp())).timestamp())
             if (
                 set(claims) != expected
                 or claims["kind"] != kind
                 or type(claims["expires"]) is not int
-                or claims["expires"] <= now
-                or claims["expires"] > now + SNAPSHOT_SECONDS
+                or type(claims["clock_epoch"]) is not int
+                or claims["clock_epoch"] < 1
                 or type(claims["scope"]) is not str
                 or len(claims["scope"]) != 64
             ):
                 raise ValueError
-            return claims
         except Exception:
             raise ReadInvalid("invalid_or_expired_evidence_token") from None
+        observed = self.clock.observe()
+        if (
+            claims["expires"] <= observed.second
+            or claims["expires"] > observed.second + SNAPSHOT_SECONDS
+            or claims["clock_epoch"] != observed.epoch
+        ):
+            raise ReadInvalid("invalid_or_expired_evidence_token")
+        return claims
+
+    def ensure_clock(self, epoch):
+        if self.clock.observe().epoch != epoch:
+            raise ReadInvalid("invalid_or_expired_evidence_token")
 
     def _claims(self, context, kind):
         return {
@@ -156,6 +169,7 @@ class EvidenceReadService:
             "actor": str(context.actor),
             "case": str(context.case.id),
             "expires": context.expires,
+            "clock_epoch": context.clock_epoch,
         }
 
     def _snapshot_token(self, context):
@@ -181,6 +195,7 @@ class EvidenceReadService:
     def _context(self, session, actor, case_id, *, token=None, assessment_id=None):
         actor_lock(session, actor, write=False)
         case = case_lock(session, actor, case_id)
+        observed = self.clock.observe()
         claims = self._decode(session, token, "snapshot") if token is not None else None
         if claims:
             if claims["actor"] != str(actor) or claims["case"] != str(case_id):
@@ -299,9 +314,7 @@ class EvidenceReadService:
             actor,
             case,
             identity,
-            claims["expires"]
-            if claims
-            else int(session.scalar(select(func.clock_timestamp())).timestamp()) + SNAPSHOT_SECONDS,
+            claims["expires"] if claims else observed.second + SNAPSHOT_SECONDS,
             assessment_id,
             rows,
             sources,
@@ -309,6 +322,7 @@ class EvidenceReadService:
             payloads,
             [reference(r) for r in rows],
             len(visible) - len(rows),
+            claims["clock_epoch"] if claims else observed.epoch,
         )
 
     def _validate(self, request, model):
@@ -458,6 +472,7 @@ class EvidenceReadService:
         return page, cursor
 
     def _respond(self, session, context, operation, query, data, classification, coverage=None):
+        self.ensure_clock(context.clock_epoch)
         coverage = coverage or self._coverage(context)
         parameters = (
             normalized(query)

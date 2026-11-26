@@ -25,6 +25,7 @@ from app.services.cases import (
     get_overview,
     list_cases,
 )
+from app.services.upload_sessions import WorkspaceNotFound
 
 router = APIRouter(prefix="/api/v1/cases", tags=["Case access"])
 
@@ -35,7 +36,12 @@ def case_list(
     user: User = Depends(require_case_reader),
     session: Session = Depends(get_session),
 ):
-    return list_cases(session, user, query)
+    try:
+        return list_cases(session, user, query)
+    except AssignmentPermissionDenied:
+        raise HTTPException(403, "Queue access is not permitted") from None
+    except WorkspaceNotFound:
+        raise HTTPException(404, "Upload session not found") from None
 
 
 @router.get("/{case_id}", response_model=CaseDetail)

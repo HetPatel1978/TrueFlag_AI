@@ -1,6 +1,13 @@
 """Test-only expectations. Never imported by application services or serialized into evidence."""
 
 PROFILE_EXPECTATIONS = {
+    "g1_ordinary": (12, "complete_declared_window"),
+    "g1_related": (12, "complete_declared_window"),
+    "g1_concentration": (12, "complete_declared_window"),
+    "g1_flow_change": (12, "complete_declared_window"),
+    "g1_high_kyc": (12, "complete_declared_window"),
+    "g1_demo_priority": (12, "complete_declared_window"),
+    "g1_partial_customer": (12, "complete_declared_window"),
     "normal": (12, "complete_declared_window"),
     "burst": (12, "complete_declared_window"),
     "partial": (4, "partial"),

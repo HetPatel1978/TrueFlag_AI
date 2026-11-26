@@ -1,5 +1,13 @@
 # Secure case retrieval and assignment
 
+## G5.3 protected investigation integration
+
+- `GET /api/v1/cases/{case_id}/investigation-drafts/capabilities` returns authorized provider availability and grounding flag, without credentials.
+- `POST /api/v1/cases/{case_id}/investigation-drafts/start` accepts `investigation_request` using the existing contract and optional `provider` (`auto`, `simulation`, `claude`). Requires `Idempotency-Key`; HTTP 202 returns both `investigation_run_id` and `draft_run_id`. Parent and child jobs commit together and workers enforce their dependency. `Location` points to the protected child result; `Retry-After: 2` bounds polling.
+- Existing draft requests retain their parent/hash contract and optionally accept a server-validated provider choice and `regulatory_query`. Grounding requires a verified selected packet; no applicable approved source means rejection, never invented context. Frozen context persists with candidate 0021 and is revalidated before dispatch/publication/reads.
+- Status/detail/history distinguish actual verified Claude results from simulation. Current role, actor, case, source and revision checks apply; no raw predictors or provider error bodies are returned. Existing body, rate, pagination and concurrency bounds remain unchanged.
+- Runtime provider activation and official source approval remain disabled. Candidate-only functionality is not claimed available on running schema 0019. [Commands, failures and full contract scope](G5_3_CLAUDE_REGULATORY_INTEGRATION_REPORT.md).
+
 Scope: one synthetic-data workspace. No tenant/team boundary or enterprise IAM is implied. Existing ingestion/authentication contracts are unchanged; `supervisor` is an additional database-backed role.
 
 | Permission | Analyst | Supervisor | Admin |
@@ -87,3 +95,8 @@ No new HTTP route is exposed. The deterministic investigation coordinator is an 
 
 - No new HTTP endpoint or frontend. Trusted internal `InvestigationDraftService.request(actor, case, key, InvestigationRequest, ProviderConfig)` atomically reuses parent packet admission and creates an explicitly requested child draft job. `get(actor, case, draft_run)` rechecks current requester/case/source scope; worker methods require the existing purpose-bound token and fenced claim.
 - Simulation is disabled by default; real provider configuration/credentials/egress are not supported or approved. Inputs contain no client-supplied scores, provider-selected case IDs, arbitrary tools, URLs or SQL. Output is an immutable, explicitly simulated, structurally checked draft with server-rendered facts and mandatory human semantic review. [Contracts, limits and remaining live-provider gates](PHASE3_5_2_LLM_INVESTIGATOR.md).
+# Upload session scope — 2026-11-18
+
+- Case and workflow list queries accept optional `upload_session_id` (UUID) and `origin=uploaded`.
+- The normal Cases screen always scopes to its persisted upload session. Server-side authorization and import membership are applied before pagination/counts. Legacy unscoped API behavior is preserved.
+- Selection, new-session confirmation, history and authorized resume APIs: [UPLOAD_SESSIONS.md](UPLOAD_SESSIONS.md).

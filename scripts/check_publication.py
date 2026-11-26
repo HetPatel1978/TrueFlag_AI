@@ -1,10 +1,15 @@
 """Check tracked and unignored source candidates; report paths, never credential values."""
 
+import hashlib
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Explicit user-approved public branding asset; all other binary files remain rejected.
+PUBLIC_BINARY = {
+    "frontend/public/trueflag-logo.png": "ab958c24498748c8c4396990037e6231ab75becaf7c7e08f9c116a25a3edc039",
+}
 PRIVATE_SUFFIXES = {
     ".csv",
     ".jsonl",
@@ -47,6 +52,10 @@ def main() -> None:
             problems.append("Private path: " + name)
             continue
         if path.is_file():
+            if name in PUBLIC_BINARY:
+                if hashlib.sha256(path.read_bytes()).hexdigest() != PUBLIC_BINARY[name]:
+                    problems.append("Unapproved public asset content: " + name)
+                continue
             try:
                 content = path.read_text(encoding="utf-8")
             except UnicodeDecodeError:

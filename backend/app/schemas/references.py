@@ -65,6 +65,7 @@ class Approval(Contract):
     approve: Literal[True]
     review_kind: Literal["human", "test_fixture"]
     attestation: Literal["reviewed_provenance_rights_dates_full_sections_and_exceptions"]
+    review_reference_sha256: SHA256 | None = None
 
 
 class ReferenceQuery(Contract):

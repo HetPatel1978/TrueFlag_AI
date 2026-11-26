@@ -37,6 +37,27 @@ def approval(manifest):
     )
 
 
+def test_admin_unapproved_research_metadata_cannot_enter_guidance(platform, reference_env):
+    from test_foundation import headers
+
+    version, manifest, *_ = admit(reference_env, key="fixture-research", approve=False)
+    client = platform[0]
+    path = "/api/v1/internal/regulatory-research?q=Synthetic"
+    assert client.get(path).status_code == 401
+    assert client.get(path, headers=headers(platform, "analyst")).status_code == 403
+    result = client.get(path, headers=headers(platform))
+    assert result.status_code == 200
+    entry = next(row for row in result.json()["results"] if row["version_id"] == str(version))
+    assert entry["origin"] == "synthetic_test"
+    assert entry["independently_approved"] is False
+    assert entry["published"] is False and entry["eligible_for_ai_grounding"] is False
+    assert "Synthetic fixture SAR suspicious transaction" not in result.text
+    reference_env["service"].approve_version(reference_env["admin"], version, approval(manifest))
+    after = client.get(path, headers=headers(platform))
+    assert after.status_code == 200
+    assert all(row["version_id"] != str(version) for row in after.json()["results"])
+
+
 def admit(env, key="fixture-bank", *, sections=None, approve=True, **overrides):
     raw = (
         sections

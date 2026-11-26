@@ -45,11 +45,12 @@ async function control(command: {
 }
 async function login(page: Page, username = 'uiadmin') {
   await page.goto('/');
+  await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
   await page.getByLabel('Password', { exact: true }).press('Enter');
   await expect(
-    page.getByRole('heading', { name: 'Alert dashboard', exact: true }),
+    page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
 }
 function csv(incomes: string[]) {
@@ -77,9 +78,15 @@ function csv(incomes: string[]) {
   );
 }
 async function validate(page: Page, incomes: string[]) {
+  await page.getByRole('link', { name: 'Administration', exact: true }).click();
+  await page.getByRole('link', { name: 'CSV Imports', exact: true }).click();
   await page
-    .getByRole('link', { name: 'Batch Processing', exact: true })
+    .getByRole('link', { name: 'Add CSV to this session', exact: true })
     .click();
+  await page.waitForURL('**/#/batch/new');
+  await expect(
+    page.getByRole('button', { name: 'Download CSV template', exact: true }),
+  ).toBeEnabled();
   await page.getByLabel('Choose a CSV file').setInputFiles({
     name: 'synthetic-only.csv',
     mimeType: 'text/csv',
@@ -94,7 +101,7 @@ async function validate(page: Page, incomes: string[]) {
     .getByLabel('Map income', { exact: true })
     .selectOption('Annual Income');
   await page
-    .getByRole('checkbox', { name: /Values use the original baseline/ })
+    .getByRole('checkbox', { name: /Values use the required source units/ })
     .check();
   await page
     .getByRole('button', { name: 'Validate mapped file', exact: true })
@@ -111,13 +118,13 @@ async function approve(page: Page) {
     .getByRole('button', { name: 'Import valid records', exact: true })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'Start ML assessment', exact: true }),
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible({ timeout: 25000 });
   return new URL(page.url()).hash.split('/')[3];
 }
 async function start(page: Page) {
   await page
-    .getByRole('button', { name: 'Start ML Assessment', exact: true })
+    .getByRole('button', { name: 'Start assessments', exact: true })
     .click();
   await expect(
     page.getByRole('heading', { name: 'Assessment progress', exact: true }),
@@ -127,7 +134,8 @@ function stat(page: Page, name: string) {
   return page
     .locator('.batch-stats > div')
     .filter({ has: page.getByText(name, { exact: true }) })
-    .locator('dd');
+    .locator('dd')
+    .first();
 }
 async function accessible(page: Page) {
   const results = await new AxeBuilder({ page })
@@ -180,28 +188,33 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
   await page.getByRole('button', { name: 'Retry import request' }).click();
   expect((await retried).headers()['idempotency-key']).toBe(originalKey);
   await expect(
-    page.getByRole('heading', { name: 'Start ML assessment', exact: true }),
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible({ timeout: 25000 });
   expect(page.url()).toContain(`/import/${originalID}`);
   await expect(stat(page, 'New cases')).toHaveText('2');
   await expect(stat(page, 'Invalid rows')).toHaveText('1');
   // Resume committed work by import ID; no browser-persisted credentials or data.
-  await page.getByRole('link', { name: 'New upload', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'Add another CSV', exact: true })
+    .click();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, 'Resume an existing import');
   await page.getByLabel('Import ID', { exact: true }).fill(originalID);
   await page
     .getByRole('button', { name: 'Resume import', exact: true })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'Start ML assessment', exact: true }),
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible();
   await page
     .getByLabel('Review policy', { exact: true })
     .selectOption('Coverage');
   await start(page);
   await expect(stat(page, 'Queued')).toHaveText('2', { timeout: 15000 });
-  await expect(stat(page, 'Succeeded')).toHaveText('0');
+  await expect(stat(page, 'Completed')).toHaveText('0');
   await control({ worker: 'start' });
-  await expect(stat(page, 'Succeeded')).toHaveText('2', { timeout: 45000 });
+  await expect(stat(page, 'Completed')).toHaveText('2', { timeout: 45000 });
   await expect(
     page.getByRole('button', { name: 'View explanation', exact: true }),
   ).toHaveCount(2);
@@ -209,10 +222,9 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
     .getByRole('button', { name: 'View explanation', exact: true })
     .first()
     .click();
+  await (await import('./ux-helpers')).showAllFactors(page);
   await expect(
-    page
-      .getByRole('list', { name: 'SHAP feature contributions' })
-      .locator('li'),
+    page.getByRole('list', { name: 'Contributing Risk Factors' }).locator('li'),
   ).toHaveCount(27);
   await accessible(page);
   await page.evaluate(() => {
@@ -224,6 +236,7 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
     fullPage: true,
   });
   const downloaded = page.waitForEvent('download');
+  await (await import('./ux-helpers')).expandSection(page, 'Export results');
   await page.getByRole('button', { name: 'Download results CSV' }).click();
   const file = await downloaded;
   const text = readFileSync((await file.path())!, 'utf8');
@@ -254,10 +267,17 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
     .first()
     .click();
   await expect(page.getByTestId('rf-score')).toBeVisible();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, /^Assessment history/);
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, /^Assessment history/);
   await expect(
     page.getByRole('button', { name: 'View assessment version 1' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   await expect(page.getByTestId('rf-score')).toHaveCount(0);
   expect(
     await page.evaluate(() => [localStorage.length, sessionStorage.length]),
@@ -294,7 +314,7 @@ test('worker downtime and partial failures retain manual-review cases', async ({
   await start(page);
   await expect(stat(page, 'Queued')).toHaveText('2');
   await control({ worker: 'start', fail_next: true });
-  await expect(stat(page, 'Succeeded')).toHaveText('1', { timeout: 45000 });
+  await expect(stat(page, 'Completed')).toHaveText('1', { timeout: 45000 });
   await expect(stat(page, 'Failed / manual review')).toHaveText('1');
   await expect(
     page.getByText('Manual review required', { exact: true }),
@@ -312,14 +332,14 @@ test('analyst restrictions and batch-admin revocation clear protected workflow s
 }) => {
   await login(page, 'uianalyst');
   await expect(
-    page.getByRole('link', { name: 'Batch Processing', exact: true }),
+    page.getByRole('link', { name: 'Imports', exact: true }),
   ).toHaveCount(0);
   await page.evaluate(() => {
     location.hash = '#/batch';
   });
-  await expect(
-    page.getByRole('heading', { name: 'Batch processing unavailable' }),
-  ).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText(
+    'Administrator access required.',
+  );
   await page.getByRole('button', { name: 'Sign out' }).click();
   await login(page, 'uibatchadmin');
   await validate(page, ['0']);
@@ -353,27 +373,29 @@ test('API/dispatcher restart and browser reload resume one durable batch without
   await control({ restart_api: true });
   await page.reload();
   await expect(
-    page.getByRole('heading', { name: 'Welcome back' }),
+    page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId('rf-score')).toHaveCount(0);
-  await page.getByLabel('Username', { exact: true }).fill('uiadmin');
-  await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByLabel('Password', { exact: true }).press('Enter');
   await expect(stat(page, 'Queued')).toHaveText('2');
   expect(new URL(page.url()).hash).toBe(saved);
   await control({ worker: 'start' });
-  await expect(stat(page, 'Succeeded')).toHaveText('2', { timeout: 45000 });
-  await page.getByRole('link', { name: 'New upload', exact: true }).click();
+  await expect(stat(page, 'Completed')).toHaveText('2', { timeout: 45000 });
+  await page
+    .getByRole('link', { name: 'Add another CSV', exact: true })
+    .click();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, 'Resume an existing import');
   await page.getByLabel('Import ID', { exact: true }).fill(importID);
   await page
     .getByRole('button', { name: 'Resume import', exact: true })
     .click();
   await expect(
-    page.getByRole('heading', { name: 'Start ML assessment', exact: true }),
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible();
   await start(page);
   expect(new URL(page.url()).hash).toBe(saved);
-  await expect(stat(page, 'Succeeded')).toHaveText('2');
+  await expect(stat(page, 'Completed')).toHaveText('2');
   await expect(
     page.getByRole('button', { name: 'View explanation', exact: true }),
   ).toHaveCount(2);
@@ -381,6 +403,9 @@ test('API/dispatcher restart and browser reload resume one durable batch without
     .getByRole('link', { name: 'Case & history', exact: true })
     .first()
     .click();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, /^Assessment history/);
   await expect(
     page.getByRole('button', { name: 'View assessment version 1' }),
   ).toBeVisible();
@@ -388,7 +413,85 @@ test('API/dispatcher restart and browser reload resume one durable batch without
     page.getByRole('button', { name: 'View assessment version 2' }),
   ).toHaveCount(0);
   await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   expect(
     await page.evaluate(() => [localStorage.length, sessionStorage.length]),
   ).toEqual([0, 0]);
+});
+
+test('upload sessions survive refresh and login, isolate new sessions and restore imported history', async ({
+  page,
+}) => {
+  test.setTimeout(90000);
+  await login(page);
+  await page
+    .getByRole('button', { name: 'Start new upload session', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Confirm new session', exact: true })
+    .click();
+  await expect(
+    page.getByText('0 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await validate(page, ['', '0']);
+  const importID = await approve(page);
+  await page.getByRole('link', { name: 'Cases', exact: true }).first().click();
+  await expect(
+    page.getByText('2 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('tbody tr')).toHaveCount(2);
+  await page.reload();
+  await expect(
+    page.getByText('2 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await (await import('./ux-helpers')).expandSection(page, 'Session history');
+  const previousID = await page.getByLabel('Open a saved session').inputValue();
+  await page
+    .getByRole('button', { name: 'Start new upload session', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Confirm new session', exact: true })
+    .click();
+  await expect(
+    page.getByText('0 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Cases', exact: true }).first().click();
+  await expect(
+    page.getByText('0 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('tbody tr')).toHaveCount(0);
+  await (await import('./ux-helpers')).expandSection(page, 'Session history');
+  await page.getByLabel('Open a saved session').selectOption(previousID);
+  await expect(
+    page.getByText('2 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await page.getByLabel('Username', { exact: true }).fill('uiadmin');
+  await page.getByLabel('Password', { exact: true }).fill(fixture.password);
+  await page.getByLabel('Password', { exact: true }).press('Enter');
+  await expect(
+    page.getByText('2 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'Administration', exact: true }).click();
+  await page.getByRole('link', { name: 'CSV Imports', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(new RegExp('#/batch/import/' + importID + '$'));
+  await page
+    .getByRole('button', { name: 'Start new upload session', exact: true })
+    .click();
+  await page
+    .getByRole('button', { name: 'Confirm new session', exact: true })
+    .click();
+  await expect(
+    page.getByText('0 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await page.goto('/#/batch/import/' + importID);
+  await expect(
+    page.getByText('2 uploaded cases', { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
+  ).toBeVisible();
 });

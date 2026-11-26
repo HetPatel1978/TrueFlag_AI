@@ -1,5 +1,19 @@
 # Security foundation and progressive controls
 
+## Scoped Claude development test — 22 November 2026
+
+- The owner withdrew the $20/$2.15 limits only for `development_no_spend_cap_v1`. This is default-off, synthetic-only, exact-input and new-approval-ID-bound; ordinary Claude/Luminal financial gates remain unchanged. Historical ledger rows are immutable; no reservation is required for the explicit development scope, while actual token usage/cost estimates remain recorded.
+- One outstanding attempt under the existing provider-wide lock, one attempt per approval ID, no automatic paid retry, bounded tokens/body/deadline/subprocess and current case/source/clock/snapshot checks remain mandatory. No public endpoint accepts arbitrary development configuration.
+- Flat wire v2 maps to the existing strict `AIProposal` and independent financial/reference verifier. Regulatory-grounded input is excluded from this scope; citation and governance services are unchanged. Bounded provider error detail is retained only in private development receipts with credential redaction, not public error responses.
+- Probe-only candidate 0022 was restored/rehearsed and applied with history equality verified; the original demo and running local schema were not migrated. New exact request approval is pending, with no live dispatch or analyst activation. [Scope, tests and full review package](CLAUDE_DEVELOPMENT_UNBLOCK_2026_11_22.md).
+
+## G5.3 candidate controls — 21 November 2026
+
+- Immutable, actor/case/parent/manifest-bound regulatory context uses existing source/version/release/citation identities. Current permissions, grant revision, evidence revisions, 900-second expiry and clock epoch are checked at preparation, dispatch, completion and protected reads. Revoke/regrant cannot revive an old binding.
+- Parent and evidence-only draft admission now share one PostgreSQL transaction through a protected endpoint; existing dependency fencing, bounded attempts, conservative reservations, auditing and independent source/numeric verification remain mandatory.
+- Public Claude generation requires the separate default-off `anthropic_analyst_generation_enabled` operating gate. A configured key does not activate it. Simulation stays labeled; a failed live request is not silently relabeled as simulation.
+- Allowlisted provider HTTP error diagnostics exclude raw content and credentials. One scoped live request returned HTTP 400; no live verification or complete acceptance is claimed. Official approvals remain absent. Candidate migration 0021 was not applied to the running app. [Evidence and remaining risks](G5_3_CLAUDE_REGULATORY_INTEGRATION_REPORT.md).
+
 Scope: synthetic local demonstration. A passing foundation test is not a penetration test, regulatory approval or production acceptance.
 
 | Control | Verified Phase 1 status | Evidence / remaining work |
@@ -33,6 +47,9 @@ See API_CASES for the exact matrix. Case data and active role/assignment predica
 Assignment requires an active supervisor/admin, an eligible active analyst or explicit null, and a strict expected version. PostgreSQL shared locks retain actor/target eligibility until commit; an atomic version predicate protects actual changes and no-ops. Case/version/audit changes roll back together. Closed cases cannot be reassigned. Manager/analyst role changes and deactivation affect subsequent requests immediately.
 
 ## Foundation limits and defaults
+
+- Browser refresh restores an HttpOnly/SameSite=Strict session after server-side JWT/account validation. The owner-selected default is 60 minutes from login (bounded configuration remains 1–60 minutes). Protected APIs remain bearer-only; no credential or case-data browser storage. Logout deletes the cookie; expiry is not renewed by refresh. Already-issued tokens retain their original expiry. See [browser session contract](API_AUTH.md).
+- The explicitly configured local review account can use remembered login: a hash-only, credential-bound server grant with immutable revocation and renewable one-hour bearer tokens. This is disabled outside local development and for all other accounts. Restores and bearer use check current authorization/revocation; logout/password/role changes invalidate remembered access. Browser retention is finite (365-day cookie renewed on restore); no infinite bearer tokens or evidence-expiry changes. See the local-account section of [API_AUTH.md](API_AUTH.md).
 
 - `MAX_REQUEST_BYTES=65536`: actual streamed bytes and Content-Length checked; overflow gets 413 with no parsing/database side effects. No file upload/large batch contract is implied.
 - `LOGIN_ATTEMPT_LIMIT=10`, `LOGIN_WINDOW_SECONDS=60`: fixed window counts **all** sign-in attempts per transport client, including success. Unknown usernames and failures share the same policy; active sessions are not revoked by throttling.
@@ -190,3 +207,14 @@ New data sources, public hosting, institutional use and actual customer data req
 - Reuse current case/source authorization, parent evidence/access/assessment manifest and independent raw-record verification before delivery/publication/disclosure. Cross-case identifiers, forged references, unsupported numbers, provider-written trusted fields, tool requests and legal citations fail closed. Server-rendered facts and constrained uncertain inquiry templates avoid laundering free factual narratives as verified output.
 - A fixed Linux child receives no DB/JWT/provider environment secrets, raw source text, customer/account/case identity, raw predictors or private artifact hashes. Wall/process/output/CPU/memory bounds, conservative immutable attempt reservations, <=3 retries and fences bound execution. No arbitrary-plugin sandbox or future LLM prompt-injection certification is claimed.
 - Child requests/jobs/receipts/results/audits commit atomically with parent admission or publication as appropriate; immutable history and deferred envelope/budget/result guards prevent partial success or budget resets after a crash. Unknown usage is null and retained reservations are not refunded automatically. Live provider/data/region/egress/retention/cost approval and independent semantic evaluation remain required. See [design and acceptance](PHASE3_5_2_LLM_INVESTIGATOR.md).
+# Upload workspace update — 2026-11-18
+
+- Upload session membership never grants case access. Current role, ownership and assignment predicates remain mandatory; session counts, pagination and lookup are server-scoped.
+- Actor locks, version checks, creation-key idempotency and atomic upload binding prevent stale requests from moving uploads or silently replacing a newer selection. No raw predictors/tokens are persisted in browser storage.
+- Raw CSV expiration is unchanged; stored imports/results survive session changes. See [UPLOAD_SESSIONS.md](UPLOAD_SESSIONS.md).
+# Candidate 0023 integration gate
+
+- Deferred regulatory intents are server-owned and bound to the immutable child configuration, including the admitted reference context/release/grant revision fingerprint. Revoke/regrant invalidates old authority. Admission/preparation require candidate schema 0023; the database rejects an attempt without a matching frozen case/actor/parent/query/snapshot/packet binding and an admitted-authority digest.
+- Only existing approved-only G5 retrieval is used. Research metadata does not authorize passage transmission; evidence-only v2 approvals cannot gain deferred regulatory scope.
+- Context is never renewed during recovery. Source/actor authority, clock epoch and expiry are rechecked using existing services. Missing approved context fails before provider reservation and remains a manual-review failure.
+- No stable independent runner is currently available; no live acceptance, production certification or general analyst activation follows from offline tests. See [gate status](FINAL_INTEGRATION_DEMO_GATE.md).

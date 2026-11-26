@@ -3,7 +3,6 @@
 import ctypes
 import json
 import os
-import resource
 import signal
 import sys
 
@@ -11,18 +10,30 @@ import sys
 def main():
     # Arm before reading credentials/importing the scientific stack. Close the parent-death race.
     expected_parent = int(sys.argv[1])
-    if ctypes.CDLL(None, use_errno=True).prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
+    if sys.platform == "linux":
+        import resource
+
+        if ctypes.CDLL(None, use_errno=True).prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
+            return 1
+        if os.getppid() != expected_parent:
+            return 1
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+        resource.setrlimit(resource.RLIMIT_AS, (3 * 1024**3, 3 * 1024**3))
+        resource.setrlimit(resource.RLIMIT_NOFILE, (128, 128))
+    elif sys.platform == "win32":
+        from app.workers.process_control import require_windows_child_limits
+
+        require_windows_child_limits(3 * 1024**3)
+        # Windows venv adds a launcher parent. Exact job membership plus kill-on-close
+        # fences the whole tree instead of relying on its immediate parent PID.
+    else:
         return 1
-    if os.getppid() != expected_parent:
-        return 1
-    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    resource.setrlimit(resource.RLIMIT_AS, (3 * 1024**3, 3 * 1024**3))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (128, 128))
     payload = json.loads(sys.stdin.buffer.read(16385))
     seconds = payload["timeout_seconds"]
     if type(seconds) is not int or not 1 <= seconds <= 300:
         return 1
-    resource.setrlimit(resource.RLIMIT_CPU, (seconds + 2, seconds + 2))
+    if sys.platform == "linux":
+        resource.setrlimit(resource.RLIMIT_CPU, (seconds + 2, seconds + 2))
     from uuid import UUID
 
     from sqlalchemy.engine import make_url

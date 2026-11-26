@@ -114,6 +114,32 @@ def get_overview(session: Session, user: User, case_id: UUID) -> dict:
 
 def list_cases(session: Session, user: User, query: CaseQuery) -> dict:
     predicates = [visible_cases(user)]
+    if query.upload_session_id is not None:
+        from app.services.upload_sessions import case_membership, require_visible
+
+        require_visible(session, user, query.upload_session_id)
+        predicates.append(Case.id.in_(case_membership(query.upload_session_id)))
+    elif query.origin == "uploaded":
+        from app.models import CSVImportRow
+
+        predicates.append(
+            Case.id.in_(
+                select(CSVImportRow.case_id).where(CSVImportRow.status.in_(["created", "reused"]))
+            )
+        )
+    if query.queue == "unassigned":
+        manager = session.scalar(
+            select(User.id).where(
+                User.id == user.id, User.active.is_(True), User.role.in_(["supervisor", "admin"])
+            )
+        )
+        if manager is None:
+            raise AssignmentPermissionDenied
+        predicates.append(Case.assigned_to.is_(None))
+    elif query.queue == "my":
+        predicates.append(Case.assigned_to == user.id)
+    elif query.queue == "review":
+        predicates.append(Case.status.in_(["in_review", "awaiting_approval"]))
     if query.status is not None:
         predicates.append(Case.status == query.status)
     if query.assigned_to is not None:
@@ -123,6 +149,8 @@ def list_cases(session: Session, user: User, query: CaseQuery) -> dict:
     elif query.assignment == "unassigned":
         predicates.append(Case.assigned_to.is_(None))
     statement = workbench_statement()
+    if query.queue == "processing":
+        predicates.append(statement.selected_columns.assessment_status.in_(["pending", "running"]))
     if query.search:
         # SQL-bound literal substring; wildcard characters cannot expand the search scope.
         terms = [Alert.source_id.icontains(query.search, autoescape=True)]

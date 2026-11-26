@@ -1,0 +1,296 @@
+{
+  "version": "trueflag.ai-evaluation-dataset.v1",
+  "classification": "generated_synthetic",
+  "label_provenance": "engineering_reference_rules_not_independent_semantic_labels",
+  "namespace": "trueflag.g4.2a.evaluation.v1",
+  "cases": [
+    {
+      "case_key": "development-ordinary",
+      "split": "development",
+      "category": "ordinary",
+      "profile": "g1_ordinary",
+      "seed": 731000,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-velocity",
+      "split": "development",
+      "category": "velocity",
+      "profile": "burst",
+      "seed": 731001,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-concentration",
+      "split": "development",
+      "category": "concentration",
+      "profile": "g1_concentration",
+      "seed": 731002,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-flow_change",
+      "split": "development",
+      "category": "flow_change",
+      "profile": "g1_flow_change",
+      "seed": 731003,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-linked_accounts",
+      "split": "development",
+      "category": "linked_accounts",
+      "profile": "g1_related",
+      "seed": 731004,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-missing_income",
+      "split": "development",
+      "category": "missing_income",
+      "profile": "missing_income",
+      "seed": 731005,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-zero_income",
+      "split": "development",
+      "category": "zero_income",
+      "profile": "zero_income",
+      "seed": 731006,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-reversals",
+      "split": "development",
+      "category": "reversals",
+      "profile": "corrections",
+      "seed": 731007,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-multi_currency",
+      "split": "development",
+      "category": "multi_currency",
+      "profile": "multi_currency",
+      "seed": 731008,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-incomplete_history",
+      "split": "development",
+      "category": "incomplete_history",
+      "profile": "partial",
+      "seed": 731009,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-conflicting_information",
+      "split": "development",
+      "category": "conflicting_information",
+      "profile": "inconsistent_kyc",
+      "seed": 731010,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-unsupported_allegations",
+      "split": "development",
+      "category": "unsupported_allegations",
+      "profile": "normal",
+      "seed": 731011,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-forged_references",
+      "split": "development",
+      "category": "forged_references",
+      "profile": "normal",
+      "seed": 731012,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-description_injection",
+      "split": "development",
+      "category": "description_injection",
+      "profile": "normal",
+      "seed": 731013,
+      "lifecycle": "annotation_only"
+    },
+    {
+      "case_key": "development-revoked_source",
+      "split": "development",
+      "category": "revoked_source",
+      "profile": "normal",
+      "seed": 731014,
+      "lifecycle": "revoke"
+    },
+    {
+      "case_key": "development-stale_snapshot",
+      "split": "development",
+      "category": "stale_snapshot",
+      "profile": "normal",
+      "seed": 731015,
+      "lifecycle": "revise"
+    },
+    {
+      "case_key": "development-inconclusive",
+      "split": "development",
+      "category": "inconclusive",
+      "profile": "unavailable",
+      "seed": 731016,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "development-competing_explanations",
+      "split": "development",
+      "category": "competing_explanations",
+      "profile": "g1_related",
+      "seed": 731017,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-ordinary",
+      "split": "heldout",
+      "category": "ordinary",
+      "profile": "g1_ordinary",
+      "seed": 947000,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-velocity",
+      "split": "heldout",
+      "category": "velocity",
+      "profile": "burst",
+      "seed": 947001,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-concentration",
+      "split": "heldout",
+      "category": "concentration",
+      "profile": "g1_concentration",
+      "seed": 947002,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-flow_change",
+      "split": "heldout",
+      "category": "flow_change",
+      "profile": "g1_flow_change",
+      "seed": 947003,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-linked_accounts",
+      "split": "heldout",
+      "category": "linked_accounts",
+      "profile": "g1_related",
+      "seed": 947004,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-missing_income",
+      "split": "heldout",
+      "category": "missing_income",
+      "profile": "missing_income",
+      "seed": 947005,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-zero_income",
+      "split": "heldout",
+      "category": "zero_income",
+      "profile": "zero_income",
+      "seed": 947006,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-reversals",
+      "split": "heldout",
+      "category": "reversals",
+      "profile": "corrections",
+      "seed": 947007,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-multi_currency",
+      "split": "heldout",
+      "category": "multi_currency",
+      "profile": "multi_currency",
+      "seed": 947008,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-incomplete_history",
+      "split": "heldout",
+      "category": "incomplete_history",
+      "profile": "partial",
+      "seed": 947009,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-conflicting_information",
+      "split": "heldout",
+      "category": "conflicting_information",
+      "profile": "inconsistent_kyc",
+      "seed": 947010,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-unsupported_allegations",
+      "split": "heldout",
+      "category": "unsupported_allegations",
+      "profile": "normal",
+      "seed": 947011,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-forged_references",
+      "split": "heldout",
+      "category": "forged_references",
+      "profile": "normal",
+      "seed": 947012,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-description_injection",
+      "split": "heldout",
+      "category": "description_injection",
+      "profile": "normal",
+      "seed": 947013,
+      "lifecycle": "annotation_only"
+    },
+    {
+      "case_key": "heldout-revoked_source",
+      "split": "heldout",
+      "category": "revoked_source",
+      "profile": "normal",
+      "seed": 947014,
+      "lifecycle": "revoke"
+    },
+    {
+      "case_key": "heldout-stale_snapshot",
+      "split": "heldout",
+      "category": "stale_snapshot",
+      "profile": "normal",
+      "seed": 947015,
+      "lifecycle": "revise"
+    },
+    {
+      "case_key": "heldout-inconclusive",
+      "split": "heldout",
+      "category": "inconclusive",
+      "profile": "unavailable",
+      "seed": 947016,
+      "lifecycle": "none"
+    },
+    {
+      "case_key": "heldout-competing_explanations",
+      "split": "heldout",
+      "category": "competing_explanations",
+      "profile": "g1_related",
+      "seed": 947017,
+      "lifecycle": "none"
+    }
+  ]
+}

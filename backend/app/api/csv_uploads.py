@@ -88,8 +88,17 @@ def csv_upload_template(user: User = Depends(require_batch_uploader)):
 
 
 @router.get("/contract")
-def csv_upload_contract(user: User = Depends(require_batch_uploader)):
-    return csv_contract()
+def csv_upload_contract(request: Request, user: User = Depends(require_batch_uploader)):
+    settings = request.app.state.settings
+    return {
+        **csv_contract(),
+        "limits": {
+            "max_bytes": settings.csv_max_bytes,
+            "max_rows": settings.csv_max_rows,
+            "max_columns": settings.csv_max_columns,
+            "max_field_bytes": settings.csv_max_field_bytes,
+        },
+    }
 
 
 @router.post("", response_model=UploadMetadata, status_code=201)
@@ -102,6 +111,7 @@ async def csv_upload(
             alias="Idempotency-Key", min_length=16, max_length=128, pattern=r"^[A-Za-z0-9_.:-]+$"
         ),
     ],
+    upload_session_id: Annotated[UUID | None, Header(alias="X-Upload-Session-ID")] = None,
     user: User = Depends(require_batch_uploader),
 ):
     # No filename/path parameter; names and storage keys are exclusively server-generated.
@@ -125,7 +135,7 @@ async def csv_upload(
                 async for chunk in request.stream():
                     await run_in_threadpool(incoming.append, chunk)
             result, created = await run_in_threadpool(
-                service.publish, user.id, idempotency_key, incoming
+                service.publish, user.id, idempotency_key, incoming, upload_session_id
             )
         except (TimeoutError, ClientDisconnect):
             raise HTTPException(408, "CSV upload interrupted or timed out") from None

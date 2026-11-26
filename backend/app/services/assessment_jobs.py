@@ -11,6 +11,8 @@ from sqlalchemy import func, or_, select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.core.release import require_session_compatible
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.models import AssessmentJob, AssessmentWorker, AuditEvent, User
 from app.services.assessments import (
     AssessmentConflict,
@@ -87,6 +89,8 @@ def safe(method):
             return method(*args, **kwargs)
         except AssessmentError:
             raise
+        except ReleaseCompatibilityError as error:
+            raise JobUnavailable(error.code) from None
         except SQLAlchemyError:
             raise JobUnavailable("job_database_unavailable") from None
         except Exception:
@@ -132,6 +136,7 @@ def _token_hash(token):
 
 
 def _worker(session, token):
+    require_session_compatible(session)
     identity = session.scalar(
         select(AssessmentWorker)
         .where(

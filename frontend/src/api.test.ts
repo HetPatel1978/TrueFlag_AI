@@ -48,7 +48,8 @@ describe('API boundary', () => {
     });
     vi.stubGlobal('fetch', fetcher);
     expect(await signIn('analyst', 'test-password')).toBe('test-token');
-    expect(fetcher.mock.calls[0][0]).toBe('/api/v1/auth/token');
+    expect(fetcher.mock.calls[0][0]).toBe('/api/v1/auth/session');
+    expect(fetcher.mock.calls[0][1].credentials).toBe('same-origin');
     expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({
       username: 'analyst',
       password: 'test-password',

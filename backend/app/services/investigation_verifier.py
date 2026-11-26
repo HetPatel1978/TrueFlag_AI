@@ -197,7 +197,7 @@ def verify_packet(session, reader, context, manifest, body):
                     key: sum((r.amount for r in members), Decimal(0))
                     for key, members in groups.items()
                 }
-                ordered = sorted(groups, key=lambda key: (-sums[key], str(key)))
+                concentration_order = sorted(groups, key=lambda key: (-sums[key], str(key)))
                 expected = expected.model_copy(
                     update={
                         "concentration": [
@@ -209,7 +209,7 @@ def verify_packet(session, reader, context, manifest, body):
                                 if total == 0
                                 else (sums[key] / total).quantize(Decimal("0.0000000000000001")),
                             )
-                            for key in ordered[:10]
+                            for key in concentration_order[:10]
                         ],
                         "unknown_counterparty_count": unknown_counterparty,
                         "concentration_truncated": len(groups) > 10,

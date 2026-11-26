@@ -1,6 +1,10 @@
+<img src="frontend/public/trueflag-logo.png" alt="TrueFlag AI logo" width="80" />
+
 # TrueFlag AI
 
 Intelligent AML investigation platform: a five-week, production-oriented demonstration using **synthetic data only**. This is not a certified banking deployment. Existing source/research and private handoff directories remain unchanged.
+
+**Primary local runtime: native Windows (22 November 2026).** Existing React/FastAPI/PostgreSQL and bounded native workers run without WSL or containers. Start: `.\scripts\start_trueflag_windows.ps1 -Action Start`; use `-Action Status` or `-Action Stop` for those operations. Full native backend: **1,439 passed, 0 failed, 124 skipped**; pinned native ML: **178 passed**, frozen comparisons unchanged. See [native setup and acceptance](docs/WINDOWS_NATIVE_RUNTIME.md). Real Claude + official Regulatory RAG remains blocked pending qualified source approval and subsequent exact-request/provider gates; [reviewer checklist and video runbook](docs/WINDOWS_LIVE_INVESTIGATION_GATE.md). Earlier Docker/Linux setup sections below remain historical/alternative instructions.
 
 ## Implemented foundation
 
@@ -10,7 +14,7 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Admin-only `POST /api/v1/alerts`: strict 27-predictor synthetic inputs, durable idempotency, atomic alert/case/audit creation and concurrency-safe duplicate handling. See [API contract](docs/API_ALERT_INGESTION.md).
 - Scoped `GET /api/v1/cases` and `GET /api/v1/cases/{case_id}`, filtered/bounded pagination and sorting, supervisor/admin `PUT /api/v1/cases/{case_id}/assignment`, version conflicts and atomic assignment audit. See [case API](docs/API_CASES.md).
 - Persistent login throttle, streamed-body limits and safe server-generated request correlation; current roles and per-case access are enforced in the database query.
-- React/TypeScript memory-only sessions, authorized alert dashboard, case results/SHAP/history and asynchronous assessment workflow. See [Phase 2.9 workbench](docs/PHASE2_9_FRONTEND.md).
+- React/TypeScript workspace with Overview, Cases, role-restricted Review Queue and Administration (including CSV Imports). Case work follows Assess Alert, Review Evidence, AI Investigation and Human Decision, with three primary risk drivers and expandable details. Existing protected evidence, assessment/history, investigation and human-casework APIs are reused. The configured local account supports remembered login with renewable one-hour API tokens. See [workflow UX and current acceptance blockers](docs/TRUEFLAG_WORKFLOW_UX_SIMPLIFICATION.md) and [browser sessions](docs/API_AUTH.md).
 - Docker Compose, CI, local private-baseline staging and publication boundary checks.
 - Isolated Phase 2.1 RF loader: approved artifact/source hashes, pinned runtime, fitted-pipeline checks and strict shared 27-feature validation. See [loader verification](docs/PHASE2_1_MODEL_LOADER.md).
 - Pure Phase 2.2 single/batch RF scorer: all 4000 saved evaluation scores reproduced with maximum absolute error 0.0. See [scoring interfaces and verification](docs/PHASE2_2_RF_SCORING.md).
@@ -23,7 +27,7 @@ Intelligent AML investigation platform: a five-week, production-oriented demonst
 - Phase 2.7 protected assessment request/job-status/history/detail APIs, durable per-user budgets, queue admission control, read audits and redacted verified results. See [assessment API](docs/API_ASSESSMENTS.md).
 - Phase 2.8 admin-only operational metrics, bounded persistent histograms, safe correlated logs and a measured synthetic load/recovery benchmark. See [operations evidence](docs/PHASE2_8_OPERATIONS.md).
 
-**Pending:** assignment editor, case notes/evidence/approval workflows, production load/HA/backup/deployment acceptance, retention governance, bulk ingestion, human review/approvals, regulatory retrieval, LLM investigations and model promotion. Internal monitoring and bounded local recovery/load checks are verified; ingestion does not automatically score, and recommendations cannot dismiss or file cases.
+**Pending:** production load/HA/backup/deployment acceptance, enterprise identity/retention governance, approved regulatory publication, live LLM compatibility/financial acceptance and model promotion. Existing assignment, human casework and CSV workflows are available; import does not automatically score, and model recommendations cannot dismiss or file cases.
 
 ## Local setup (PowerShell)
 

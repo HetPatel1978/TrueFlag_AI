@@ -8,6 +8,8 @@ from pathlib import Path
 
 from app.core.config import Settings
 from app.core.database import make_engine
+from app.core.release import require_compatible, worker_identity
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.services.investigation_coordinator import InvestigationCoordinator
 
 
@@ -16,7 +18,7 @@ def main():
     parser.add_argument("--token-file", default="/run/secrets/investigation_worker_token")
     parser.add_argument("--max-jobs", type=int, default=1)
     args = parser.parse_args()
-    if sys.platform != "linux" or not 1 <= args.max_jobs <= 20:
+    if sys.platform not in {"linux", "win32"} or not 1 <= args.max_jobs <= 20:
         raise SystemExit("Bounded Linux worker required")
     engine = None
     try:
@@ -24,6 +26,8 @@ def main():
         # Snapshot signatures stay inside this execution; never require the API JWT key.
         settings = Settings(jwt_secret=secrets.token_urlsafe(48))
         engine = make_engine(settings.database_url)
+        require_compatible(engine)
+        release = worker_identity()
         service = InvestigationCoordinator(engine, settings)
         processed = 0
         for _ in range(args.max_jobs):
@@ -35,6 +39,7 @@ def main():
                 json.dumps(
                     {
                         "event": "investigation.worker.outcome",
+                        "release": release,
                         "status": result["status"],
                         "attempts": result["attempts"],
                         "human_review_required": True,
@@ -43,6 +48,18 @@ def main():
                 flush=True,
             )
         return processed
+    except ReleaseCompatibilityError as error:
+        print(
+            json.dumps(
+                {
+                    "event": "investigation.worker.unavailable",
+                    "code": error.code,
+                    "human_review_required": True,
+                }
+            ),
+            flush=True,
+        )
+        raise SystemExit(1) from None
     except Exception:
         print(
             json.dumps(

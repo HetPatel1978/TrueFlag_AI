@@ -102,3 +102,8 @@ Owned completed/partially completed imports can request a separate explicit batc
 - HTTP/DTO contracts unchanged. [Full-workflow matrix and benchmark](PHASE2_10_6_ACCEPTANCE.md) exercise existing protected staging, explicit approval/import, explicit batch dispatch, case/history, immutable results and authorized CSV export.
 - Default staging limit is 2000 rows; 5000-row files return 413 before canonical writes. Exports remain bounded ranges under the existing row/byte allowlist and current all-member authorization.
 - Replaying the same import/policy/artifact intent after API/browser restart returns the original batch; it does not request a new assessment version. Browser reload still requires authentication. The existing decisions table contains model recommendations; human case state/disposition remains separate.
+# Rate-limit correction — 2026-11-18
+
+- HTTP assessment/evidence/workflow requests retain the existing authenticated quota. Background batch dispatch no longer debits that quota.
+- Dispatch has an independent, restart-safe rolling allowance (`batch_assessment_dispatch_rate_limit`, default 120); queue capacity, bounded groups, authorization and backpressure remain enforced.
+- Clients must honor HTTP 429 `Retry-After`. See [verification and UX behavior](UX_RELIABILITY_FOLLOWUP.md).

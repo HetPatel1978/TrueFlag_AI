@@ -1,4 +1,5 @@
 FROM python:3.11-slim
+LABEL org.opencontainers.image.version="0.1.0" io.trueflag.release-contract="trueflag.release.v1"
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 CSV_STAGING_ROOT=/app/runtime/csv-staging
 WORKDIR /app
 COPY requirements.lock ./

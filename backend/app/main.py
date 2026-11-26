@@ -2,27 +2,35 @@ import logging
 from contextlib import asynccontextmanager
 from threading import BoundedSemaphore
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqlalchemy import Engine, text
+from sqlalchemy import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.alerts import router as alerts_router
 from app.api.assessments import router as assessments_router
 from app.api.batch_assessments import router as batch_assessments_router
+from app.api.case_workflows import router as case_workflows_router
 from app.api.cases import router as cases_router
+from app.api.casework import router as casework_router
 from app.api.csv_imports import router as csv_imports_router
 from app.api.csv_uploads import router as csv_uploads_router
 from app.api.evidence import router as evidence_router
+from app.api.investigation_drafts import router as investigation_drafts_router
+from app.api.investigations import router as investigations_router
 from app.api.monitoring import router as monitoring_router
+from app.api.provider_usage import router as provider_usage_router
 from app.api.references import router as references_router
+from app.api.regulatory_research import router as regulatory_research_router
 from app.api.routes import router
+from app.api.upload_sessions import router as upload_sessions_router
 from app.core.config import Settings
 from app.core.database import make_engine
-from app.core.schema import EXPECTED_SCHEMA_REVISION
+from app.core.release import release_report
 from app.core.telemetry import Registry
+from app.security.auth import require_admin
 from app.security.logging import configure_security_logging
 from app.security.request_guard import RequestGuardMiddleware
 from app.services.batch_assessments import BatchAssessmentService, BatchDispatcher
@@ -75,8 +83,8 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_methods=["GET", "POST", "PUT"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
-        expose_headers=["X-Request-ID", "Location", "Retry-After"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Upload-Session-ID"],
+        expose_headers=["X-Request-ID", "Location", "Retry-After", "X-TrueFlag-Reason"],
     )
     app.add_middleware(
         RequestGuardMiddleware,
@@ -119,23 +127,32 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
 
     @app.get("/ready")
     def ready():
-        try:
-            with database.connect() as connection:
-                revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
-            if revision != EXPECTED_SCHEMA_REVISION:
-                raise ValueError("Migration required")
-        except (SQLAlchemyError, ValueError):
-            return JSONResponse({"status": "not_ready"}, status_code=503)
-        return {"status": "ready"}
+        report = release_report(database)
+        return JSONResponse(
+            {"status": report["status"]},
+            status_code=200 if report["status"] == "ready" else 503,
+            headers={"X-Readiness-Code": report["compatibility"]},
+        )
+
+    @app.get("/api/v1/internal/release", tags=["Internal operations"])
+    def release_identity(user=Depends(require_admin)):
+        return release_report(database)
 
     app.include_router(router)
     app.include_router(alerts_router)
     app.include_router(cases_router)
+    app.include_router(case_workflows_router)
+    app.include_router(casework_router)
     app.include_router(assessments_router)
     app.include_router(batch_assessments_router)
     app.include_router(monitoring_router)
+    app.include_router(provider_usage_router)
+    app.include_router(regulatory_research_router)
     app.include_router(csv_uploads_router)
+    app.include_router(upload_sessions_router)
     app.include_router(csv_imports_router)
     app.include_router(evidence_router)
+    app.include_router(investigations_router)
+    app.include_router(investigation_drafts_router)
     app.include_router(references_router)
     return app

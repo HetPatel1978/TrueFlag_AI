@@ -8,6 +8,7 @@ runtime/
 outputs/
 .venv/
 .venv-ml/
+.venv-windows/
 *.egg-info/
 **/__pycache__/
 *.py[cod]
@@ -35,3 +36,6 @@ coverage/
 npm-debug.log*
 frontend/test-results/
 frontend/playwright-report/
+# Deployment-owned generated public build metadata; never copied from .env.
+backend/app/_release.json
+frontend/release-build.json

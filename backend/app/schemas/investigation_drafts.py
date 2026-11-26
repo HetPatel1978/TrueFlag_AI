@@ -114,12 +114,34 @@ class Usage(Contract):
     basis: Literal["simulated_utf8_byte_units_not_vendor_tokens"]
 
 
+class ReportedUsage(Contract):
+    input_tokens: int = Field(strict=True, ge=0, le=65536)
+    output_tokens: int = Field(strict=True, ge=0, le=16384)
+    cost_usd: Decimal = Field(ge=0, le=5)
+    basis: Literal["provider_reported_tokens_configured_rate_estimate"]
+
+
 class ProviderReply(Contract):
     content: str = Field(max_length=16384)
     finish_reason: Literal["complete", "incomplete", "refused"]
-    provider: Literal["deterministic_fake"]
-    model: Literal["trueflag-fake-selection.v1"]
-    usage: Usage
+    provider: Literal["deterministic_fake", "luminal", "anthropic"]
+    model: Literal[
+        "trueflag-fake-selection.v1", "deepseek-ai/DeepSeek-V4.1-Flash", "claude-sonnet-5-5"
+    ]
+    usage: Usage | ReportedUsage
+
+    @model_validator(mode="after")
+    def identity(self):
+        models = {
+            "deterministic_fake": "trueflag-fake-selection.v1",
+            "luminal": "deepseek-ai/DeepSeek-V4.1-Flash",
+            "anthropic": "claude-sonnet-5-5",
+        }
+        if self.model != models[self.provider] or (
+            self.provider == "deterministic_fake"
+        ) != isinstance(self.usage, Usage):
+            raise ValueError("Provider identity or usage mismatch")
+        return self
 
 
 class DraftBody(Contract):
@@ -128,7 +150,7 @@ class DraftBody(Contract):
     investigation_run_id: UUID
     input_manifest_sha256: SHA256
     packet_sha256: SHA256
-    mode: Literal["simulation"] = "simulation"
+    mode: Literal["simulation", "provider_candidate"] = "simulation"
     findings: list[dict] = Field(max_length=20)
     hypotheses: list[ProposedHypothesis] = Field(max_length=8)
     questions: list[Code] = Field(max_length=20)

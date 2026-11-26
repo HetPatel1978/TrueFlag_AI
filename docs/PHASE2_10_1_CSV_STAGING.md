@@ -6,12 +6,14 @@ All routes require the current active admin via `require_batch_uploader`. Upload
 
 | Route | Result |
 |---|---|
-| `GET /api/v1/batch-uploads/contract` | Versioned target format, exact generated metadata/predictor definitions and missing-value rules |
+| `GET /api/v1/batch-uploads/contract` | Versioned target format, exact generated metadata/predictor definitions, missing-value rules and effective staging `limits` |
 | `GET /api/v1/batch-uploads/template` | UTF-8 header-only CSV; fixed attachment name `trueflag-alerts-v1.csv` |
 | `POST /api/v1/batch-uploads` | Raw CSV body; new receipt `201`, matching retry `200`, canonical `Location` |
 | `GET /api/v1/batch-uploads/{upload_id}` | Minimal owned metadata; concealed/missing `404`; expired receipt reports `expired` |
 
 Upload headers:
+
+The protected contract reports `limits.max_bytes`, `max_rows` (data records, excluding the header), `max_columns` and `max_field_bytes` from the running server configuration. Being below the byte limit does not bypass the other limits. The upload UI displays these limits and clears transfer progress after a rejection; HTTP 413 remains a sanitized rejection for any staging limit, without echoing CSV contents. Limits and canonical feature validation are unchanged.
 
 - Required `Content-Type: text/csv` (optional `charset=utf-8`, including quoted UTF-8).
 - Required `Idempotency-Key`: 16-128 ASCII alphanumeric / underscore / period / colon / hyphen characters.

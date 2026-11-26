@@ -22,6 +22,7 @@ from app.core.config import PROJECT_ROOT
 from app.models import AuditEvent, CSVUpload, User
 from app.schemas.alerts import FEATURE_CONTRACT_VERSION
 from app.schemas.csv_uploads import CSV_CONTRACT_VERSION, PREFIX, UploadMetadata
+from app.services.upload_sessions import WorkspaceConflict, WorkspaceNotFound, bind_upload
 
 
 class StagingError(Exception):
@@ -323,7 +324,7 @@ class CSVStagingService:
                 )
             )
 
-    def publish(self, actor_id, key, incoming):
+    def publish(self, actor_id, key, incoming, upload_session_id=None):
         if (
             type(actor_id) is not UUID
             or type(key) is not str
@@ -346,6 +347,10 @@ class CSVStagingService:
                         )
                     )
                     if prior:
+                        try:
+                            bind_upload(session, actor_id, prior, upload_session_id)
+                        except (WorkspaceConflict, WorkspaceNotFound):
+                            raise UploadConflict from None
                         if (
                             prior.sha256 != incoming.digest.hexdigest()
                             or prior.size_bytes != incoming.size
@@ -402,6 +407,10 @@ class CSVStagingService:
                         )
                         session.add(row)
                         session.flush()
+                        try:
+                            bind_upload(session, actor_id, row, upload_session_id)
+                        except (WorkspaceConflict, WorkspaceNotFound):
+                            raise UploadConflict from None
                         incoming.promote()
                         result, created = _metadata(row), True
                     session.flush()
@@ -488,12 +497,23 @@ class CSVStagingService:
 
     def cleanup(self, limit=100):
         """Bounded expiry/orphan reconciliation; never a public or case-mutating operation."""
+        from app.core.release import require_compatible, require_session_compatible
+        from app.core.release_metadata import ReleaseCompatibilityError
+
+        try:
+            require_compatible(self.engine)
+        except ReleaseCompatibilityError:
+            raise StagingUnavailable from None
         if not self.root.exists():
             return 0
         if any(p.is_symlink() for p in (self.root, *self.root.parents)):
             raise StagingUnavailable
         removed = 0
         with Session(self.engine) as session, session.begin():
+            try:
+                require_session_compatible(session)
+            except ReleaseCompatibilityError:
+                raise StagingUnavailable from None
             _timeouts(session)
             now = _now(session)
             rows = session.scalars(

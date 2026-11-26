@@ -37,6 +37,18 @@ def main():
         and make_url(config["database_url"]).get_backend_name() == "postgresql"
     )
     owner = make_engine(config["database_url"])
+    if config.get("investigation_workbench"):
+        from sqlalchemy import text
+
+        with owner.connect() as connection:
+            actual_cluster = str(
+                connection.scalar(text("SELECT system_identifier FROM pg_control_system()"))
+            )
+            actual_database = connection.scalar(text("SELECT current_database()"))
+        assert actual_cluster == config["expected_cluster"] != config["forbidden_cluster"]
+        assert actual_database == config["expected_database"] and actual_database.startswith(
+            "tf_g0_3_primary_"
+        )
     schema = "tf_frontend_acceptance_" + uuid4().hex
     with owner.begin() as connection:
         connection.execute(CreateSchema(schema))
@@ -44,6 +56,7 @@ def main():
     os.environ["DATABASE_URL"] = url.render_as_string(hide_password=False)
     os.environ["JWT_SECRET"] = secrets.token_urlsafe(48)
     engine = server = server_thread = worker_thread = None
+    clock_fault = None
     stop = threading.Event()
     enabled = threading.Event()
     fail_next = threading.Event()
@@ -52,9 +65,12 @@ def main():
         command.upgrade(Config("backend/alembic.ini"), "head")
         # Many independent browser logins share loopback; leave production defaults unchanged.
         settings = Settings(
+            cors_origins=["http://127.0.0.1:15173"],
             login_attempt_limit=100,
             csv_staging_root=Path("/tmp/csv-staging"),
             batch_assessment_dispatch_enabled=True,
+            investigation_simulation_enabled=bool(config.get("simulation_drafts")),
+            investigation_external_enabled=False,
         )
         # Match the existing synthetic fixture's documented Docker guest-clock workaround.
         # Password login/signing/verification/current DB permissions remain the real services.
@@ -69,8 +85,91 @@ def main():
             claims["iat"] -= 60
             return jwt.encode(claims, settings.jwt_secret.get_secret_value(), algorithm="HS256")
 
-        auth_routes.issue_token = fixture_issuer
+        if not config.get("strict_auth", False):
+            auth_routes.issue_token = fixture_issuer
         engine = make_engine(settings.database_url)
+        if config.get("investigation_workbench"):
+            from sqlalchemy import event
+
+            def sql_diagnostic(context):
+                # Fixture-only diagnostics: never persist SQL, parameters or error messages.
+                with (control / "database-errors.jsonl").open("a") as output:
+                    output.write(
+                        json.dumps(
+                            {
+                                "type": type(context.original_exception).__name__,
+                                "sqlstate": getattr(context.original_exception, "sqlstate", None),
+                            }
+                        )
+                        + "\n"
+                    )
+
+            event.listen(engine, "handle_error", sql_diagnostic)
+            from app.models.snapshot_clock import SnapshotClock
+            from app.services.snapshot_clock import ClockUnavailable, SnapshotTime
+            from sqlalchemy import func, select
+
+            original_observe = SnapshotTime.observe
+
+            def observed_clock(clock):
+                try:
+                    return original_observe(clock)
+                except ClockUnavailable:
+                    # Diagnostic only: preserve the exception and all clock guards.
+                    diagnostic = {"type": "ClockUnavailable"}
+                    try:
+                        with Session(clock.engine) as session:
+                            floor = session.get(SnapshotClock, 1)
+                            diagnostic.update(
+                                now=int(session.scalar(select(func.clock_timestamp())).timestamp()),
+                                high_water=floor.high_water,
+                                epoch=floor.epoch,
+                                regressed=floor.regressed,
+                            )
+                    except Exception as failure:
+                        diagnostic["diagnostic_error_type"] = type(failure).__name__
+                    with (control / "clock-errors.jsonl").open("a") as output:
+                        output.write(json.dumps(diagnostic) + "\n")
+                    raise
+
+            SnapshotTime.observe = observed_clock
+            from functools import wraps
+            from traceback import extract_tb
+
+            from app.services.evidence import atomic
+            from app.services.evidence_read import EvidenceReadService
+
+            def observe_read(method):
+                @wraps(method)
+                def observed(*args, **kwargs):
+                    try:
+                        return method(*args, **kwargs)
+                    except Exception as error:
+                        frames = extract_tb(error.__traceback__)[-4:]
+                        with (control / "read-errors.jsonl").open("a") as output:
+                            output.write(
+                                json.dumps(
+                                    {
+                                        "type": type(error).__name__,
+                                        "frames": [
+                                            {
+                                                "file": Path(f.filename).name,
+                                                "function": f.name,
+                                                "line": f.lineno,
+                                            }
+                                            for f in frames
+                                        ],
+                                    }
+                                )
+                                + "\n"
+                            )
+                        raise
+
+                return observed
+
+            for name in ["calculate_activity", "get_transactions"]:
+                method = getattr(EvidenceReadService, name).__wrapped__
+                setattr(EvidenceReadService, name, atomic(observe_read(method)))
         password = secrets.token_urlsafe(24)
         with Session(engine) as session, session.begin():
             users = {
@@ -123,6 +222,69 @@ def main():
                 session.add(case)
                 session.flush()
                 cases[name] = str(case.id)
+        connected_sources = {}
+        case_sources = {}
+        if config.get("investigation_workbench"):
+            from uuid import UUID
+
+            from app.schemas.cases import AssignmentInput
+            from app.services.cases import assign_case
+            from app.services.connected_scenarios import scenario_bundle
+            from app.services.evidence import EvidenceService
+
+            foundation = EvidenceService(engine)
+            scenarios = [
+                ("connected", "ordinary", "uianalyst"),
+                ("incomplete", "incomplete_history", "uianalyst"),
+                ("connected_foreign", "conflicting_kyc", "uiother"),
+                ("connected_unassigned", "zero_income", None),
+            ]
+            if config.get("design_system"):
+                scenarios.append(("design", "ordinary", "uianalyst"))
+            if config.get("case_workflows"):
+                scenarios.append(("workflow", "ordinary", None))
+            if config.get("simulation_drafts"):
+                scenarios.extend(
+                    [
+                        ("draft-complete", "ordinary", "uianalyst"),
+                        ("draft-incomplete", "incomplete_history", "uianalyst"),
+                        ("draft-revoked", "ordinary", "uianalyst"),
+                        ("draft-clock", "ordinary", "uianalyst"),
+                        ("draft-foreign", "ordinary", "uiother"),
+                        ("draft-one-click", "ordinary", "uianalyst"),
+                    ]
+                )
+            for scenario_index, (name, key, assignee) in enumerate(scenarios):
+                bundle = scenario_bundle(
+                    key,
+                    20430 + scenario_index
+                    if name.startswith("draft-")
+                    else 20263
+                    if name == "workflow"
+                    else 20262
+                    if name == "design"
+                    else 20261,
+                )
+                actor = UUID(user_ids["uiadmin"])
+                source = foundation.register_source(actor, bundle.scenario_id)
+                release = foundation.admit_version(actor, source, bundle)
+                case_id = foundation.create_case(actor, release)
+                if assignee:
+                    with Session(engine) as session:
+                        assign_case(
+                            session,
+                            actor,
+                            case_id,
+                            AssignmentInput(
+                                expected_version=1, assigned_to=UUID(user_ids[assignee])
+                            ),
+                        )
+                cases[name] = str(case_id)
+                connected_sources[name] = source
+                with Session(engine) as session:
+                    case_sources[name] = session.get(
+                        Alert, session.get(Case, case_id).alert_id
+                    ).source_id
         queue = AssessmentJobService(engine)
         token = secrets.token_hex(32)
         from uuid import UUID
@@ -137,6 +299,20 @@ def main():
             UUID(user_ids["uiadmin"]), "browser-import-worker", import_token
         )
         import_worker = CSVImportWorker(import_queue, import_token)
+        investigation = None
+        drafts = None
+        investigation_token = secrets.token_urlsafe(48)
+        if config.get("investigation_workbench"):
+            from app.services.investigation_coordinator import InvestigationCoordinator
+
+            investigation = InvestigationCoordinator(engine, settings)
+            investigation.register_worker(
+                UUID(user_ids["uiadmin"]), "browser-evidence-worker", investigation_token
+            )
+            if config.get("simulation_drafts"):
+                from app.services.investigation_drafts import InvestigationDraftService
+
+                drafts = InvestigationDraftService(engine, settings)
 
         def work():
             while not stop.is_set():
@@ -153,6 +329,10 @@ def main():
                                 queue.fail(token, claim, "processing_unavailable", retryable=False)
                         else:
                             worker.run_once()
+                        if investigation is not None:
+                            investigation.run_once(investigation_token)
+                        if drafts is not None:
+                            drafts.run_once(investigation_token)
                     except Exception:
                         # Parent acceptance assertions detect nonprogress; no exception data escapes.
                         pass
@@ -182,6 +362,7 @@ def main():
                     "users": user_ids,
                     "csv_columns": list(COLUMNS),
                     "feature_contract_version": FEATURE_CONTRACT_VERSION,
+                    "case_sources": case_sources,
                 }
             ),
             flush=True,
@@ -207,6 +388,45 @@ def main():
                             enabled.clear()
                         if request.get("worker") == "start":
                             enabled.set()
+                        if (
+                            config.get("investigation_workbench")
+                            and request.get("clock_fault") is True
+                            and clock_fault is None
+                        ):
+                            from datetime import datetime, timedelta, timezone
+
+                            from app.models.snapshot_clock import SnapshotClock
+                            from app.services.snapshot_clock import SnapshotTime
+                            from sqlalchemy import text
+
+                            sys.path.insert(0, "backend/tests")
+                            from test_snapshot_clock_integrity import clock_view
+
+                            with Session(engine) as session:
+                                instant = max(
+                                    session.scalar(text("SELECT clock_timestamp()")),
+                                    datetime.fromtimestamp(
+                                        session.get(SnapshotClock, 1).high_water, timezone.utc
+                                    ),
+                                )
+                            clock_fault = clock_view(engine, instant)
+                            simulated = clock_fault.__enter__()
+                            SnapshotTime(engine).observe()
+                            simulated[0] = instant - timedelta(seconds=1)
+                        if request.get("clock_fault") is False and clock_fault is not None:
+                            clock_fault.__exit__(None, None, None)
+                            clock_fault = None
+                        if (
+                            config.get("investigation_workbench")
+                            and request.get("revoke_source") in connected_sources
+                        ):
+                            name = request["revoke_source"]
+                            foundation.set_source_access(
+                                UUID(user_ids["uiadmin"]),
+                                UUID(cases[name]),
+                                connected_sources[name],
+                                False,
+                            )
                         if request.get("restart_api"):
                             # Exercise real TCP listener/lifespan/dispatcher restart, not a mock response.
                             server.should_exit = True
@@ -242,6 +462,8 @@ def main():
         return 0
     finally:
         stop.set()
+        if clock_fault is not None:
+            clock_fault.__exit__(None, None, None)
         if worker_thread:
             worker_thread.join(timeout=45)
         if server:

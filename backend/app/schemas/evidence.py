@@ -19,6 +19,13 @@ GENERATOR_VERSION = "trueflag.synthetic-evidence.v1"
 CONFIG_VERSION = "trueflag.evidence-config.v1"
 DICTIONARY_SHA = "6d262b3b8cce169fd3898019d46bb0dc542a3054f51ff3f2c80d5cf3b14de442"
 PROFILES = (
+    "g1_demo_priority",
+    "g1_ordinary",
+    "g1_related",
+    "g1_concentration",
+    "g1_flow_change",
+    "g1_high_kyc",
+    "g1_partial_customer",
     "normal",
     "burst",
     "partial",

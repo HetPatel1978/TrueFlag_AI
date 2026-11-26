@@ -1,3 +1,5 @@
+import { displayLabel } from './terminology';
+
 export type User = {
   id: string;
   username: string;
@@ -113,14 +115,54 @@ const messages: Record<number, string> = {
   415: 'Unsupported file type or encoding. Use UTF-8 CSV.',
   422: 'The request is invalid. Check your filters or reload the case.',
   429: 'Request limit reached. Wait before retrying.',
-  503: 'Service unavailable (503). The worker or queue may be unavailable. Retry safely.',
+  503: 'Service temporarily unavailable (503). Wait before trying again.',
 };
 export class ApiError extends Error {
   constructor(
     public status: number,
     public retryAfter = 0,
+    public reason = '',
   ) {
     super(messages[status] ?? 'Service request failed. Try again.');
+  }
+}
+
+/** Retry a protected read once on explicit backpressure; never use for writes or inference. */
+export async function protectedRead<T>(
+  operation: () => Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (
+      !(error instanceof ApiError) ||
+      error.status !== 429 ||
+      !Number.isFinite(error.retryAfter) ||
+      error.retryAfter < 0 ||
+      error.retryAfter > 60
+    )
+      throw error;
+    await new Promise<void>((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(new DOMException('Aborted', 'AbortError'));
+        return;
+      }
+      const abort = () => {
+        window.clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      };
+      const timer = window.setTimeout(
+        () => {
+          signal?.removeEventListener('abort', abort);
+          resolve();
+        },
+        Math.max(2000, error.retryAfter * 1000),
+      );
+      signal?.addEventListener('abort', abort, { once: true });
+    });
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    return operation();
   }
 }
 export async function request<T>(
@@ -137,7 +179,7 @@ export async function request<T>(
     response = await fetch(path, {
       ...init,
       cache: 'no-store',
-      credentials: 'omit',
+      credentials: init.credentials ?? 'omit',
       signal,
     });
   } catch (error) {
@@ -151,6 +193,13 @@ export async function request<T>(
     throw new ApiError(
       response.status,
       Number.isFinite(hint) && hint > 0 ? Math.min(3600, hint) : 0,
+      [
+        'clock_uncertainty',
+        'snapshot_stale',
+        'simulation_unavailable',
+      ].includes(response.headers?.get('X-TrueFlag-Reason') ?? '')
+        ? response.headers.get('X-TrueFlag-Reason')!
+        : '',
     );
   }
   return (kind === 'blob' ? response.blob() : response.json()) as Promise<T>;
@@ -164,9 +213,10 @@ export async function signIn(
   signal?: AbortSignal,
 ): Promise<string> {
   const result = await request<{ access_token?: unknown }>(
-    '/api/v1/auth/token',
+    '/api/v1/auth/session',
     {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
       signal,
@@ -234,8 +284,7 @@ export function client(
   };
 }
 export type Client = ReturnType<typeof client>;
-export const label = (value: string) =>
-  value.replaceAll('_', ' ').replace(/^./, (s) => s.toUpperCase());
+export const label = displayLabel;
 export const message = (error: unknown) =>
   error instanceof ApiError ? error.message : 'Service unavailable. Try again.';
 export function pollDelay(retryAfter = 2): number | null {

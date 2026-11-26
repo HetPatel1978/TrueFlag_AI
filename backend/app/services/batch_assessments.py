@@ -3,6 +3,7 @@
 import functools
 import hashlib
 import logging
+import math
 import re
 import threading
 from datetime import timedelta
@@ -13,6 +14,7 @@ from sqlalchemy import case as sql_case
 from sqlalchemy import func, insert, select, text, update
 from sqlalchemy.orm import Session
 
+from app.core.release import require_session_compatible
 from app.models import (
     Assessment,
     AssessmentJob,
@@ -28,7 +30,7 @@ from app.models import (
     User,
 )
 from app.schemas.batch_assessments import BatchAssessmentStart, BatchProgress, BatchResultsPage
-from app.services.assessment_api import AssessmentRateLimited, _budget, _detail
+from app.services.assessment_api import AssessmentRateLimited, _detail
 from app.services.assessment_jobs import FAILURES, AssessmentJobService, QueueFull
 from app.services.assessments import (
     AssessmentConflict,
@@ -420,9 +422,43 @@ class BatchAssessmentService:
             )
         event(session, batch, "backpressure", reason=reason)
 
+    def _dispatch_budget(self, session, actor_id):
+        """Separate rolling budget using durable originated jobs, under the actor lock.
+
+        The caller holds User FOR UPDATE across check, enqueue and audit. This serializes
+        all dispatchers for this actor; rollback/reused jobs cannot double-charge the
+        count. Existing jobs also count immediately after restart or this upgrade.
+        HTTP request accounting is unchanged and cannot be starved here.
+        """
+        now = _now(session)
+        seconds = self.settings.assessment_api_window_seconds
+        count, oldest = session.execute(
+            select(
+                func.count(func.distinct(BatchAssessmentItem.job_id)),
+                func.min(AssessmentJob.created_at),
+            )
+            .select_from(BatchAssessmentItem)
+            .join(BatchAssessment, BatchAssessment.id == BatchAssessmentItem.batch_id)
+            .join(AssessmentJob, AssessmentJob.id == BatchAssessmentItem.job_id)
+            .where(
+                BatchAssessment.actor_id == actor_id,
+                BatchAssessmentItem.originated.is_(True),
+                AssessmentJob.created_at > now - timedelta(seconds=seconds),
+            )
+        ).one()
+        if count >= self.settings.batch_assessment_dispatch_rate_limit:
+            raise AssessmentRateLimited(
+                max(
+                    1,
+                    math.ceil((_aware(oldest) + timedelta(seconds=seconds) - now).total_seconds()),
+                )
+            )
+        return now
+
     @safe
     def advance(self, batch_id):
         with Session(self.engine) as session, session.begin():
+            require_session_compatible(session)
             _timeouts(session)
             stub = session.get(BatchAssessment, batch_id)
             if stub is None:
@@ -514,8 +550,7 @@ class BatchAssessmentService:
                         item.status, item.job_id = "job", existing.id
                         reused += 1
                         continue
-                    # Each new job shares the normal authenticated request budget and capacity.
-                    _budget(session, batch.actor_id, self.settings)
+                    self._dispatch_budget(session, batch.actor_id)
                     result, _ = self.queue.enqueue_in_transaction(
                         session,
                         actor_id=batch.actor_id,
@@ -562,6 +597,7 @@ class BatchAssessmentService:
     @safe
     def run_once(self):
         with Session(self.engine) as session:
+            require_session_compatible(session)
             _timeouts(session)
             batch_id = session.scalar(
                 select(BatchAssessment.id)

@@ -19,7 +19,7 @@ from app.services.assessments import AssessmentService
 def test_real_pipeline_assessment_persists_without_case_action(
     platform, case_team, alert_payload, income
 ):
-    assert sys.platform == "linux" and platform[1].dialect.name == "postgresql"
+    assert sys.platform in {"linux", "win32"} and platform[1].dialect.name == "postgresql"
     from trueflag_ml.scoring import RFScoringService
 
     service = AssessmentService(platform[1])

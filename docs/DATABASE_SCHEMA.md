@@ -1,5 +1,17 @@
 # PostgreSQL schema - Phase 3.5.2
 
+## Private development candidate — 22 November 2026
+
+- Candidate `0022_claude_development_scope` follows candidate 0021. It changes only the deferred draft-envelope predicate: separately authorized synthetic `development_validation` / `flat_selection_v2` records may carry a zero monetary reservation marker. Existing provider predicates and immutable-history triggers remain enforced; downgrade refuses retained development history.
+- No tables or historical rows were rewritten. Schema-scoped backup, restore rehearsal and exact historical run/attempt/receipt/audit equality preceded the isolated probe upgrade from 0020 to 0022. Original demo and running local-app schemas remain unchanged.
+- [Migration/recovery evidence, financial semantics and pending request](CLAUDE_DEVELOPMENT_UNBLOCK_2026_11_22.md).
+
+## G5.3 candidate — 21 November 2026
+
+- Running local schema is **0019_upload_sessions**. Historical counts below are not the current runtime inventory.
+- Candidate `0021_regulatory_draft_bindings`, dependent on candidate `0020_claude_provider`, adds `draft_regulatory_bindings`: one immutable row per draft run, with actor/case/parent/manifest foreign keys, context hash and bounded typed JSON. Existing governance metadata is reused.
+- PostgreSQL update/delete/truncate guards and a deferred draft-run envelope trigger prevent mutable or missing bindings. Empty downgrade/re-upgrade was rehearsed only in a disposable schema; retained history blocks downgrade. No running/demo migration or role change. [Acceptance evidence](G5_3_CLAUDE_REGULATORY_INTEGRATION_REPORT.md).
+
 Source of truth: `backend/app/models/` and `backend/alembic/versions/`. Expected revision: **0015_investigation_drafts**; 57 domain tables plus `alembic_version`. Earlier phase sections retain historical schema counts. No automatic live-demo migration is performed.
 
 ## Phase 3.5.2 additive tables
@@ -163,3 +175,8 @@ erDiagram
 
 - Deferred guards require job/idempotency envelopes at run commit and packet/job consistency at publication. No legacy model/evidence/case column rewrite. Existing `evidence.%` audit protection covers new `evidence.investigation.%` events.
 - Empty 0014 rollback is supported; retained run/worker/request/job/packet/audit history blocks destructive downgrade. Existing demo remains on its prior running schema; acceptance uses isolated PostgreSQL/SQLite environments. [Detailed contract](PHASE3_5_1_EVIDENCE_COORDINATOR.md).
+# Upload session schema — 2026-11-18
+
+- Revision `0019_upload_sessions` adds `upload_sessions`, `upload_session_items` and `upload_workspaces`; canonical case/model/evidence tables are unchanged.
+- Per-owner creation keys are unique; each staged upload has one session membership. Per-user active selection uses an optimistic version alongside actor row locking.
+- Rollback refuses retained session history. No cascading case, assessment, audit or source deletion is introduced. See [UPLOAD_SESSIONS.md](UPLOAD_SESSIONS.md).

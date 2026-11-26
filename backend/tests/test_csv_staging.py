@@ -255,6 +255,20 @@ def test_byte_row_column_and_cell_bounds(upload):
     assert total(upload) == 0 and files(upload) == []
 
 
+def test_contract_reports_effective_staging_limits(upload):
+    settings = upload["settings"]
+    settings.csv_max_rows = 17
+    settings.csv_max_bytes = 4096
+    response = upload["client"].get(PATH + "/contract", headers=upload["auth"])
+    assert response.status_code == 200
+    assert response.json()["limits"] == {
+        "max_bytes": 4096,
+        "max_rows": 17,
+        "max_columns": settings.csv_max_columns,
+        "max_field_bytes": settings.csv_max_field_bytes,
+    }
+
+
 def test_chunked_upload_cannot_bypass_size_cap(upload):
     upload["settings"].csv_max_bytes = 1024
     response = send(upload, iter([b"source_id,notes\n", b"x," + b"y" * 800, b"z" * 800 + b"\n"]))

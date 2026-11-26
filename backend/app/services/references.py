@@ -32,6 +32,7 @@ from app.schemas.references import (
     ReferenceResult,
     VersionSpec,
 )
+from app.schemas.regulatory_context import RegulatoryContext, RegulatoryPassage
 from app.services.evidence import (
     EvidenceConflict,
     EvidenceError,
@@ -298,6 +299,10 @@ class ReferenceService:
             )
         ):
             raise ReferenceBlocked("unsupported_snapshot_provenance")
+        if document.origin == "official_curated" and (
+            actor_id == row.admitted_by or approval.review_reference_sha256 is None
+        ):
+            raise ReferenceBlocked("independent_source_review_required")
         review = ReferenceApproval(
             version_id=version_id,
             reviewer_id=actor_id,
@@ -314,6 +319,7 @@ class ReferenceService:
             version_id,
             manifest_sha256=approval.manifest_sha256,
             review_kind=approval.review_kind,
+            review_reference_sha256=approval.review_reference_sha256,
         )
         return review.id
 
@@ -761,3 +767,98 @@ class ReferenceService:
                     digest({"reference_id": str(reference_id)}),
                 )
         raise EvidenceNotFound("reference_not_found")
+
+    @atomic
+    def validate_regulatory_selection(self, session, actor_id, case_id, citations):
+        """Fresh, atomic source/permission fencing for future investigator handoff.
+
+        This is not an LLM tool or public endpoint. Caller selections have no authority:
+        compare every field against the current approved stored source before returning.
+        """
+        if (
+            type(citations) is not tuple
+            or not 1 <= len(citations) <= 5
+            or any(not isinstance(c, Citation) for c in citations)
+        ):
+            raise ReferenceInvalid("invalid_regulatory_selection")
+        supplied = [Citation.model_validate_json(c.model_dump_json()) for c in citations]
+        if len({c.reference_id for c in supplied}) != len(supplied):
+            raise ReferenceInvalid("duplicate_regulatory_selection")
+        context, release = self._context(session, actor_id, case_id)
+        if context is None or session.scalar(select(_withdrawn(release=release.id))):
+            raise EvidenceNotFound("reference_not_found")
+        rows = session.execute(
+            self._base(context).where(self._applicable(context)).limit(1001)
+        ).all()
+        if len(rows) > 1000:
+            raise ReferenceBlocked("corpus_resolution_limit")
+        expected = {c.reference_id: c for c in supplied}
+        found = {}
+        for chunk, version, document, source in rows:
+            identity = uuid5(context.id, str(chunk.id) + ":" + chunk.text_sha256)
+            if identity not in expected:
+                continue
+            self._verify(session, version)
+            current = self._citation(context, chunk, version, document, source)
+            if current != expected[identity]:
+                raise EvidenceNotFound("reference_not_found")
+            review = session.scalar(
+                select(ReferenceApproval).where(ReferenceApproval.version_id == version.id)
+            )
+            # Review dossier references live in immutable audit metadata, not source text.
+            from app.models import AuditEvent
+
+            event = session.scalar(
+                select(AuditEvent).where(
+                    AuditEvent.action == "evidence.reference.version_approved",
+                    AuditEvent.resource_id == str(version.id),
+                )
+            )
+            review_hash = event.details.get("review_reference_sha256") if event else None
+            if document.origin == "official_curated" and (
+                review.review_kind != "human"
+                or review.reviewer_id == version.admitted_by
+                or review_hash is None
+            ):
+                raise ReferenceBlocked("independent_source_review_required")
+            found[identity] = RegulatoryPassage(
+                source_id=source.id,
+                source_key=source.key,
+                version_manifest_sha256=version.manifest_sha256,
+                approval_id=review.id,
+                reviewer_reference=review.reviewer_id,
+                review_reference_sha256=review_hash,
+                review_kind=review.review_kind,
+                citation=current,
+            )
+        if set(found) != set(expected):
+            raise EvidenceNotFound("reference_not_found")
+        ordered = [found[c.reference_id] for c in supplied]
+        result = self._finish(
+            session,
+            actor_id,
+            case_id,
+            context,
+            "available",
+            [s.citation for s in ordered],
+            digest([str(c.reference_id) for c in supplied]),
+        )
+        payload = dict(
+            case_id=str(case_id),
+            result=result.model_dump(mode="json"),
+            sources=[s.model_dump(mode="json") for s in ordered],
+        )
+        envelope = RegulatoryContext(
+            case_id=case_id, result=result, sources=tuple(ordered), context_sha256=digest(payload)
+        )
+        if len(envelope.model_dump_json().encode()) > 262144:
+            raise ReferenceBlocked("reference_response_limit")
+        audit(
+            session,
+            actor_id,
+            "reference.selection_verified",
+            case_id,
+            context_sha256=envelope.context_sha256,
+            selected=len(ordered),
+        )
+        return envelope

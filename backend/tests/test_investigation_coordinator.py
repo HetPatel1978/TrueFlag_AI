@@ -3,7 +3,6 @@
 import json
 import os
 import secrets
-import select as os_select
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -21,6 +20,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 from test_evidence_foundation import admit
 from test_evidence_foundation import evidence_setup as evidence_fixture
+from worker_handshake import RETRIEVAL_WORKER_SCRIPT, wait_for_retrieval
 
 from alembic import command
 from app.models import Alert, AuditEvent, Case, User
@@ -705,25 +705,7 @@ def test_revocation_serializes_with_atomic_publication(env, monkeypatch):
 @pytest.mark.skipif(sys.platform != "linux", reason="real Linux process death required")
 def test_real_worker_process_death_then_restart_has_one_packet(env):
     receipt = submit(env)
-    script = """
-import json,sys,signal
-def safe_exception(kind,value,traceback):
-    print('CHILD_ERROR:'+kind.__name__,flush=True)
-sys.excepthook=safe_exception
-from app.core.config import Settings
-from app.core.database import make_engine
-from app.services.investigation_coordinator import InvestigationCoordinator
-p=json.loads(sys.stdin.readline())
-settings=Settings(database_url=p['database_url'],jwt_secret=p['jwt_secret'])
-s=InvestigationCoordinator(make_engine(settings.database_url),settings)
-c=s.claim(p['token']); original=s.reader.get_transactions
-def paused(*args):
-    result=original(*args)
-    print('RETRIEVED',flush=True)
-    signal.pause()
-s.reader.get_transactions=paused
-s.assemble(p['token'],c)
-"""
+    script = RETRIEVAL_WORKER_SCRIPT
     process = subprocess.Popen(
         [sys.executable, "-B", "-c", script],
         stdin=subprocess.PIPE,
@@ -735,12 +717,12 @@ s.assemble(p['token'],c)
         database_url=env["platform"][2].database_url,
         jwt_secret=env["platform"][2].jwt_secret.get_secret_value(),
         token=env["token"],
+        nonce=secrets.token_hex(16),
     )
     process.stdin.write(json.dumps(payload) + "\n")
     process.stdin.close()
     try:
-        ready, _, _ = os_select.select([process.stdout], [], [], 20)
-        assert ready and process.stdout.readline().strip() == "RETRIEVED"
+        wait_for_retrieval(process, payload["nonce"], timeout=20)
         process.kill()
         process.wait(timeout=5)
     finally:

@@ -9,6 +9,8 @@ import threading
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from app.core.release import require_compatible, worker_identity
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.services.csv_imports import (
     CSVImportService,
     ImportConflict,
@@ -23,7 +25,7 @@ from app.services.csv_staging import UploadDenied, UploadExpired
 
 class CSVImportWorker:
     def __init__(self, service, token):
-        if sys.platform != "linux":
+        if sys.platform not in {"linux", "win32"}:
             raise ImportUnavailable
         self.service, self.token = service, token
 
@@ -64,10 +66,12 @@ def main():
     stop = threading.Event()
     engine = None
     try:
-        if sys.platform != "linux":
+        if sys.platform not in {"linux", "win32"}:
             raise ImportUnavailable
         settings = Settings(_env_file=None, jwt_secret=secrets.token_urlsafe(48))
         engine = make_engine(settings.database_url)
+        require_compatible(engine)
+        release = worker_identity()
         service = CSVImportService(engine, settings)
         token = Path(args.token_file).read_text(encoding="ascii").strip()
         if args.register:
@@ -86,6 +90,7 @@ def main():
                     json.dumps(
                         {
                             "event": "csv.import.worker",
+                            "release": release,
                             "correlation_id": uuid4().hex,
                             "status": result.status if result else "idle",
                         }
@@ -102,6 +107,12 @@ def main():
                 return 0
             stop.wait(2)
         return 0
+    except ReleaseCompatibilityError as error:
+        print(
+            json.dumps({"event": "csv.import.worker", "status": "not_ready", "code": error.code}),
+            flush=True,
+        )
+        return 1
     except Exception:
         print(
             json.dumps(

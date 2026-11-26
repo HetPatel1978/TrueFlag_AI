@@ -9,6 +9,8 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import func, or_, select, text
 
+from app.core.release import require_session_compatible
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.models import Alert
 from app.models.investigations import (
     InvestigationJob,
@@ -88,6 +90,7 @@ class InvestigationCoordinator:
         self.queue_capacity, self.actor_capacity = queue_capacity, actor_capacity
 
     def _gate(self, session):
+        self._compatible(session)
         # Short coordination transactions are serialized; assembly executes outside this gate.
         session.execute(
             text(
@@ -99,6 +102,7 @@ class InvestigationCoordinator:
         return session.scalar(select(func.clock_timestamp()))
 
     def _worker(self, session, token):
+        self._compatible(session)
         worker = session.scalar(
             select(InvestigationWorker)
             .where(
@@ -110,6 +114,12 @@ class InvestigationCoordinator:
         if worker is None:
             raise EvidenceNotFound("investigation_worker_not_found")
         return worker
+
+    def _compatible(self, session):
+        try:
+            require_session_compatible(session)
+        except ReleaseCompatibilityError as error:
+            raise EvidenceUnavailable(error.code) from None
 
     def _run(self, session, identity):
         if type(identity) is not UUID:
@@ -409,6 +419,7 @@ class InvestigationCoordinator:
         now = self._now(session)
         if job.deadline <= now or job.lease_until <= now:
             raise InvestigationLeaseLost("investigation_lease_lost")
+        self.reader.ensure_clock(context.clock_epoch)
         session.add(
             InvestigationPacket(
                 run_id=run.id,
@@ -529,6 +540,7 @@ class InvestigationCoordinator:
         verification = verify_packet(session, self.reader, context, manifest, body)
         if verification != packet.verification:
             raise VerificationFailed("investigation_verification_failed")
+        self.reader.ensure_clock(context.clock_epoch)
         self._event(session, run, "read", job, packet_sha256=packet.content_sha256)
         return {
             **self._view(job),

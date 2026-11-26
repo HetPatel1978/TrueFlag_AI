@@ -1,8 +1,26 @@
 # Target architecture — five-week MVP and later expansion
 
+**22 November native Windows execution:** the existing application now runs as the primary local candidate on native PostgreSQL/FastAPI/React with Windows Job Object child bounds; durable queues, lease fencing, source authorization, independent verification and the 900-second snapshot policy are preserved. This is a platform adaptation of the existing services, not another application. [Measured native acceptance](WINDOWS_NATIVE_RUNTIME.md); [source-review and live Claude gates](WINDOWS_LIVE_INVESTIGATION_GATE.md). Official source approvals and a verified real grounded Claude response remain missing; no provider activation is implied.
+
+**22 November private development candidate:** the existing Claude adapter now supports a smaller versioned flat wire format, converted into the original typed proposal and independent verifier. Existing PostgreSQL jobs, authorization, clock fencing and immutable audit remain the execution boundary. A new exact-approval-scoped development financial policy omits the withdrawn monetary prerequisites, preserving all other scopes. No new provider framework, public API, frontend activation or regulatory publication. [Implementation and pending exact request](CLAUDE_DEVELOPMENT_UNBLOCK_2026_11_22.md).
+
+**November 21 workflow presentation:** [Guided workflow UX](TRUEFLAG_WORKFLOW_UX_SIMPLIFICATION.md) maps the existing protected services to Assess Alert, Review Evidence, AI Investigation and Human Decision. Administration groups imports, provider usage and diagnostics. This adds no backend service, scientific behavior or permission. Candidate atomic AI admission remains on the existing PostgreSQL workers; its local-demo schema and clock-health acceptance gates remain unresolved.
+
+## G5.3 candidate integration ? 21 November 2026
+
+- Existing PostgreSQL parent/child workers remain the execution boundary. The protected atomic-start API admits evidence preparation and findings intent together; browser polling is not job orchestration.
+- Optional regulatory context is stored immutably with existing packet, source/version/release/citation, grant revision and clock identities. Admission, dispatch, completion and reads revalidate current authority; ordinary evidence-only requests do not require a corpus.
+- The existing React workbench renders typed, independently verified Claude or simulation results with distinct labels. General Claude activation defaults off; official RAG remains blocked by missing human approvals.
+- Candidate migration 0021 depends on candidate 0020 and is not installed in the local app, which remains schema 0019. One actual Claude attempt returned HTTP 400. [Implementation, acceptance failures and remaining gates](G5_3_CLAUDE_REGULATORY_INTEGRATION_REPORT.md).
+
+
+**November 18 UI update:** [Task-first workspace](UX_WORKSPACE_REWORK.md) reorganizes existing APIs into Cases, Imports, Reviews and Administration, with a unified four-section case workspace. No new backend services, schema or scientific behavior; protected roles, evidence boundaries, human decisions and local remembered login remain in place. Earlier phase descriptions below are historical architecture records.
+
 Phase 3.1 design proposals are collected in [Investigation architecture](PHASE3_1_INVESTIGATION_ARCHITECTURE.md), [evidence model](PHASE3_1_EVIDENCE_MODEL.md), [retrieval/RAG contracts](PHASE3_1_RETRIEVAL_RAG_CONTRACTS.md) and [security/evaluation](PHASE3_1_SECURITY_EVALUATION.md). The investigation/RAG proposals remain pending; Phase 3.2 internal synthetic evidence is implemented below.
 
 This is a target, not an implementation claim. Initialization status is in PRODUCT_SCOPE and SETUP_STATUS. Use a modular service with a separately pinned scientific worker; introduce distributed systems only when justified.
+
+**November 21 integration boundary:** [Regulatory/Claude bridge](REGULATORY_CLAUDE_INTEGRATION.md) binds a verified investigation to currently approved case-scoped passages and revalidates citations before provider handoff/result verification. The protected investigation endpoint and React guidance client are implemented. Source publication, durable draft-binding persistence and general Claude activation remain blocked or pending; no separate retrieval engine was introduced.
 
 Current acceptance is in [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md). Phases 2.1-2.9 include approved ML, immutable results, bounded durable Linux jobs, protected APIs and [internal operational monitoring/load-recovery evidence](PHASE2_8_OPERATIONS.md). The [React workbench](PHASE2_9_FRONTEND.md) consumes scoped overview/request/status/history/detail APIs; production deployment acceptance remains pending; ingestion does not automatically score.
 
@@ -285,3 +303,16 @@ flowchart LR
 - Optional PostgreSQL child jobs consume the existing independently verified packets; the existing coordinator remains the sole evidence admission/retrieval/financial-verification boundary. Migration 0015 adds six immutable intent/attempt/usage/result and queue tables. No broker, new database, frontend or public API is introduced.
 - Only a fixed deterministic fake is registered, behind a default-off simulation setting. No real adapter or provider egress exists. A secret-free Linux subprocess enforces byte/time/resource limits. Current case/source and revision fences apply before processing and atomic publication/disclosure; interrupted attempts retain durable conservative budget reservations.
 - Strict structured selection, exact numeric/reference validation and server-assembled factual summaries separate source observations, calculations, RF/SHAP signals, uncertain hypotheses and absent human conclusions. Human semantic/legal review is not replaced by structural verification. [Data flow and live-provider prerequisites](PHASE3_5_2_LLM_INVESTIGATOR.md).
+# Upload workspace update — 2026-11-18
+
+- Additive migration `0019_upload_sessions` persists per-user selection and upload provenance relationships; existing import rows determine uploaded-case membership.
+- Cases is scoped server-side to the selected session. Historical sessions and model/evidence/audit records remain retained. See [upload workspace behavior and contracts](UPLOAD_SESSIONS.md).
+# Navigation reliability update — 2026-11-18
+
+- Separate HTTP request accounting from batch admission using existing durable originated jobs under the existing actor lock. No schema migration or additional service.
+- Missing-source investigation screens show one readiness card, with detailed tools/history available on explicit expansion. [Details](UX_RELIABILITY_FOLLOWUP.md).
+# Candidate 0023: durable regulatory start
+
+- See [the final integration gate](FINAL_INTEGRATION_DEMO_GATE.md). The existing start API persists a bounded query intent with its parent/child jobs; the worker freezes permitted context only after verified parent completion and before provider reservation.
+- Existing immutable binding, reference/numeric verification, leases, source revocation and human review remain authoritative. Retries reuse the original context and deadline.
+- Candidate 0023 is not installed in the running application. Native Linux/PostgreSQL acceptance, qualified source approval, exact grounded-request approval and genuine Claude/browser verification remain pending.

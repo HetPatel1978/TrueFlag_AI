@@ -35,7 +35,7 @@ def generate_scenario(
     rng = random.Random(seed)
     income = (
         None
-        if profile == "missing_income"
+        if profile in ("missing_income", "g1_partial_customer")
         else Decimal("0")
         if profile == "zero_income"
         else Decimal("72000")
@@ -47,7 +47,7 @@ def generate_scenario(
         observed_at=as_of - timedelta(days=100),
         annual_income=income,
         currency="USD",
-        kyc_score=3,
+        kyc_score=5 if profile in ("g1_high_kyc", "g1_demo_priority") else 1 if profile == "g1_ordinary" else 3,
     )
     account = AccountObservation(
         key="account-main",
@@ -68,6 +68,24 @@ def generate_scenario(
         observed_at=customer.observed_at,
     )
     records = [customer, account, counterparty, relationship]
+    if profile.startswith("g1_") or profile == "g1_demo_priority":
+        records.append(
+            AccountObservation(
+                key="account-secondary",
+                alias="SYN-ACCOUNT-" + uuid5(scenario_id, "secondary").hex[:8],
+                currency="USD",
+                opened_at=as_of - timedelta(days=180),
+            )
+        )
+    if profile == "g1_related":
+        records.append(
+            RelationshipObservation(
+                key="holder-related",
+                customer_key=customer.key,
+                account_key=counterparty.key,
+                observed_at=customer.observed_at,
+            )
+        )
     for n in range(12):
         event = (
             as_of - timedelta(hours=12 - n)
@@ -82,6 +100,13 @@ def generate_scenario(
             amount += Decimal(source_revision - 1)
         if profile == "burst":
             amount += Decimal("1000")
+        if profile in ("g1_concentration", "g1_demo_priority"):
+            amount = Decimal("1000") if n < 10 else Decimal("10")
+        if profile == "g1_related":
+            amount = Decimal("250")
+        if profile == "g1_flow_change":
+            amount = Decimal("100") if n < 6 else Decimal("1500")
+            event = as_of - timedelta(days=60 - n if n < 6 else 12 - n)
         offset = (
             event.astimezone(timezone(timedelta(hours=-5 if n % 2 else -4)))
             if profile == "timezone_offsets"
@@ -91,16 +116,35 @@ def generate_scenario(
             TransactionObservation(
                 key=f"txn-{n}",
                 account_key=account.key,
-                counterparty_key=counterparty.key,
+                counterparty_key="account-secondary"
+                if (profile in ("g1_concentration", "g1_demo_priority") and n >= 10)
+                or (
+                    profile.startswith("g1_")
+                    and profile not in ("g1_related", "g1_concentration")
+                    and n % 6 == 5
+                )
+                else counterparty.key,
                 amount=amount,
                 currency=currency,
                 event_at=None if profile == "timezone_unknown" and n == 0 else offset,
                 original_time="2025-11-02T01:30:00"
                 if profile == "timezone_unknown" and n == 0
                 else offset.isoformat(),
-                event_kind="payment" if n % 3 == 0 else "purchase",
-                direction="credit" if n % 3 == 0 else "debit",
-                channel="cashlike" if n % 3 == 0 else "card",
+                event_kind="transfer"
+                if profile == "g1_related"
+                else "payment"
+                if n % 3 == 0
+                else "purchase",
+                direction=("credit" if n < 6 else "debit")
+                if profile == "g1_flow_change"
+                else "credit"
+                if n % 3 == 0
+                else "debit",
+                channel="internal"
+                if profile == "g1_related"
+                else "cashlike"
+                if n % 3 == 0
+                else "card",
             )
         )
     if profile == "corrections":
@@ -139,7 +183,7 @@ def generate_scenario(
         records.reverse()
     # Explicit scenario declarations, never a fill operation for absent source features.
     declarations = {
-        "kycRiskScore": 3,
+        "kycRiskScore": customer.kyc_score,
         "income": None if income is None else int(income),
         "tenureMonths": 12,
         "creditScore": 650,
@@ -167,6 +211,10 @@ def generate_scenario(
         "nbrPointRed90d": 0,
         "PEP": 0,
     }
+    if profile == "g1_demo_priority":
+        from app.services.synthetic_demo_profile import demo_declarations
+
+        declarations = demo_declarations(declarations, seed)
     if profile == "incomplete_features":
         del declarations["nbrCollections3y"]
     return SyntheticBundle(

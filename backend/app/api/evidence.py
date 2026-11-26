@@ -31,6 +31,7 @@ from app.services.assessment_api import AssessmentAPIService, AssessmentRateLimi
 from app.services.assessments import AssessmentError, AssessmentNotFound
 from app.services.evidence import EvidenceError, EvidenceNotFound
 from app.services.evidence_read import EvidenceReadService, ReadInvalid, ReadLimit, SnapshotStale
+from app.services.snapshot_clock import ClockUnavailable
 
 router = APIRouter(prefix="/api/v1/cases/{case_id}/evidence", tags=["Case evidence"])
 
@@ -43,7 +44,9 @@ def errors():
         raise HTTPException(404, "Evidence resource not found") from None
     except SnapshotStale:
         raise HTTPException(
-            409, "Evidence snapshot invalidated; obtain a new case context"
+            409,
+            "Evidence snapshot invalidated; obtain a new case context",
+            headers={"X-TrueFlag-Reason": "snapshot_stale"},
         ) from None
     except ReadInvalid:
         raise HTTPException(422, "Invalid evidence request, snapshot or cursor") from None
@@ -54,6 +57,12 @@ def errors():
             429,
             "Shared authenticated request limit reached",
             headers={"Retry-After": str(error.retry_after)},
+        ) from None
+    except ClockUnavailable:
+        raise HTTPException(
+            503,
+            "Evidence clock safety unavailable",
+            headers={"Retry-After": "2", "X-TrueFlag-Reason": "clock_uncertainty"},
         ) from None
     except (EvidenceError, AssessmentError, ValidationError):
         raise HTTPException(

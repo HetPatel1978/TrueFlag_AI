@@ -1,4 +1,4 @@
-"""Linux supervisor: renewable leases, bounded JSON subprocess IPC and fenced publication."""
+"""Renewable leases, platform-contained bounded subprocess IPC and fenced publication."""
 
 import argparse
 import json
@@ -13,6 +13,8 @@ import threading
 import time
 from uuid import uuid4
 
+from app.core.release import require_compatible, verify_worker_artifacts, worker_identity
+from app.core.release_metadata import ReleaseCompatibilityError
 from app.core.telemetry import Registry
 from app.services.assessment_jobs import (
     AssessmentJobService,
@@ -41,8 +43,8 @@ def _kill(process):
 
 class IsolatedRunner:
     def __init__(self, stop=None):
-        if sys.platform != "linux":
-            raise JobUnavailable("linux_worker_required")
+        if sys.platform not in {"linux", "win32"}:
+            raise JobUnavailable("supported_worker_platform_required")
         self.stop = threading.Event() if stop is None else stop
         self.last_timings = {}
 
@@ -77,6 +79,8 @@ class IsolatedRunner:
         }
         for name in ["OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS"]:
             env[name] = "1"
+        if sys.platform == "win32":
+            return self._windows_run(queue, token, claim, config, env)
         process = subprocess.Popen(
             self._command(),
             stdin=subprocess.PIPE,
@@ -171,6 +175,76 @@ class IsolatedRunner:
             _kill(process)
             process.stdout.close()
 
+    def _windows_run(self, queue, token, claim, config, env):
+        from app.workers.process_control import (
+            ProcessCancelled,
+            ProcessOutputLimit,
+            ProcessTimeout,
+            run_windows,
+        )
+
+        next_heartbeat = time.monotonic() + queue.limits.heartbeat_seconds
+
+        def heartbeat():
+            nonlocal next_heartbeat
+            if time.monotonic() >= next_heartbeat:
+                queue.heartbeat(token, claim)
+                next_heartbeat = time.monotonic() + queue.limits.heartbeat_seconds
+
+        try:
+            code, raw = run_windows(
+                self._command(),
+                json.dumps(config).encode(),
+                environment=env,
+                timeout=queue.limits.timeout_seconds,
+                max_output=262144,
+                memory_bytes=3 * 1024**3,
+                cpu_seconds=queue.limits.timeout_seconds + 2,
+                cancelled=self.stop,
+                tick=heartbeat,
+            )
+        except ProcessTimeout:
+            raise ExecutionFailed("execution_timeout") from None
+        except ProcessOutputLimit:
+            raise ExecutionFailed("invalid_child_output") from None
+        except ProcessCancelled:
+            raise ExecutionFailed("processing_unavailable") from None
+        if code:
+            raise ExecutionFailed("child_failed")
+        try:
+            response = json.loads(raw, parse_constant=lambda _: (_ for _ in ()).throw(ValueError()))
+            if type(response) is not dict or type(response.get("ok")) is not bool:
+                raise ValueError()
+            timings = response.get("timings", {})
+            if (
+                type(timings) is not dict
+                or len(timings) > 3
+                or any(
+                    name not in {"model.initialization", "model.scoring", "model.shap"}
+                    or type(value) not in (int, float)
+                    or not math.isfinite(value)
+                    or not 0 <= value <= 3600000
+                    for name, value in timings.items()
+                )
+            ):
+                raise ValueError()
+            self.last_timings = timings
+            if not response["ok"]:
+                reason = response.get("reason")
+                raise ExecutionFailed(
+                    reason
+                    if reason in {"authorization_changed", "stale_case", "processing_unavailable"}
+                    else "child_failed"
+                )
+            if (
+                set(response) - {"timings"} != {"ok", "result"}
+                or type(response["result"]) is not dict
+            ):
+                raise ValueError()
+            return response["result"]
+        except (ValueError, TypeError):
+            raise ExecutionFailed("invalid_child_output") from None
+
 
 class AssessmentWorker:
     def __init__(self, queue, token, stop=None):
@@ -258,6 +332,8 @@ def main():
     try:
         token = Path(args.token_file).read_text(encoding="ascii").strip()
         engine = make_engine(os.environ["DATABASE_URL"])
+        require_compatible(engine)
+        release = worker_identity(verify_worker_artifacts())
         worker = AssessmentWorker(AssessmentJobService(engine), token, stop)
         exporter = MetricFlusher(engine, worker.telemetry).start()
         for sig in (signal.SIGTERM, signal.SIGINT):
@@ -269,6 +345,7 @@ def main():
                     json.dumps(
                         {
                             "event": "assessment.worker",
+                            "release": release,
                             "correlation_id": uuid4().hex,
                             "status": result["status"] if result else "idle",
                         }
@@ -285,6 +362,12 @@ def main():
                 return 0
             stop.wait(2)
         return 0
+    except ReleaseCompatibilityError as error:
+        print(
+            json.dumps({"event": "assessment.worker", "status": "not_ready", "code": error.code}),
+            flush=True,
+        )
+        return 1
     except Exception:
         print(
             json.dumps(

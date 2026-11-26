@@ -539,7 +539,7 @@ def test_schema_drift_and_empty_rollback_then_retained_history_guard(platform):
 def test_retained_drafts_prevent_downgrade(draft_env):
     submit(draft_env)
     config = Config(str(Path(__file__).parents[1] / "alembic.ini"))
-    with pytest.raises(RuntimeError, match="retained investigation draft history"):
+    with pytest.raises(RuntimeError, match="retained snapshot clock history"):
         command.downgrade(config, "0014_investigation_foundation")
 
 

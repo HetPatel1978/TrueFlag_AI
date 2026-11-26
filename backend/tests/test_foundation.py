@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from alembic import command
 from app.core.config import Settings
+from app.core.schema import EXPECTED_SCHEMA_REVISION
 from app.models import Alert, AuditEvent, ModelScore, User
 
 
@@ -32,13 +33,18 @@ def test_health_and_migrated_readiness(platform):
     assert client.get("/ready").status_code == 200
     assert set(inspect(engine).get_table_names()) == {
         "alembic_version",
+        "snapshot_clock",
         "users",
+        "upload_sessions",
+        "upload_session_items",
+        "upload_workspaces",
         "alerts",
         "cases",
         "evidence",
         "model_scores",
         "decisions",
         "audit_events",
+        "casework_entries",
         "alert_ingestions",
         "login_throttles",
         "assessments",
@@ -89,7 +95,11 @@ def test_health_and_migrated_readiness(platform):
         "reference_contexts",
         "reference_grants",
         "reference_events",
-    }
+    } | (
+        {"draft_regulatory_bindings"}
+        if EXPECTED_SCHEMA_REVISION >= "0021_regulatory_draft_bindings"
+        else set()
+    )
 
 
 def test_readiness_fails_after_schema_removed(platform):

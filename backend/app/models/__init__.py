@@ -40,8 +40,14 @@ from app.models.evidence import (
     EvidenceSourceVersion,
     EvidenceTransaction,
 )
+from app.models.snapshot_clock import SnapshotClock
+from app.models.upload_sessions import UploadSession, UploadSessionItem, UploadWorkspace
 
 __all__ = [
+    "UploadSession",
+    "UploadSessionItem",
+    "UploadWorkspace",
+    "SnapshotClock",
     "DRAFT_TABLES",
     "INVESTIGATION_TABLES",
     "REFERENCE_TABLES",
@@ -85,6 +91,8 @@ __all__ = [
     "User",
 ]
 
+from app.models.casework import CaseworkEntry  # noqa: E402, F401
 from app.models.investigation_drafts import DRAFT_TABLES  # noqa: E402
 from app.models.investigations import INVESTIGATION_TABLES  # noqa: E402
 from app.models.references import REFERENCE_TABLES  # noqa: E402
+from app.models.regulatory_drafts import DraftRegulatoryBinding  # noqa: E402, F401

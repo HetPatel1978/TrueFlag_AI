@@ -47,23 +47,28 @@ async function control(command: {
 }
 async function login(page: Page, name = 'uianalyst') {
   await page.goto('/');
+  await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill(name);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
   await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: 'Alert dashboard', exact: true }),
+    page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
 }
 async function open(page: Page, name: string, workflow = false) {
   await page.goto(
     `/#/cases/${fixture.cases[name]}${workflow ? '/assessment' : ''}`,
   );
-  // A full reload intentionally clears the memory session.
+  // Explicitly end any prior browser session before selecting this test user.
+  await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill('uianalyst');
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
   await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: `synthetic-ui-${name}`, exact: true }),
+    page.getByRole('heading', {
+      name: `Case ${fixture.cases[name].slice(0, 8)}`,
+      exact: true,
+    }),
   ).toBeVisible();
 }
 async function admin(page: Page) {
@@ -95,13 +100,23 @@ test('login, assignment isolation, server search, pagination, filters and sortin
   await page.getByLabel('Password').fill('wrong-password');
   await page.getByRole('button', { name: 'Sign in →' }).click();
   await expect(page.getByRole('alert')).toContainText('Sign-in failed');
+  const listResponse = page.waitForResponse(
+    (r) =>
+      r.request().method() === 'GET' &&
+      new URL(r.url()).pathname === '/api/v1/case-queue' &&
+      r.status() === 200,
+  );
   await login(page);
-  await expect(page.getByText('1–20 of 22')).toBeVisible();
+  const authorizedTotal = (await (await listResponse).json()).total;
+  expect(authorizedTotal).toBeGreaterThan(20);
+  await expect(page.getByText(`1–20 of ${authorizedTotal}`)).toBeVisible();
   await expect(
     page.getByRole('link', { name: 'synthetic-ui-foreign' }),
   ).toHaveCount(0);
   await page.getByRole('button', { name: 'Next page' }).click();
-  await expect(page.getByText('21–22 of 22')).toBeVisible();
+  await expect(
+    page.getByText(`21–${Math.min(40, authorizedTotal)} of ${authorizedTotal}`),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Previous page' }).click();
   await page.getByLabel('Search cases').fill('synthetic-ui-alpha');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
@@ -145,11 +160,11 @@ test('real asynchronous request, isolated RF/SHAP execution, provenance and vers
     .click();
   expect((await accepted).status()).toBe(202);
   await expect(
-    page.getByText('Durably queued.', { exact: false }),
+    page.getByText('Request received.', { exact: false }),
   ).toBeVisible();
   await control({ worker: 'start' });
   await expect(
-    page.getByText('Assessment and verified explanation saved.'),
+    page.getByText('Assessment and key risk drivers saved.'),
   ).toBeVisible({ timeout: 45000 });
   const details = page.waitForResponse(
     (r) =>
@@ -162,18 +177,20 @@ test('real asynchronous request, isolated RF/SHAP execution, provenance and vers
   await expect(page.getByTestId('rf-score')).toHaveText(
     `${(detail.score * 100).toFixed(2)}%`,
   );
+  await (await import('./ux-helpers')).showAllFactors(page);
   await expect(
-    page
-      .getByRole('list', { name: 'SHAP feature contributions' })
-      .locator('li'),
+    page.getByRole('list', { name: 'Contributing Risk Factors' }).locator('li'),
   ).toHaveCount(27);
   await expect(
-    page.getByText('Model scores are not proof', { exact: false }),
+    page.getByText('This score is a model signal', { exact: false }),
   ).toBeVisible();
-  await page.getByText('Model provenance & verification').click();
+  await page.getByText('Advanced model details').click();
   await expect(
     page.getByText(detail.model_sha256, { exact: true }),
   ).toBeVisible();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, /^Assessment history/);
   await expect(
     page.getByRole('button', { name: 'View assessment version 1' }),
   ).toBeVisible();
@@ -191,18 +208,21 @@ test('real asynchronous request, isolated RF/SHAP execution, provenance and vers
   ).toEqual({ local: 0, session: 0 });
   // A new explicit request creates v2; transport retries never create a second run.
   await page
-    .getByRole('link', { name: 'Assessment workflow', exact: true })
+    .getByRole('link', { name: 'Request another assessment', exact: true })
     .click();
   await expect(
-    page.getByText('Assessment and verified explanation saved.'),
+    page.getByText('Assessment and key risk drivers saved.'),
   ).toBeVisible();
   await page
     .getByRole('button', { name: 'Request assessment', exact: true })
     .click();
   await expect(
-    page.getByText('Assessment and verified explanation saved.'),
+    page.getByText('Assessment and key risk drivers saved.'),
   ).toBeVisible({ timeout: 45000 });
   await page.getByRole('link', { name: 'View verified results →' }).click();
+  await (
+    await import('./ux-helpers')
+  ).expandSection(page, /^Assessment history/);
   await expect(
     page.getByRole('button', { name: 'View assessment version 2' }),
   ).toBeVisible();
@@ -223,6 +243,7 @@ test('unauthorized case navigation clears data and supervisor/admin scope is enf
   ).toHaveCount(0);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await login(page, 'uisupervisor');
+  await expect(page.getByLabel('Release identity')).toHaveCount(0);
   await page.getByLabel('Search cases').fill('synthetic-ui-foreign');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(
@@ -230,12 +251,20 @@ test('unauthorized case navigation clears data and supervisor/admin scope is enf
   ).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
   await login(page, 'uiadmin');
+  const release = page.getByLabel('Release identity');
+  await release.getByText('Release', { exact: true }).click();
+  await expect(release).toContainText('Frontend v0.1.0');
+  await expect(release).toContainText(/API [a-f0-9]{12} \(ready\)/);
+  await expect(release).not.toContainText('Builds differ');
+  await accessible(page);
   await page
     .getByLabel('Assignment', { exact: true })
     .selectOption('unassigned');
   await expect(
     page.getByRole('link', { name: 'synthetic-ui-unassigned' }),
   ).toBeVisible();
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByLabel('Release identity')).toHaveCount(0);
 });
 
 test('worker downtime persists Pending; terminal failure requires manual review and explicit reassessment', async ({
@@ -247,7 +276,7 @@ test('worker downtime persists Pending; terminal failure requires manual review 
     .getByRole('button', { name: 'Request assessment', exact: true })
     .click();
   await expect(
-    page.getByText('Durably queued.', { exact: false }),
+    page.getByText('Request received.', { exact: false }),
   ).toBeVisible();
   await accessible(page);
   await page.screenshot({
@@ -257,7 +286,7 @@ test('worker downtime persists Pending; terminal failure requires manual review 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await open(page, 'zero', true);
   await expect(
-    page.getByText('Durably queued.', { exact: false }),
+    page.getByText('Request received.', { exact: false }),
   ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Assessment in progress' }),
@@ -273,7 +302,7 @@ test('worker downtime persists Pending; terminal failure requires manual review 
     .getByRole('button', { name: 'Request assessment', exact: true })
     .click();
   await expect(
-    page.getByText('Assessment and verified explanation saved.'),
+    page.getByText('Assessment and key risk drivers saved.'),
   ).toBeVisible({ timeout: 45000 });
 });
 
@@ -319,7 +348,7 @@ test('mobile layout and keyboard sign-in use real authorized data', async ({
   await page.getByLabel('Password').fill(fixture.password);
   await page.getByLabel('Password').press('Enter');
   await expect(
-    page.getByRole('heading', { name: 'Alert dashboard', exact: true }),
+    page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(

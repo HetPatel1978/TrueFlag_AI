@@ -1,0 +1,7 @@
+{
+  "schema_version": "trueflag.regulatory-reviewer-registry.v1",
+  "status": "unapproved",
+  "members": {},
+  "excluded_authors": ["model_under_test", "engineering_reference_author", "controlled_fixture_author"],
+  "notice": "An independent qualified human owner must approve an external private copy; this template authorizes no review, metrics, source approval or publication."
+}

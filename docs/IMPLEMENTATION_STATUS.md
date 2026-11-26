@@ -1,5 +1,21 @@
 # Implementation status - 2026-11-07
 
+**22 November native Windows primary runtime:** React, FastAPI, isolated native PostgreSQL and assessment/import/evidence workers are healthy. Full native PostgreSQL backend **1,439 passed / 0 failed / 0 errors / 124 skipped**, 17m 40s; pinned native ML **178 passed**, frozen 4,000 RF / 12,000 policy / 4,000 SHAP comparisons unchanged. Actual browser foundation/refresh and worker recovery passed. Additional official-candidate technical RAG checks **21 passed / 0 skipped**; no legal/independent-label or live-model acceptance implied. Owner confirmed a qualified reviewer still needs appointment: official sources/publication/grounded live inference remain blocked, providers remain off, follow-up live requests **0**. [Native acceptance and skip classification](WINDOWS_NATIVE_RUNTIME.md); [actual reviewer workflow, Claude gates and recording runbook](WINDOWS_LIVE_INVESTIGATION_GATE.md). Historical reports below describe their original runtimes; the original demo was not migrated or modified.
+
+**22 November development-only unblock:** flat strict wire v2, original local `AIProposal`/independent validation, exact-approval-scoped monetary-limit withdrawal and improved bounded development diagnostics implemented. Offline 71 passed; isolated PostgreSQL development 5 passed; existing clock/provider security 55 passed (overlapping). Probe-only candidate 0022 was backed up, restored/rehearsed and applied with all 8 historical attempts unchanged. New request `45cf3308…f935a9` / approval `claude-development-review-2026-11-22-v2` is **pending**; zero provider requests in this task, no live analyst activation or original-demo migration. Full historical HTTP 400 body was not retained; exact cause remains unconfirmed. [New request, policy and acceptance package](CLAUDE_DEVELOPMENT_UNBLOCK_2026_11_22.md).
+
+**22 November approved Claude probe:** explicit owner approval for the reviewed 14,477-byte request was recorded and consumed by exactly one live request. HTTP 400 (`invalid_request_error`); output schema compatibility and independent output verification not passed; token usage/actual charge unavailable. Immutable ledger confirmed 8 historical attempts, $17.00 reserved, one attempt in this run, four audit events, zero published drafts and no retry. General analyst generation and regulatory publication remain off. [Exact execution report](CLAUDE_APPROVED_PROBE_RESULT_2026_11_22.md).
+
+**Claude activation attempt, November 21:** one genuine synthetic request returned HTTP 400 (`invalid_request_error`, schema mentioned); no verified live finding. Isolated ledger now holds $14.85 in conservative reservations over 7 attempts against $20. Revised exact request awaits owner approval after automatic review rejected changed-payload egress. Offline tests 41 passed; isolated clock/provider security 55 passed (overlapping); wider provider PostgreSQL 8 passed / 1 clock-related failure. Local analyst runtime remains simulation-only; no demo migration or source publication. [Exact approval package and current results](CLAUDE_LIVE_ACTIVATION_2026_11_21.md).
+
+**Workflow UX, November 21: implemented; integrated acceptance blocked.** Four role-aware global destinations and four guided case stages reuse existing services. Three primary drivers, evidence previews, one AI action, human confirmations and expandable technical/history views reduce clutter. React 160, CSV Chromium 6, PostgreSQL security 53 and pinned ML 178 passed. Final expanded guided Chromium: 2 passed / 2 failed with real `503 clock_uncertainty`; no clock safeguard bypass or consequential retry. Live Claude remains disabled; official approval record remains missing. No commit, push, deployment or demo migration. [Capability map, screenshots, exact results and limitations](TRUEFLAG_WORKFLOW_UX_SIMPLIFICATION.md).
+
+**G5.3, November 21: partial; not accepted for live Claude/official RAG.** Candidate immutable regulatory binding, lifecycle revalidation, protected Claude projections and atomic parent/child admission implemented. One real synthetic call returned HTTP 400; no verified live finding published. Official approvals: zero. Clock/worker/browser failures remain blockers. [Exact commands, results and limitations](G5_3_CLAUDE_REGULATORY_INTEGRATION_REPORT.md). Running local schema remains 0019; no commit/push/live migration. This update supersedes the pending-durability sentence in the earlier November 21 entry below.
+
+**November 21 regulatory/Claude update:** [Integration verification](REGULATORY_CLAUDE_INTEGRATION.md) records packet-bound protected regulatory retrieval, an opt-in Claude grounding codec and independent citation revalidation. **APPROVAL RECORD MISSING**: zero official-source approvals found; no publication or live inference activated. Durable draft-context persistence, real-model verification and clock-stable full acceptance remain pending. Historical phase tables below do not resolve these gaps.
+
+**November 18 presentation update:** [Workspace rework](UX_WORKSPACE_REWORK.md) provides task-based navigation, larger typography, a wider sidebar, mobile menu and expandable details while retaining existing case, evidence, investigation, human-casework and batch services. Current acceptance is recorded in that guide; phase tables below retain their original historical context. Live Luminal remains blocked by the separately documented activation gates.
+
 Seven functional phases are mapped below to the existing **five-week schedule**; they are not seven additional weeks. Phase 1/2 names follow the current request; labels for 3–7 organize the existing roadmap into planning workstreams, without implying separate historical approval.
 
 | Phase | Verified completed functionality | In progress / pending | Acceptance / blockers |
@@ -121,3 +137,18 @@ Seven functional phases are mapped below to the existing **five-week schedule**;
 - Operational acceptance is bounded and synthetic: production alerting, quality/drift evaluation, long-duration soak, HA/failover and deployment certification remain pending.
 - Phase 1 acceptance is for a secure synthetic local demonstration. Deployment controls and external source/provider approval remain explicit future gates.
 - This task ends after documentation, checks and a local development-branch commit. No GitHub push or later-phase implementation is authorized.
+# Upload workspace update — 2026-11-18
+
+- Implemented persistent upload sessions, uploaded-case list scope, multi-file sessions, explicit new-session confirmation, authorized historical selection and saved receipt recovery.
+- Seeded cases are retained outside the normal uploaded-case list. Session changes preserve existing cases, results, durable jobs and audit history.
+- Verification and retention limits: [UPLOAD_SESSIONS.md](UPLOAD_SESSIONS.md). No LLM/RAG activation or scientific changes in this update.
+# Navigation reliability update — 2026-11-18
+
+- Corrected batch dispatch consuming the interactive HTTP quota and the case screen retaining obsolete errors after successful reads.
+- Added Retry-After countdown/recovery and a concise missing-source investigation state; authorization and clock guards retained. [Verification](UX_RELIABILITY_FOLLOWUP.md).
+# Final integration follow-up — November 22, 2026
+
+- **Implemented in source:** candidate-0023 durable regulatory query admission and worker-side immutable binding, existing subprocess/parser support, native acceptance helper and PostgreSQL acceptance targets.
+- **Not deployed or accepted:** the owner confirms no independent native Linux runner is available. No additional WSL clock/Claude acceptance loops were run.
+- **Still blocked:** qualified official-source approval/publication, a separately approved grounded Claude request, real response verification and real React/browser acceptance. No commit, push, live migration or provider request.
+- [Current gate report](FINAL_INTEGRATION_DEMO_GATE.md) and [exact native setup procedure](NATIVE_REGULATORY_RUNNER_SETUP.md).

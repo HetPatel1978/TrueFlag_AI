@@ -20,7 +20,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def unseen(platform, case_team, alert_payload, income):
-    assert sys.platform == "linux" and platform[1].dialect.name == "postgresql"
+    assert sys.platform in {"linux", "win32"} and platform[1].dialect.name == "postgresql"
     alert_payload["source_id"] = "synthetic-api-unseen-" + uuid4().hex
     alert_payload["features"].update(state="QZ", income=income)
     field = next(

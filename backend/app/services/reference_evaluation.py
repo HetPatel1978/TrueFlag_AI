@@ -10,6 +10,8 @@ from app.schemas.references import AS_OF, KNOWLEDGE_CUTOFF, ReferenceQuery
 def evaluate_reference_cases(service, actor_id, case_id, cases, *, review_status):
     if review_status not in {"human_reviewed", "test_fixture", "proposed"}:
         raise ValueError("Unknown review status")
+    if review_status == "human_reviewed":
+        raise ValueError("Use bound independent regulatory review history for expert metrics")
     if review_status == "proposed":
         return {
             "status": "blocked_pending_human_label_review",

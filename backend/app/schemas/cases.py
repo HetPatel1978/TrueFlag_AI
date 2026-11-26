@@ -11,6 +11,8 @@ CaseStatus = Literal["open", "in_review", "awaiting_approval", "closed"]
 
 class CaseQuery(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    upload_session_id: UUID | None = None
+    origin: Literal["all", "uploaded"] = "all"
     limit: int = Field(default=25, ge=1, le=100)
     offset: int = Field(default=0, ge=0, le=10000)
     status: CaseStatus | None = None
@@ -23,6 +25,7 @@ class CaseQuery(BaseModel):
     assessment_status: (
         Literal["not_requested", "pending", "running", "succeeded", "failed"] | None
     ) = None
+    queue: Literal["all", "my", "unassigned", "review", "processing"] = "all"
 
     @model_validator(mode="after")
     def coherent_filters(self):
