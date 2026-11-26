@@ -1,0 +1,547 @@
+{
+  "summary": {
+    "distinct_top_sections": [
+      "1020.210",
+      "1020.220",
+      "1020.315",
+      "1020.320"
+    ],
+    "distinct_strong_sections": [
+      "1020.100",
+      "1020.210",
+      "1020.220",
+      "1020.315",
+      "1020.320"
+    ]
+  },
+  "cases": {
+    "SYN-01-STRUCTURING": {
+      "title": "Cash-like deposits kept just under reporting thresholds",
+      "score": 0.4752160334219161,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 2,
+      "routes": {
+        "Efficiency": "retain_human_review",
+        "Balanced": "retain_human_review",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalMerchCred90d",
+          0.2715
+        ],
+        [
+          "totalPaymentAmt90d",
+          0.1108
+        ],
+        [
+          "nbrPaymentsCashLike90d",
+          0.0374
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 12,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalMerchCred90d",
+        "risk_driver:totalPaymentAmt90d",
+        "risk_driver:nbrPaymentsCashLike90d",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "credit refund return funds payment transfer amount cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.220",
+          "score": "8.100000",
+          "title": "Customer identification program requirements for banks"
+        },
+        {
+          "section": "1020.315",
+          "score": "8.000000",
+          "title": "Transactions of exempt persons"
+        },
+        {
+          "section": "1020.210",
+          "score": "2.800000",
+          "title": "Anti-money laundering program requirements for banks"
+        }
+      ]
+    },
+    "SYN-02-PASSTHROUGH": {
+      "title": "Money arrives and leaves within one to two days via P2P wallets",
+      "score": 0.29087964652593123,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 2,
+      "routes": {
+        "Efficiency": "retain_human_review",
+        "Balanced": "retain_human_review",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalPaymentAmt90d",
+          0.1081
+        ],
+        [
+          "overpaymentAmt90d",
+          0.1076
+        ],
+        [
+          "nbrPaymentsCashLike90d",
+          0.0266
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 12,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalPaymentAmt90d",
+        "risk_driver:overpaymentAmt90d",
+        "risk_driver:nbrPaymentsCashLike90d",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "payment transfer funds amount overpayment refund return cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.315",
+          "score": "8.000000",
+          "title": "Transactions of exempt persons"
+        },
+        {
+          "section": "1020.220",
+          "score": "7.700000",
+          "title": "Customer identification program requirements for banks"
+        },
+        {
+          "section": "1020.320",
+          "score": "2.700000",
+          "title": "Reports by banks of suspicious transactions"
+        }
+      ]
+    },
+    "SYN-03-FUNNEL": {
+      "title": "Many small incoming transfers from many senders, then large outgoing transfers",
+      "score": 0.6042316611750821,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 2,
+      "routes": {
+        "Efficiency": "retain_human_review",
+        "Balanced": "retain_human_review",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalMerchCred90d",
+          0.2811
+        ],
+        [
+          "totalSpend90d",
+          0.1369
+        ],
+        [
+          "nbrMerchCredits90d",
+          0.0511
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 43,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalMerchCred90d",
+        "risk_driver:totalSpend90d",
+        "risk_driver:nbrMerchCredits90d",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "credit refund return funds transaction amount aggregate counterparty transfer customer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.220",
+          "score": "8.100000",
+          "title": "Customer identification program requirements for banks"
+        },
+        {
+          "section": "1020.315",
+          "score": "6.600000",
+          "title": "Transactions of exempt persons"
+        },
+        {
+          "section": "1020.210",
+          "score": "2.800000",
+          "title": "Anti-money laundering program requirements for banks"
+        }
+      ]
+    },
+    "SYN-04-SAVER": {
+      "title": "Ordinary saver: salary direct deposit, bills and small transfers",
+      "score": 0.0011111111111111111,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 1,
+      "routes": {
+        "Efficiency": "review_reduction_candidate",
+        "Balanced": "review_reduction_candidate",
+        "Coverage": "review_reduction_candidate"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "tenureMonths",
+          0.0012
+        ],
+        [
+          "income",
+          0.0006
+        ],
+        [
+          "state",
+          0.0001
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 15,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:tenureMonths",
+        "risk_driver:income",
+        "risk_driver:state",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "account opened customer relationship occupation business address location counterparty transfer due diligence risk profile documents records verification retained transaction",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.210",
+          "score": "2.800000",
+          "title": "Anti-money laundering program requirements for banks"
+        },
+        {
+          "section": "1020.320",
+          "score": "2.700000",
+          "title": "Reports by banks of suspicious transactions"
+        },
+        {
+          "section": "1020.100",
+          "score": "2.400000",
+          "title": "Definitions"
+        }
+      ]
+    },
+    "SYN-05-HIGHKYC": {
+      "title": "High customer risk rating (KYC 4) with normal activity",
+      "score": 0.0,
+      "processing_status": "processed",
+      "priority": "High",
+      "kyc": 4,
+      "routes": {
+        "Efficiency": "review_reduction_candidate",
+        "Balanced": "review_reduction_candidate",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "kycRiskScore",
+          0.0026
+        ],
+        [
+          "creditScore",
+          0.0013
+        ],
+        [
+          "income",
+          0.0011
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 15,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:kycRiskScore",
+        "risk_driver:creditScore",
+        "risk_driver:income",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "customer identification verification credit occupation business counterparty transfer due diligence risk profile documents records retained transaction",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.315",
+          "score": "8.200000",
+          "title": "Transactions of exempt persons"
+        },
+        {
+          "section": "1020.210",
+          "score": "2.800000",
+          "title": "Anti-money laundering program requirements for banks"
+        },
+        {
+          "section": "1020.320",
+          "score": "2.500000",
+          "title": "Reports by banks of suspicious transactions"
+        }
+      ]
+    },
+    "SYN-06-PARTIAL": {
+      "title": "Suspicious-looking activity but only part of the history is available",
+      "score": 0.1267683933999723,
+      "processing_status": "processed",
+      "priority": "High",
+      "kyc": 3,
+      "routes": {
+        "Efficiency": "review_reduction_candidate",
+        "Balanced": "review_reduction_candidate",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalPaymentAmt90d",
+          0.1127
+        ],
+        [
+          "nbrPaymentsCashLike90d",
+          0.0191
+        ],
+        [
+          "nbrWebLogins90d",
+          0.0057
+        ]
+      ],
+      "evidence": {
+        "coverage": "partial",
+        "transactions": 4,
+        "expected_packet": "abstained"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalPaymentAmt90d",
+        "risk_driver:nbrPaymentsCashLike90d",
+        "risk_driver:nbrWebLogins90d",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "payment transfer funds amount cash currency transaction online access account counterparty customer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.320",
+          "score": "2.700000",
+          "title": "Reports by banks of suspicious transactions"
+        },
+        {
+          "section": "1020.210",
+          "score": "2.600000",
+          "title": "Anti-money laundering program requirements for banks"
+        },
+        {
+          "section": "1020.100",
+          "score": "2.000000",
+          "title": "Definitions"
+        }
+      ]
+    },
+    "SYN-07-DORMANT": {
+      "title": "Long-dormant account that suddenly becomes very active",
+      "score": 0.404510382591265,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 1,
+      "routes": {
+        "Efficiency": "retain_human_review",
+        "Balanced": "retain_human_review",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalMerchCred90d",
+          0.3032
+        ],
+        [
+          "nbrPaymentsCashLike90d",
+          0.0342
+        ],
+        [
+          "tenureMonths",
+          0.0084
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 21,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalMerchCred90d",
+        "risk_driver:nbrPaymentsCashLike90d",
+        "risk_driver:tenureMonths",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "credit refund return funds cash currency transaction account opened customer relationship counterparty transfer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.210",
+          "score": "3.000000",
+          "title": "Anti-money laundering program requirements for banks"
+        },
+        {
+          "section": "1020.100",
+          "score": "2.800000",
+          "title": "Definitions"
+        },
+        {
+          "section": "1020.320",
+          "score": "2.700000",
+          "title": "Reports by banks of suspicious transactions"
+        }
+      ]
+    },
+    "SYN-08-INCOME": {
+      "title": "Activity far above declared income",
+      "score": 0.17794291220761815,
+      "processing_status": "processed",
+      "priority": "Standard",
+      "kyc": 2,
+      "routes": {
+        "Efficiency": "review_reduction_candidate",
+        "Balanced": "retain_human_review",
+        "Coverage": "retain_human_review"
+      },
+      "thresholds": {
+        "Balanced": 0.16040515630453706,
+        "Coverage": 0.16040515630453706,
+        "Efficiency": 0.19088491043724937
+      },
+      "explanation_status": "verified",
+      "top_drivers": [
+        [
+          "totalSpend90d",
+          0.0992
+        ],
+        [
+          "totalPaymentAmt90d",
+          0.0887
+        ],
+        [
+          "avgTxnSize90d",
+          0.0332
+        ]
+      ],
+      "evidence": {
+        "coverage": "complete_declared_window",
+        "transactions": 36,
+        "expected_packet": "packet_ready"
+      },
+      "retrieval_inputs": [
+        "risk_driver:totalSpend90d",
+        "risk_driver:totalPaymentAmt90d",
+        "risk_driver:avgTxnSize90d",
+        "calculation:counterparty_concentration",
+        "missing_evidence:comparable_expected_activity",
+        "missing_evidence:curated_documents",
+        "missing_evidence:sampling_metadata",
+        "missing_evidence:settlement_status"
+      ],
+      "retrieval_query": "transaction amount aggregate payment transfer funds counterparty customer due diligence risk profile documents records verification retained",
+      "matched_sections": 16,
+      "strong_matches": [
+        {
+          "section": "1020.220",
+          "score": "7.700000",
+          "title": "Customer identification program requirements for banks"
+        },
+        {
+          "section": "1020.315",
+          "score": "6.600000",
+          "title": "Transactions of exempt persons"
+        },
+        {
+          "section": "1020.320",
+          "score": "2.800000",
+          "title": "Reports by banks of suspicious transactions"
+        }
+      ]
+    }
+  }
+}
