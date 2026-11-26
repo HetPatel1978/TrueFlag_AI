@@ -1,0 +1,540 @@
+/* Task-first workspace: readable type, one navigation level and details on demand. */
+:root {
+  font-size: 17px;
+  --sidebar-width: 300px;
+  --text-muted: #526174;
+  --page: #f4f6fa;
+}
+body {
+  line-height: 1.6;
+}
+p {
+  font-size: 1rem;
+}
+button,
+.button,
+input,
+select {
+  min-height: 46px;
+  font-size: 1rem;
+}
+textarea {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+label,
+th,
+td {
+  font-size: 0.95rem;
+}
+h1 {
+  font-size: 2rem;
+  letter-spacing: -0.045em;
+}
+h2 {
+  font-size: 1.35rem;
+}
+h3 {
+  font-size: 1.12rem;
+}
+summary {
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+summary::marker {
+  color: var(--blue);
+}
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  padding: 30px 22px;
+  overflow-y: auto;
+}
+.work-area {
+  margin-left: var(--sidebar-width);
+}
+.sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sidebar .brand {
+  font-size: 1.5rem;
+  gap: 12px;
+}
+.sidebar .brand-logo {
+  width: 46px;
+  height: 46px;
+}
+.nav-label {
+  margin: 34px 14px 14px;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+.sidebar .nav-item {
+  font-size: 1.08rem;
+  font-weight: 600;
+  min-height: 76px;
+  margin-bottom: 8px;
+  padding: 13px 16px;
+  gap: 15px;
+}
+.sidebar .nav-item span {
+  display: block;
+}
+.sidebar .nav-item small {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.nav-item .ui-icon {
+  width: 23px;
+  height: 23px;
+}
+.mobile-menu {
+  display: none;
+}
+.topbar {
+  min-height: 80px;
+  height: auto;
+  padding: 16px 36px;
+  gap: 16px;
+}
+.breadcrumb,
+.account span {
+  font-size: 0.95rem;
+}
+main#main-content {
+  padding: 32px 36px;
+  max-width: 1600px;
+}
+.page-heading {
+  margin-bottom: 28px;
+}
+.eyebrow {
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+}
+.case-tabs {
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+  margin-top: 20px;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+}
+.case-tabs::after {
+  content: attr(data-case-label);
+  margin-left: auto;
+  align-self: center;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.case-tabs a {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.case-tabs a.selected {
+  background: var(--nav-active);
+  color: var(--blue);
+}
+.case-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 22px 0;
+}
+.case-subnav a {
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+}
+.case-subnav a.selected {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.case-human-decision {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.case-details {
+  margin-top: 8px;
+}
+.case-details p {
+  margin: 8px 0;
+}
+.next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.disclosure {
+  margin-top: 20px;
+}
+.disclosure > summary {
+  padding: 16px 20px;
+}
+.disclosure[open] > summary {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.file-requirements {
+  margin-bottom: 18px;
+}
+.file-requirements p {
+  margin: 12px 0;
+}
+.filter-disclosure {
+  flex-basis: 100%;
+}
+.filter-disclosure > summary {
+  padding: 8px 0;
+}
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 18px;
+  padding: 14px 0 0;
+}
+.filters .search {
+  flex: 2;
+}
+.filters .queue-selector {
+  flex: 1;
+}
+.case-link {
+  display: block;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+td,
+th {
+  padding: 18px;
+}
+td {
+  white-space: normal;
+  min-width: 130px;
+}
+td:first-child {
+  min-width: 210px;
+}
+td .mono {
+  display: block;
+  max-width: 28ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.batch-workspace {
+  max-width: 1280px;
+}
+.batch-panel {
+  padding: 24px;
+}
+.batch-panel h2 {
+  font-size: 1.3rem;
+}
+.batch-steps {
+  margin: 24px 0;
+}
+.batch-steps li {
+  font-size: 0.95rem;
+  padding: 12px;
+}
+.batch-stats {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.batch-stats div {
+  padding: 14px 18px;
+  background: var(--surface-subtle);
+}
+.batch-stats dt {
+  font-size: 0.95rem;
+}
+.batch-stats dd {
+  font-size: 1.8rem;
+  overflow-wrap: anywhere;
+}
+.admin-workspace .batch-stats dd {
+  font-size: 1.35rem;
+}
+.batch-panel > .disclosure {
+  border-top: 1px solid var(--border);
+}
+.batch-panel > .disclosure > summary {
+  padding-left: 0;
+}
+.batch-panel > .muted {
+  margin-bottom: 14px;
+}
+.mapping-disclosure {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.batch-mapping {
+  padding: 0 18px;
+}
+.batch-mapping label {
+  font-size: 0.95rem;
+}
+.batch-panel.disclosure > summary {
+  padding: 0;
+}
+.batch-panel.disclosure[open] > summary {
+  padding-bottom: 16px;
+}
+.case-action {
+  margin-top: 0;
+  align-self: start;
+}
+.case-action > .human-form {
+  border: 0;
+  box-shadow: none;
+}
+.human-casework .case-action {
+  padding: 0;
+}
+.case-action > .human-form {
+  padding: 0 20px 20px;
+}
+.query-period {
+  padding: 0 20px;
+  color: var(--text-muted);
+}
+.human-grid {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.investigation-selection > summary {
+  padding: 4px 0;
+}
+.coverage-strip {
+  margin-bottom: 20px;
+}
+.provenance summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.pager button {
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+.table-wrap:focus-visible,
+.table-scroll:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+@media (max-width: 1100px) and (min-width: 721px) {
+  :root {
+    --sidebar-width: 270px;
+  }
+  .sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    padding: 26px 16px;
+  }
+  .work-area {
+    margin-left: var(--sidebar-width);
+  }
+  main#main-content {
+    padding: 26px 22px;
+  }
+  .topbar {
+    padding: 16px 22px;
+  }
+  .case-tabs a {
+    padding: 12px;
+  }
+}
+@media (max-width: 720px) {
+  :root {
+    font-size: 17px;
+  }
+  .sidebar {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    padding: 16px 18px;
+    align-items: stretch;
+  }
+  .sidebar-heading {
+    width: 100%;
+  }
+  .sidebar .brand {
+    font-size: 1.3rem;
+  }
+  .mobile-menu {
+    display: inline-flex;
+  }
+  .sidebar > nav {
+    display: none;
+  }
+  .sidebar > nav.menu-open {
+    display: grid;
+    width: 100%;
+    justify-content: stretch;
+    gap: 0;
+    margin-top: 16px;
+  }
+  .sidebar .nav-item {
+    width: 100%;
+    font-size: 1.05rem;
+    min-height: 70px;
+  }
+  .work-area {
+    margin-left: 0;
+  }
+  .topbar {
+    min-height: 72px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+  }
+  .breadcrumb {
+    font-size: 0.9rem;
+  }
+  .account {
+    margin-left: auto;
+  }
+  .account b,
+  .account button {
+    font-size: 0.95rem;
+  }
+  main#main-content {
+    padding: 24px 16px;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .case-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .case-tabs a {
+    font-size: 1rem;
+    padding: 12px;
+  }
+  .case-tabs::after {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    padding: 0 12px 4px;
+  }
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+  .batch-steps {
+    gap: 6px;
+    grid-template-columns: 1fr;
+  }
+  .batch-steps li {
+    display: none;
+    font-size: 1rem;
+  }
+  .batch-steps li[aria-current] {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    padding: 12px 16px;
+    border: 1px solid var(--nav-border);
+    border-radius: 10px;
+  }
+  .batch-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .batch-panel {
+    padding: 20px;
+  }
+  .batch-mapping label {
+    grid-template-columns: 1fr;
+  }
+  .contributions li {
+    grid-template-columns: minmax(0, 1fr) 85px;
+  }
+  .contribution-bar {
+    display: none;
+  }
+  .contribution-number,
+  .feature-name {
+    font-size: 0.9rem;
+  }
+}
+/* Upload workspaces retain only essential context; history is expandable. */
+.upload-session-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.upload-session-bar .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.upload-session-bar > div:first-child {
+  flex: 1 1 20rem;
+}
+.upload-session-bar p {
+  margin: 0.4rem 0;
+}
+.session-confirm,
+.session-history {
+  flex-basis: 100%;
+}
+.session-confirm button {
+  margin-right: 0.75rem;
+}
+.session-history select {
+  margin: 0.75rem 0;
+  width: 100%;
+}
+.session-history li {
+  margin: 0.65rem 0;
+}
+.evidence-empty-state {
+  padding: 1.5rem;
+  max-width: 58rem;
+}
+.evidence-empty-state .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+.overview-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.overview-summary > div {
+  padding: 1.25rem;
+}
+.overview-summary span,
+.overview-summary strong {
+  display: block;
+}
+.overview-summary strong {
+  font-size: 1.7rem;
+  margin-top: 0.5rem;
+}

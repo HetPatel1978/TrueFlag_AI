@@ -128,12 +128,46 @@ afterEach(() => {
 });
 
 describe('authorized dashboard', () => {
+  it('honors case read Retry-After and clears a transient error after successful recovery', async () => {
+    vi.useFakeTimers();
+    const overview = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiError(429, 30))
+      .mockResolvedValue(record);
+    const { api } = apiWith({ overview });
+    render(<CaseView id={record.id} workflow={false} api={api} user={user} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(
+      screen.getByRole('heading', { name: 'Updates paused' }),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole('button', { name: 'Retry in 30s' })
+        .hasAttribute('disabled'),
+    ).toBe(true);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(29999);
+    });
+    expect(overview).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+    expect(overview).toHaveBeenCalledTimes(2);
+    expect(
+      screen.queryByRole('heading', { name: 'Unable to load' }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('heading', { name: `Case ${record.id.slice(0, 8)}` }),
+    ).toBeTruthy();
+  });
   it('renders loading followed by authorized rows and backend query parameters', async () => {
     const { api, service } = apiWith();
     render(<Dashboard api={api} user={user} />);
     expect(screen.getByText('Loading authorized cases…')).toBeTruthy();
     expect(
-      await screen.findByRole('link', { name: record.source_id }),
+      await screen.findByRole('link', { name: 'Case 11111111' }),
     ).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Search cases'), {
       target: { value: 'needle' },
@@ -167,7 +201,7 @@ describe('authorized dashboard', () => {
     expect(await screen.findByRole('alert')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('No matching cases')).toBeTruthy();
-    expect(screen.queryByRole('link', { name: record.source_id })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Case 11111111' })).toBeNull();
   });
   it('exposes oversight assignment filters and bounded page navigation', async () => {
     const { api, service } = apiWith({
@@ -180,7 +214,7 @@ describe('authorized dashboard', () => {
     });
     render(<Dashboard api={api} user={{ ...user, role: 'supervisor' }} />);
     expect(screen.getByLabelText('Assignment')).toBeTruthy();
-    await screen.findByRole('link', { name: record.source_id });
+    await screen.findByRole('link', { name: 'Case 11111111' });
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
     await waitFor(() =>
       expect(vi.mocked(service.cases).mock.calls.at(-1)![0].get('offset')).toBe(
@@ -217,9 +251,9 @@ describe('verified feature attribution', () => {
         ),
     });
     render(<CaseView id={record.id} workflow={false} api={api} user={user} />);
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'View assessment version 1' }),
-    );
+    fireEvent.change(await screen.findByLabelText('Assessment version'), {
+      target: { value: older.assessment_id },
+    });
     expect(await screen.findByText('chosen-historical-model')).toBeTruthy();
     await act(async () => {
       resolve(newest);
@@ -229,14 +263,21 @@ describe('verified feature attribution', () => {
   });
   it('shows signed contributions, missing indicator, model identity and human boundary', () => {
     render(<Explanation value={detail} />);
-    expect(screen.getByTestId('rf-score').textContent).toBe('25.00%');
-    expect(screen.getByText('+6.0000 pp')).toBeTruthy();
-    expect(screen.getByText('-1.0000 pp')).toBeTruthy();
+    expect(screen.getByTestId('rf-score').textContent).toBe('25.0%');
+    expect(screen.getByText('+6.0 pp')).toBeTruthy();
+    expect(screen.getByText('−1.0 pp')).toBeTruthy();
     expect(screen.getByText('missing')).toBeTruthy();
-    expect(screen.getByText(/not proof of money laundering/)).toBeTruthy();
+    expect(
+      screen.getByText(/Model signal for analyst review, not proof/),
+    ).toBeTruthy();
     expect(screen.getByText('synthetic-component-model')).toBeTruthy();
     expect(
-      screen.getByRole('list', { name: 'SHAP feature contributions' }).children
+      screen.getByRole('list', { name: 'Contributing Risk Factors' }).children
+        .length,
+    ).toBe(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Show all 27' }));
+    expect(
+      screen.getByRole('list', { name: 'Contributing Risk Factors' }).children
         .length,
     ).toBe(27);
   });
@@ -283,7 +324,7 @@ describe('durable asynchronous workflow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Request assessment' }));
     await screen.findByRole('alert');
     fireEvent.click(screen.getByRole('button', { name: 'Retry same request' }));
-    await screen.findByText(/Durably queued/);
+    await screen.findByText(/Request received/);
     expect(submit.mock.calls[0]).toEqual(submit.mock.calls[1]);
     expect(Object.keys(submit.mock.calls[0][1]).sort()).toEqual([
       'expected_version',
@@ -338,7 +379,7 @@ describe('durable asynchronous workflow', () => {
       ).disabled,
     ).toBe(false);
   });
-  it('shows actual Running/Succeeded states and stops polling after completion', async () => {
+  it('shows actual Running/Completed states and stops polling after completion', async () => {
     vi.useFakeTimers();
     const job = vi
       .fn()
@@ -351,7 +392,9 @@ describe('durable asynchronous workflow', () => {
     const { api } = apiWith({ job });
     render(<Workflow api={api} record={{ ...record, latest_job_id: 'job' }} />);
     await act(async () => {});
-    expect(screen.getByText(/The isolated worker is scoring/)).toBeTruthy();
+    expect(
+      screen.getByText(/Assessment and contributing factors are being checked/),
+    ).toBeTruthy();
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2000);
     });
@@ -373,7 +416,7 @@ describe('durable asynchronous workflow', () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(310000);
     });
-    expect(screen.getByText(/Polling paused/)).toBeTruthy();
+    expect(screen.getByText(/Automatic status checks are paused/)).toBeTruthy();
     expect(vi.mocked(service.job).mock.calls.length).toBeLessThanOrEqual(60);
     view.unmount();
     const count = vi.mocked(service.job).mock.calls.length;
@@ -413,13 +456,33 @@ describe('durable asynchronous workflow', () => {
 it('clears protected state on sign-out and assignment denial even with a late response', async () => {
   vi.stubGlobal(
     'fetch',
-    vi.fn(async (path: string) => {
-      if (path.endsWith('/auth/token'))
+    vi.fn(async (path: string, init?: RequestInit) => {
+      if (path.startsWith('/api/v1/upload-sessions'))
+        return new Response(
+          JSON.stringify({
+            version: 1,
+            active: {
+              id: 'uploaded-session',
+              created_at: record.created_at,
+              case_count: 1,
+              upload_count: 1,
+              uploads: [],
+              can_upload: false,
+            },
+            items: [],
+            total: 0,
+            offset: 0,
+            limit: 20,
+          }),
+        );
+      if (path.endsWith('/auth/session') && init?.method !== 'POST')
+        return new Response('{}', { status: 401 });
+      if (path.endsWith('/auth/session'))
         return new Response(
           JSON.stringify({ access_token: 'synthetic-token' }),
         );
       if (path.endsWith('/auth/me')) return new Response(JSON.stringify(user));
-      if (path.includes('/overview'))
+      if (path.includes('/overview') || path.includes('/workflow'))
         return new Response('{}', { status: 404 });
       return new Response(
         JSON.stringify({ items: [record], total: 1, limit: 20, offset: 0 }),
@@ -427,21 +490,23 @@ it('clears protected state on sign-out and assignment denial even with a late re
     }),
   );
   render(<App />);
-  fireEvent.change(screen.getByLabelText('Username'), {
+  fireEvent.change(await screen.findByLabelText('Username'), {
     target: { value: 'analyst' },
   });
   fireEvent.change(screen.getByLabelText('Password'), {
     target: { value: 'synthetic-password' },
   });
-  fireEvent.click(screen.getByRole('button', { name: 'Sign in →' }));
-  fireEvent.click(await screen.findByRole('link', { name: record.source_id }));
+  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  fireEvent.click(await screen.findByRole('link', { name: 'Case 11111111' }));
   await act(async () => {
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   });
   expect(
     await screen.findByRole('heading', { name: 'Information unavailable' }),
   ).toBeTruthy();
-  expect(screen.queryByText(record.source_id)).toBeNull();
+  expect(screen.queryByRole('link', { name: 'Case 11111111' })).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
-  expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeTruthy();
+  expect(
+    await screen.findByRole('heading', { name: 'Welcome back' }),
+  ).toBeTruthy();
 });

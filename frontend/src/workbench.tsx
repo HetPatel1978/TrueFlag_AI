@@ -1,4 +1,12 @@
-import { useContext, useEffect, useRef, useState, type FormEvent } from 'react';
+import { WorkflowNavigation } from './workflow-navigation';
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import {
   ApiError,
   label,
@@ -14,21 +22,54 @@ import {
 } from './api';
 import type { ApiFactory } from './App';
 import { Receipts, type Receipt } from './receipts';
+import { InvestigationView } from './investigation';
+import type { InvestigationFactory } from './investigation-api';
+import { TERMS, featureLabel } from './terminology';
+import { PageHeader, StatusBadge } from './ui';
+import type { WorkflowCase, WorkflowFactory } from './workflow-api';
+import { AssignmentControl, ActivityHistory } from './case-workflows';
+import { HumanCasework } from './human-casework';
+import type { HumanFactory } from './human-casework-api';
+import {
+  AuditDetails,
+  AuditList,
+  CopyValue,
+  InfoTip,
+  PageAudit,
+  Timestamp,
+  VerifiedBadge,
+} from './display';
+import { CaseAudit, CaseHeader, CaseRail } from './case-file';
+import { formatDateTime, pp1, scorePercent, shortId } from './format';
 
-export function Badge({ value }: { value: string }) {
-  return <span className={`badge ${value.toLowerCase()}`}>{label(value)}</span>;
-}
-const date = (value: string) =>
-  new Date(value).toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-function ErrorState({ error, retry }: { error: string; retry: () => void }) {
+export const Badge = StatusBadge;
+function ErrorState({
+  error,
+  retry,
+  retryAt = 0,
+}: {
+  error: string;
+  retry: () => void;
+  retryAt?: number;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!retryAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [retryAt]);
+  const wait = Math.max(0, Math.ceil((retryAt - now) / 1000));
   return (
-    <div className="state" role="alert">
-      <h2>Unable to load</h2>
-      <p>{error}</p>
-      <button onClick={retry}>Retry</button>
+    <div className="panel state" role="alert">
+      <h2>{wait ? 'Updates paused' : 'Unable to load'}</h2>
+      <p>
+        {wait
+          ? 'The request limit was reached. Your saved work is preserved; updates will retry after the wait.'
+          : error}
+      </p>
+      <button onClick={retry} disabled={wait > 0}>
+        {wait ? `Retry in ${wait}s` : 'Retry'}
+      </button>
     </div>
   );
 }
@@ -52,7 +93,7 @@ function Pager({
           disabled={!page.offset}
           onClick={() => change(Math.max(0, page.offset - page.limit))}
         >
-          ← Previous
+          Previous
         </button>
         <button
           aria-label="Next page"
@@ -62,18 +103,29 @@ function Pager({
           }
           onClick={() => change(page.offset + page.limit)}
         >
-          Next →
+          Next
         </button>
       </div>
     </div>
   );
 }
 
-export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
-  const [page, setPage] = useState<Page<Case> | null>(null);
+export function Dashboard({
+  api,
+  user,
+  workflowApi,
+  uploadSessionId,
+}: {
+  api: ApiFactory;
+  user: User;
+  workflowApi?: WorkflowFactory;
+  uploadSessionId?: string;
+}) {
+  const [page, setPage] = useState<Page<WorkflowCase> | null>(null);
   const [error, setError] = useState('');
   const [draft, setDraft] = useState('');
   const [filters, setFilters] = useState({
+    queue: user.role === 'analyst' ? 'my' : 'all',
     search: '',
     status: '',
     priority: '',
@@ -92,11 +144,17 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
       setPage(null);
       setError('');
       const params = new URLSearchParams({ limit: '20' });
+      if (uploadSessionId) {
+        params.set('upload_session_id', uploadSessionId);
+        params.set('origin', 'uploaded');
+      }
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== '') params.set(key, String(value));
       });
       try {
-        const result = await api(controller.signal).cases(params);
+        const result = workflowApi
+          ? await workflowApi(controller.signal).queue(params)
+          : await api(controller.signal).cases(params);
         if (!controller.signal.aborted) setPage(result);
       } catch (e) {
         if (!controller.signal.aborted) setError(message(e));
@@ -113,26 +171,22 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
       controller.abort();
       window.clearInterval(timer);
     };
-  }, [api, filters, revision]);
+  }, [api, workflowApi, filters, revision, uploadSessionId]);
   function filter(key: keyof typeof filters, value: string) {
     setFilters((f) => ({ ...f, [key]: value, offset: 0 }));
   }
   return (
     <>
-      <div className="page-heading">
-        <div>
-          <p className="eyebrow">ALERT INTELLIGENCE</p>
-          <h1>Alert dashboard</h1>
-          <p className="muted">
-            {user.role === 'analyst'
-              ? 'Your assigned cases, ready for review.'
-              : 'Authorized cases across the current workspace.'}
-          </p>
-        </div>
-        <button className="quiet" onClick={() => setRevision((n) => n + 1)}>
-          ↻ Refresh
-        </button>
-      </div>
+      <PageHeader
+        title="Cases"
+        actions={
+          user.role === 'admin' && !uploadSessionId ? (
+            <a className="button primary" href="#/batch">
+              Import alerts
+            </a>
+          ) : undefined
+        }
+      />
       <section className="panel">
         <form
           className="filters"
@@ -141,6 +195,31 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
             filter('search', draft);
           }}
         >
+          {workflowApi && (
+            <div className="queue-selector">
+              <label htmlFor="case-queue">Case Queue</label>
+              <select
+                id="case-queue"
+                value={filters.queue}
+                onChange={(e) =>
+                  setFilters((f) => ({
+                    ...f,
+                    queue: e.target.value,
+                    assignment: 'all',
+                    offset: 0,
+                  }))
+                }
+              >
+                <option value="my">My Assigned Cases</option>
+                <option value="all">All Accessible Cases</option>
+                {user.role !== 'analyst' && (
+                  <option value="unassigned">Unassigned Cases</option>
+                )}
+                <option value="review">In review / awaiting approval</option>
+                <option value="processing">Assessment processing</option>
+              </select>
+            </div>
+          )}
           <div className="search">
             <label htmlFor="search">Search cases</label>
             <div>
@@ -156,87 +235,107 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
               </button>
             </div>
           </div>
-          {(
-            [
-              [
-                'status',
-                'Case state',
+          <details className="filter-disclosure">
+            <summary>
+              More filters
+              {[
+                filters.status,
+                filters.priority,
+                filters.assessment_status,
+                filters.assignment !== 'all' ? filters.assignment : '',
+              ].filter(Boolean).length > 0
+                ? ' · active'
+                : ''}
+            </summary>
+            <div className="filter-grid">
+              {(
                 [
-                  ['', 'All states'],
-                  ['open', 'Open'],
-                  ['in_review', 'In review'],
-                  ['awaiting_approval', 'Awaiting approval'],
-                  ['closed', 'Closed'],
-                ],
-              ],
-              [
-                'priority',
-                'Priority',
-                [
-                  ['', 'All priorities'],
-                  ['High', 'High'],
-                  ['Standard', 'Standard'],
-                ],
-              ],
-              [
-                'assessment_status',
-                'Assessment',
-                [
-                  ['', 'All assessments'],
-                  ['not_requested', 'Not requested'],
-                  ['pending', 'Pending'],
-                  ['running', 'Running'],
-                  ['succeeded', 'Succeeded'],
-                  ['failed', 'Failed'],
-                ],
-              ],
-            ] as const
-          ).map(([key, title, options]) => (
-            <div key={key}>
-              <label htmlFor={key}>{title}</label>
-              <select
-                id={key}
-                value={filters[key]}
-                onChange={(e) => filter(key, e.target.value)}
-              >
-                {options.map(([value, text]) => (
-                  <option key={value} value={value}>
-                    {text}
-                  </option>
-                ))}
-              </select>
+                  [
+                    'status',
+                    'Case state',
+                    [
+                      ['', 'All states'],
+                      ['open', 'Open'],
+                      ['in_review', 'In review'],
+                      ['awaiting_approval', 'Awaiting approval'],
+                      ['closed', 'Closed'],
+                    ],
+                  ],
+                  [
+                    'priority',
+                    'Priority',
+                    [
+                      ['', 'All priorities'],
+                      ['High', 'High'],
+                      ['Standard', 'Standard'],
+                    ],
+                  ],
+                  [
+                    'assessment_status',
+                    'Assessment',
+                    [
+                      ['', 'All assessments'],
+                      ['not_requested', 'Not requested'],
+                      ['pending', 'Pending'],
+                      ['running', 'Running'],
+                      ['succeeded', 'Succeeded'],
+                      ['failed', 'Failed'],
+                    ],
+                  ],
+                ] as const
+              ).map(([key, title, options]) => (
+                <div key={key}>
+                  <label htmlFor={key}>{title}</label>
+                  <select
+                    id={key}
+                    value={filters[key]}
+                    onChange={(e) => filter(key, e.target.value)}
+                  >
+                    {options.map(([value, text]) => (
+                      <option key={value} value={value}>
+                        {text}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+              {user.role !== 'analyst' && (
+                <div>
+                  <label htmlFor="assignment">Assignment</label>
+                  <select
+                    id="assignment"
+                    value={filters.assignment}
+                    onChange={(e) => filter('assignment', e.target.value)}
+                  >
+                    <option value="all">All assignments</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="unassigned">Unassigned</option>
+                  </select>
+                </div>
+              )}
+              <div>
+                <label htmlFor="sort">Sort by</label>
+                <select
+                  id="sort"
+                  value={`${filters.sort_by}:${filters.sort_order}`}
+                  onChange={(e) => {
+                    const [sort_by, sort_order] = e.target.value.split(':');
+                    setFilters((f) => ({
+                      ...f,
+                      sort_by,
+                      sort_order,
+                      offset: 0,
+                    }));
+                  }}
+                >
+                  <option value="created_at:desc">Newest first</option>
+                  <option value="created_at:asc">Oldest first</option>
+                  <option value="status:asc">Case state</option>
+                  <option value="version:desc">Case version</option>
+                </select>
+              </div>
             </div>
-          ))}
-          {user.role !== 'analyst' && (
-            <div>
-              <label htmlFor="assignment">Assignment</label>
-              <select
-                id="assignment"
-                value={filters.assignment}
-                onChange={(e) => filter('assignment', e.target.value)}
-              >
-                <option value="all">All assignments</option>
-                <option value="assigned">Assigned</option>
-                <option value="unassigned">Unassigned</option>
-              </select>
-            </div>
-          )}
-          <div>
-            <label htmlFor="sort">Sort by</label>
-            <select
-              id="sort"
-              value={`${filters.sort_by}:${filters.sort_order}`}
-              onChange={(e) => {
-                const [sort_by, sort_order] = e.target.value.split(':');
-                setFilters((f) => ({ ...f, sort_by, sort_order, offset: 0 }));
-              }}
-            >
-              <option value="created_at:desc">Newest first</option>
-              <option value="created_at:asc">Oldest first</option>
-              <option value="status:asc">Case state</option>
-              <option value="version:desc">Case version</option>
-            </select>
-          </div>
+          </details>
         </form>
         {loading ? (
           <div className="state" role="status">
@@ -247,47 +346,105 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
         ) : (
           page && (
             <>
-              <div className="table-wrap">
-                <table>
+              <div
+                className="table-wrap"
+                role="region"
+                aria-label="Case results"
+                tabIndex={0}
+              >
+                <table className="case-table">
                   <caption className="sr-only">
                     Authorized alerts and cases
                   </caption>
+                  <colgroup>
+                    <col className="col-case" />
+                    <col className="col-priority" />
+                    {workflowApi && <col className="col-score" />}
+                    {workflowApi && <col className="col-recommendation" />}
+                    <col className="col-assignee" />
+                    <col className="col-updated" />
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th>Alert / case</th>
-                      <th>Priority</th>
-                      <th>Case state</th>
-                      <th>Assessment</th>
-                      <th>Assignment</th>
-                      <th>Received</th>
+                      <th>Case</th>
+                      <th>
+                        Priority{' '}
+                        <InfoTip text="Priority reflects the customer risk rating (KYC 3–6 is High)." />
+                      </th>
+                      {workflowApi && <th className="num">Score</th>}
+                      {workflowApi && <th>Recommendation</th>}
+                      <th>Assignee</th>
+                      <th>Updated</th>
                     </tr>
                   </thead>
                   <tbody>
                     {page.items.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <a className="case-link" href={`#/cases/${item.id}`}>
-                            {item.source_id}
+                      <tr
+                        key={item.id}
+                        className="row-link"
+                        onClick={() => {
+                          window.location.hash = `/cases/${item.id}`;
+                        }}
+                      >
+                        <td className="case-id">
+                          <a
+                            className="case-link"
+                            href={`#/cases/${item.id}`}
+                            aria-label={`Case ${shortId(item.id)}`}
+                          >
+                            {shortId(item.id)}
                           </a>
-                          <small className="mono">{item.id.slice(0, 8)}</small>
+                          {item.status !== 'open' && (
+                            <>
+                              {' '}
+                              <Badge value={item.status} />
+                            </>
+                          )}
                         </td>
                         <td>
                           <Badge value={item.priority} />
                         </td>
+                        {workflowApi && (
+                          <td className="num">
+                            {item.assessment_status === 'succeeded' ? (
+                              scorePercent(item.assessment_score)
+                            ) : item.assessment_status === 'not_requested' ? (
+                              <span className="muted">–</span>
+                            ) : (
+                              <Badge value={item.assessment_status} />
+                            )}
+                          </td>
+                        )}
+                        {workflowApi && (
+                          <td
+                            className="truncate"
+                            title={
+                              item.review_recommendation
+                                ? label(item.review_recommendation)
+                                : undefined
+                            }
+                          >
+                            {item.review_recommendation ? (
+                              <>{label(item.review_recommendation)}</>
+                            ) : (
+                              <span className="muted">Not assessed</span>
+                            )}
+                          </td>
+                        )}
                         <td>
-                          <Badge value={item.status} />
+                          {item.assigned_investigator ??
+                            (item.assigned_to === user.id
+                              ? 'You'
+                              : item.assigned_to
+                                ? 'Assigned'
+                                : 'Unassigned')}
                         </td>
                         <td>
-                          <Badge value={item.assessment_status} />
+                          <Timestamp
+                            value={item.last_activity_at ?? item.created_at}
+                            relative
+                          />
                         </td>
-                        <td>
-                          {item.assigned_to === user.id
-                            ? 'Assigned to you'
-                            : item.assigned_to
-                              ? 'Assigned'
-                              : 'Unassigned'}
-                        </td>
-                        <td className="muted">{date(item.created_at)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -309,10 +466,6 @@ export function Dashboard({ api, user }: { api: ApiFactory; user: User }) {
           )
         )}
       </section>
-      <p className="hint">
-        Priority follows the frozen KYC grouping. Assessment status describes
-        processing, not a human decision.
-      </p>
     </>
   );
 }
@@ -322,45 +475,107 @@ export function CaseView({
   workflow,
   api,
   user,
+  investigation = false,
+  evidence = false,
+  investigationApi,
+  workflowApi,
+  activity = false,
+  casework = false,
+  decide = false,
+  humanApi,
 }: {
   id: string;
   workflow: boolean;
   api: ApiFactory;
   user: User;
+  investigation?: boolean;
+  evidence?: boolean;
+  investigationApi?: InvestigationFactory;
+  workflowApi?: WorkflowFactory;
+  activity?: boolean;
+  casework?: boolean;
+  decide?: boolean;
+  humanApi?: HumanFactory;
 }) {
-  const [record, setRecord] = useState<Case | null>(null);
+  const [record, setRecord] = useState<WorkflowCase | null>(null);
+  const [missing, setMissing] = useState<string[] | null>(null);
+  const stepLoadsEvidence = Boolean(
+    investigationApi && (evidence || investigation || (casework && humanApi)),
+  );
+  // Steps that already read the evidence context report its missing categories; the
+  // others read it once here, so the rail never adds a second concurrent evidence read.
+  const caseVersion = record?.version;
+  useEffect(() => {
+    if (!investigationApi || stepLoadsEvidence || caseVersion === undefined)
+      return;
+    const controller = new AbortController();
+    investigationApi(controller.signal)
+      .context(id)
+      .then((c) => {
+        if (!controller.signal.aborted) setMissing(c.data.missing_categories);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setMissing([]);
+      });
+    return () => controller.abort();
+  }, [id, investigationApi, stepLoadsEvidence, caseVersion]);
   const [error, setError] = useState('');
+  const [retryAt, setRetryAt] = useState(0);
   const [revision, setRevision] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
+    let timer: number | undefined;
     async function load() {
+      let delay = 10000;
       try {
-        const value = await api(controller.signal).overview(id);
-        if (!controller.signal.aborted) setRecord(value);
+        const value = workflowApi
+          ? await workflowApi(controller.signal).overview(id)
+          : await api(controller.signal).overview(id);
+        if (!controller.signal.aborted) {
+          setRecord(value);
+          setError('');
+          setRetryAt(0);
+        }
       } catch (e) {
         if (!controller.signal.aborted) {
           setRecord(null);
           setError(message(e));
+          if (e instanceof ApiError && e.status === 429) {
+            delay = Math.max(delay, (e.retryAfter || 10) * 1000);
+            setRetryAt(Date.now() + delay);
+          }
         }
+      } finally {
+        if (!controller.signal.aborted)
+          timer = window.setTimeout(() => void load(), delay);
       }
     }
     void load();
-    const timer = window.setInterval(() => {
-      void load();
-    }, 10000);
     return () => {
       controller.abort();
-      window.clearInterval(timer);
+      window.clearTimeout(timer);
     };
-  }, [id, api, revision]);
+  }, [id, api, workflowApi, revision]);
+  function refreshCase() {
+    setRecord(null);
+    setError('');
+    setRevision((n) => n + 1);
+  }
+  const current = activity
+    ? 'activity'
+    : casework
+      ? 'decision'
+      : investigation
+        ? 'investigation'
+        : evidence
+          ? 'evidence'
+          : 'assessment';
   return (
     <>
-      <a className="back" href="#/">
-        ← Alert dashboard
-      </a>
       {error ? (
         <ErrorState
           error={error}
+          retryAt={retryAt}
           retry={() => {
             setError('');
             setRevision((n) => n + 1);
@@ -371,51 +586,88 @@ export function CaseView({
           Loading case…
         </div>
       ) : (
-        <>
-          <div className="page-heading">
-            <div>
-              <p className="eyebrow">
-                CASE REVIEW /{' '}
-                <span className="mono">{record.id.slice(0, 8)}</span>
-              </p>
-              <h1>{record.source_id}</h1>
-              <p className="muted">
-                Received {date(record.created_at)} · Case version{' '}
-                {record.version}
-              </p>
+        <PageAudit.Provider value={<CaseAudit record={record} />}>
+          <CaseHeader
+            record={record}
+            tabs={
+              <>
+                <WorkflowNavigation
+                  record={record}
+                  current={current}
+                  evidenceAvailable={Boolean(investigationApi)}
+                  decisionsAvailable={Boolean(humanApi && investigationApi)}
+                />
+                {workflowApi && (
+                  <a
+                    className="activity-link"
+                    href={`#/cases/${id}/activity`}
+                    aria-current={activity ? 'page' : undefined}
+                  >
+                    Activity History
+                  </a>
+                )}
+              </>
+            }
+          />
+          <div className="case-file">
+            <div className="case-main">
+              {casework && humanApi && investigationApi ? (
+                <HumanCasework
+                  id={id}
+                  user={user}
+                  api={humanApi}
+                  evidenceApi={investigationApi}
+                  changed={refreshCase}
+                  decide={decide}
+                  onMissing={setMissing}
+                />
+              ) : activity && workflowApi ? (
+                <ActivityHistory
+                  key={record.version}
+                  record={record}
+                  api={workflowApi}
+                />
+              ) : (investigation || evidence) && investigationApi ? (
+                <InvestigationView
+                  key={record.version}
+                  record={record}
+                  api={investigationApi}
+                  modelApi={api}
+                  view={evidence ? 'evidence' : 'investigation'}
+                  onMissing={setMissing}
+                />
+              ) : workflow ? (
+                <Workflow key={record.version} api={api} record={record} />
+              ) : (
+                <Results
+                  key={record.version}
+                  api={api}
+                  record={record}
+                  user={user}
+                />
+              )}
             </div>
-            <div className="heading-badges">
-              <Badge value={record.priority} />
-              <Badge value={record.status} />
-            </div>
+            <CaseRail
+              record={record}
+              user={user}
+              missing={investigationApi ? missing : []}
+              decisionsAvailable={
+                Boolean(humanApi && investigationApi) && !casework
+              }
+              showScore={current === 'evidence' || current === 'decision'}
+              reassign={
+                workflowApi && user.role !== 'analyst' ? (
+                  <AssignmentControl
+                    key={record.version}
+                    record={record}
+                    api={workflowApi}
+                    changed={refreshCase}
+                  />
+                ) : undefined
+              }
+            />
           </div>
-          <nav className="tabs" aria-label="Case views">
-            <a
-              className={!workflow ? 'selected' : ''}
-              aria-current={!workflow ? 'page' : undefined}
-              href={`#/cases/${id}`}
-            >
-              Case details
-            </a>
-            <a
-              className={workflow ? 'selected' : ''}
-              aria-current={workflow ? 'page' : undefined}
-              href={`#/cases/${id}/assessment`}
-            >
-              Assessment workflow
-            </a>
-          </nav>
-          <div className="notice compact">
-            <b>Human decision:</b>{' '}
-            {record.disposition ? label(record.disposition) : 'Not recorded'}.
-            Model recommendations do not change case state.
-          </div>
-          {workflow ? (
-            <Workflow api={api} record={record} />
-          ) : (
-            <Results api={api} record={record} user={user} />
-          )}
-        </>
+        </PageAudit.Provider>
       )}
     </>
   );
@@ -424,7 +676,6 @@ export function CaseView({
 function Results({
   api,
   record,
-  user,
 }: {
   api: ApiFactory;
   record: Case;
@@ -500,6 +751,29 @@ function Results({
   }
   if (error)
     return <ErrorState error={error} retry={() => setRevision((n) => n + 1)} />;
+  const versionLine =
+    history && history.items.length > 0 ? (
+      <div className="version-line">
+        {history.items.length > 1 && (
+          <select
+            aria-label="Assessment version"
+            value={selected?.assessment_id ?? ''}
+            onChange={(e) => void choose(e.target.value)}
+          >
+            {!selected && <option value="">Loading version…</option>}
+            {history.items.map((item) => (
+              <option key={item.assessment_id} value={item.assessment_id}>
+                v{item.version} · {item.selected_policy} ·{' '}
+                {scorePercent(item.score)}
+              </option>
+            ))}
+          </select>
+        )}
+        {history.total > history.items.length && (
+          <Pager page={history} change={setOffset} />
+        )}
+      </div>
+    ) : null;
   return (
     <>
       {loading && (
@@ -507,79 +781,55 @@ function Results({
           Loading verified results…
         </p>
       )}
+      {loading && !selected && versionLine}
       {!loading && !selected && (
         <section className="panel state">
           <h2>No assessment yet</h2>
           <p>
-            Request a verified assessment to view RF scoring and feature
-            attribution.
+            Request an assessment to review the alert risk signal and
+            contributing factors.
           </p>
           <a
             className="button primary"
             href={`#/cases/${record.id}/assessment`}
           >
-            Open assessment workflow →
+            Assess risk
           </a>
         </section>
       )}
-      {selected && <Explanation value={selected} />}
-      {history && history.items.length > 0 && (
-        <section className="panel history">
-          <div className="section-heading">
-            <h2>Assessment history</h2>
-            <span className="muted">Immutable versions</span>
-          </div>
-          <div className="table-wrap">
-            <table>
-              <caption className="sr-only">Assessment versions</caption>
-              <thead>
-                <tr>
-                  <th>Version</th>
-                  <th>Processed</th>
-                  <th>Policy</th>
-                  <th>RF score</th>
-                  <th>View</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.items.map((item) => (
-                  <tr key={item.assessment_id}>
-                    <td>v{item.version}</td>
-                    <td>{date(item.processed_at)}</td>
-                    <td>{item.selected_policy}</td>
-                    <td>{(item.score * 100).toFixed(2)}%</td>
-                    <td>
-                      <button
-                        className="quiet"
-                        aria-label={`View assessment version ${item.version}`}
-                        onClick={() => {
-                          void choose(item.assessment_id);
-                        }}
-                      >
-                        View →
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Pager page={history} change={setOffset} />
-        </section>
+      {selected && (
+        <Explanation
+          value={selected}
+          versionLine={versionLine}
+          actions={
+            <div className="next-actions">
+              <a
+                className="button primary"
+                href={`#/cases/${record.id}/evidence`}
+              >
+                Review evidence
+              </a>
+              <a className="button" href={`#/cases/${record.id}/assessment`}>
+                Request another assessment
+              </a>
+            </div>
+          }
+        />
       )}
-      <p className="hint">
-        {record.assigned_to === user.id
-          ? 'You are the assigned analyst.'
-          : record.assigned_to
-            ? 'This case is assigned to an analyst.'
-            : 'This case is unassigned.'}{' '}
-        Customer predictor values are not requested by this workbench.
-      </p>
     </>
   );
 }
 
-export function Explanation({ value }: { value: AssessmentDetail }) {
+export function Explanation({
+  value,
+  versionLine,
+  actions,
+}: {
+  value: AssessmentDetail;
+  versionLine?: ReactNode;
+  actions?: ReactNode;
+}) {
+  const [showAll, setShowAll] = useState(false);
   const e = value.explanation;
   if (
     e?.status !== 'verified' ||
@@ -608,74 +858,55 @@ export function Explanation({ value }: { value: AssessmentDetail }) {
   );
   return (
     <>
-      <div className="result-summary">
-        <section className="panel score-panel">
-          <p className="eyebrow">RF SAR-POSITIVE SCORE</p>
-          <div className="score" data-testid="rf-score">
-            {(value.score * 100).toFixed(2)}
-            <span>%</span>
-          </div>
-          <p className="muted">
-            Frozen Random Forest · v{value.version} assessment
-          </p>
-        </section>
-        <section className="panel recommendation">
-          <p className="eyebrow">
-            MODEL RECOMMENDATION / {value.selected_policy.toUpperCase()}
-          </p>
-          <h2>
-            {value.recommended_route === 'retain_human_review'
-              ? 'Retain for human review'
-              : 'Review reduction candidate'}
-          </h2>
-          <p className="muted">
-            {value.policy_trace.override_reason
-              ? 'High-priority coverage protection applied.'
-              : 'Frozen policy threshold applied.'}{' '}
-            Human decision required.
-          </p>
-          <Badge value="verified" />
-        </section>
-      </div>
-      <p className="disclaimer">
-        Model scores are not proof of money laundering or calibrated
-        probabilities of criminal conduct. SHAP describes model attribution, not
-        causality.
-      </p>
-      <section className="panel explanation">
-        <div className="section-heading">
+      <section className="panel assessment-card" aria-label={TERMS.assessment}>
+        <div className="assessment-head">
           <div>
-            <p className="eyebrow">VERIFIED EXPLAINABILITY</p>
-            <h2>What influenced this score</h2>
+            <span className="rail-label">{TERMS.assessment}</span>
+            <div className="score" data-testid="rf-score">
+              {scorePercent(value.score)}
+            </div>
           </div>
-          <span className="legend">
-            <i className="raise" />
-            Raises <i className="lower" />
-            Lowers
-          </span>
+          <div className="assessment-route">
+            <span className="rail-label">{TERMS.recommendation}</span>
+            <h2>{label(value.recommended_route)}</h2>
+            <VerifiedBadge title="Model, policy and explanation checks passed" />
+          </div>
         </div>
         <p className="muted">
-          Contributions in score percentage points · base{' '}
-          {(e.base_value * 100).toFixed(2)}%
+          Model signal for analyst review, not proof.
+          {value.policy_trace.override_reason
+            ? ' High-priority coverage protection applied.'
+            : ''}
         </p>
-        <ol
-          className="contributions"
-          tabIndex={0}
-          aria-label="SHAP feature contributions"
-        >
-          {ranked.map((f, index) => (
+        {versionLine}
+      </section>
+      <section className="panel explanation" aria-labelledby="drivers-title">
+        <div className="section-heading">
+          <h2 id="drivers-title">{TERMS.drivers}</h2>
+          <span className="legend">
+            <span className="raise">↑ Raises score</span>
+            <span className="lower">↓ Lowers score</span>
+          </span>
+        </div>
+        <ol className="contributions" tabIndex={0} aria-label={TERMS.factors}>
+          {(showAll ? ranked : ranked.slice(0, 3)).map((f) => (
             <li key={f.name}>
               <span className="feature-name">
-                <small>{String(index + 1).padStart(2, '0')}</small>
-                {f.name.replace(/([a-z])([A-Z])/g, '$1 $2')}
+                <span
+                  className={`direction ${f.contribution >= 0 ? 'raise' : 'lower'}`}
+                  aria-hidden="true"
+                >
+                  {f.contribution >= 0 ? '↑' : '↓'}
+                </span>
+                <span>{featureLabel(f.name)}</span>
                 {f.missing && <em>missing</em>}
               </span>
               <svg
                 className="contribution-bar"
-                viewBox="0 0 200 16"
+                viewBox="0 0 200 12"
                 aria-hidden="true"
               >
-                <line x1="100" y1="0" x2="100" y2="16" />
+                <line x1="100" y1="0" x2="100" y2="12" />
                 <rect
                   className={f.contribution >= 0 ? 'raise' : 'lower'}
                   x={
@@ -683,57 +914,71 @@ export function Explanation({ value }: { value: AssessmentDetail }) {
                       ? 100
                       : 100 - (Math.abs(f.contribution) / maximum) * 98
                   }
-                  y="3"
+                  y="2"
                   width={(Math.abs(f.contribution) / maximum) * 98}
-                  height="10"
+                  height="8"
                   rx="2"
                 />
               </svg>
               <span className="contribution-number">
-                {f.contribution >= 0 ? '+' : ''}
-                {(f.contribution * 100).toFixed(4)} pp
+                {pp1(f.contribution * 100)}
               </span>
               <span className="sr-only">{label(f.direction)}</span>
             </li>
           ))}
         </ol>
+        {ranked.length > 3 && (
+          <button
+            className="quiet"
+            onClick={() => setShowAll((v) => !v)}
+            aria-expanded={showAll}
+          >
+            {showAll ? 'Show top 3' : `Show all ${ranked.length}`}
+          </button>
+        )}
       </section>
-      <section className="panel provenance">
-        <details>
-          <summary>Model provenance & verification</summary>
-          <dl>
-            <dt>Model identity</dt>
-            <dd>{value.model_version}</dd>
-            <dt>Model SHA-256</dt>
-            <dd className="mono">{value.model_sha256}</dd>
-            <dt>Policy</dt>
-            <dd>
-              {value.selected_policy} / {value.policy_version} · threshold{' '}
-              {value.policy_trace.threshold}
-            </dd>
-            <dt>Input fingerprint</dt>
-            <dd className="mono">{value.input_sha256}</dd>
-            <dt>Content fingerprint</dt>
-            <dd className="mono">{value.content_sha256}</dd>
-            <dt>Feature contract</dt>
-            <dd>{value.input_provenance.feature_contract_version}</dd>
-            <dt>Run</dt>
-            <dd className="mono">{value.run_id}</dd>
-            <dt>Explanation</dt>
-            <dd>
-              {e.method.algorithm} / SHAP {e.method.library_version} ·{' '}
-              {e.method.output_space}
-            </dd>
-            <dt>Verification</dt>
-            <dd>
-              {e.verification.verifier} · reconstruction residual{' '}
-              {e.reconstruction_residual.toExponential(3)}
-            </dd>
-            <dt>Processed</dt>
-            <dd>{date(value.processed_at)}</dd>
-          </dl>
-        </details>
-      </section>
+      {actions}
+      <AuditDetails>
+        <AuditList>
+          <CopyValue label="Model identity" value={value.model_version} />
+          <CopyValue label="Model SHA-256" value={value.model_sha256} />
+          <dt>Policy</dt>
+          <dd>
+            {value.selected_policy} / {value.policy_version} · threshold{' '}
+            {value.policy_trace.threshold}
+          </dd>
+          <CopyValue
+            label="Policy fingerprint"
+            value={value.policy_trace.policy_sha256}
+          />
+          <CopyValue label="Input fingerprint" value={value.input_sha256} />
+          <CopyValue label="Content fingerprint" value={value.content_sha256} />
+          <dt>Feature contract</dt>
+          <dd>{value.input_provenance.feature_contract_version}</dd>
+          <CopyValue label="Run" value={value.run_id} />
+          <CopyValue label="Assessment ID" value={value.assessment_id} />
+          <dt>Explanation method</dt>
+          <dd>
+            {e.method.algorithm} / SHAP {e.method.library_version} ·{' '}
+            {e.method.output_space}
+          </dd>
+          <dt>
+            Exact contributions (pp, base {(e.base_value * 100).toFixed(4)}%)
+          </dt>
+          <dd>
+            {ranked
+              .map((f) => `${f.name} ${(f.contribution * 100).toFixed(4)}`)
+              .join(' · ')}
+          </dd>
+          <dt>Verification</dt>
+          <dd>
+            {e.verification.verifier} · reconstruction residual{' '}
+            {e.reconstruction_residual.toExponential(3)}
+          </dd>
+          <dt>Processed</dt>
+          <dd>{formatDateTime(value.processed_at)}</dd>
+        </AuditList>
+      </AuditDetails>
     </>
   );
 }
@@ -876,11 +1121,11 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
   return (
     <div className="workflow-grid">
       <section className="panel workflow">
-        <p className="eyebrow">CONTROLLED MODEL EXECUTION</p>
         <h2>Request an assessment</h2>
         <p className="muted">
-          Uses the immutable alert snapshot. RF scoring, policy routing and
-          verified SHAP run in the isolated worker.
+          Assess the saved alert information and identify contributing factors.
+          Processing continues securely in the background; your review remains
+          required.
         </p>
         <label htmlFor="policy">Review policy</label>
         <select
@@ -934,11 +1179,10 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
         )}
         <p className="hint">
           A retry reuses the original run and key. Reassessment creates a new
-          immutable version. No dismissal or closure is performed.
+          saved version. No dismissal or closure is performed.
         </p>
       </section>
       <section className="panel job-status" aria-live="polite">
-        <p className="eyebrow">PROCESSING STATUS</p>
         {job ? (
           <>
             <h2>
@@ -962,13 +1206,13 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
             </dl>
             {job.status === 'pending' && (
               <p className="muted">
-                Durably queued. A stopped worker leaves this job pending; no
-                result is fabricated.
+                Request received. Waiting for the processing service. Results
+                will appear when processing completes.
               </p>
             )}
             {job.status === 'running' && (
               <p className="muted">
-                The isolated worker is scoring and verifying the explanation.
+                Assessment and contributing factors are being checked.
               </p>
             )}
             {job.status === 'failed' && (
@@ -983,7 +1227,7 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
             {job.status === 'succeeded' && (
               <>
                 <p className="success">
-                  Assessment and verified explanation saved.
+                  Assessment and key risk drivers saved.
                 </p>
                 <a className="button primary" href={`#/cases/${record.id}`}>
                   View verified results →
@@ -992,8 +1236,8 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
             )}
             {paused && (
               <p className="notice">
-                Polling paused after the bounded observation window. The durable
-                job continues independently.
+                Automatic status checks are paused. Background processing
+                continues.
               </p>
             )}
             {paused && (
@@ -1012,7 +1256,7 @@ export function Workflow({ api, record }: { api: ApiFactory; record: Case }) {
           <>
             <h2>
               {record.latest_job_id
-                ? 'Checking latest job…'
+                ? 'Checking latest assessment…'
                 : 'Ready when you are'}
             </h2>
             <p className="muted">
