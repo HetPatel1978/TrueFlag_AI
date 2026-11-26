@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { message, request } from './api';
+import { ApiError, message, request } from './api';
 import { formatDate } from './format';
 
 type ResearchResult = {
@@ -235,6 +235,14 @@ function officialLink(url: string): string | null {
   }
 }
 
+/** The corpus endpoints answer 409 when the snapshot is unavailable or fails verification;
+ * say that, not the generic "case changed" conflict text. */
+export function corpusMessage(failure: unknown) {
+  return failure instanceof ApiError && failure.status === 409
+    ? 'Retrieval corpus unavailable or failed verification.'
+    : message(failure);
+}
+
 /** The real retrieval corpus used for per-case regulatory context. Read-only; no AI call. */
 export function RetrievalCorpus({
   token,
@@ -270,7 +278,7 @@ export function RetrievalCorpus({
         setCorpus(value);
       })
       .catch((failure) => {
-        if (!controller.signal.aborted) setError(message(failure));
+        if (!controller.signal.aborted) setError(corpusMessage(failure));
       });
     return () => controller.abort();
   }, [token, onDenied, signal]);
@@ -296,7 +304,7 @@ export function RetrievalCorpus({
       .catch((failure) => {
         if (!controller.signal.aborted) {
           setFound(null);
-          setTestError(message(failure));
+          setTestError(corpusMessage(failure));
         }
       })
       .finally(() => {

@@ -305,6 +305,9 @@ footer span {
 }
 .table-wrap {
   overflow-x: auto;
+  /* Contain absolutely positioned screen-reader text inside the scroller, so a hidden
+     header label cannot widen the page on narrow screens. */
+  position: relative;
 }
 table {
   border-collapse: collapse;

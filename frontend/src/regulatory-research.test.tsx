@@ -186,3 +186,14 @@ it('rejects a malformed ranking without rendering it', async () => {
   await screen.findByRole('alert');
   expect(screen.queryByText(/private-marker/)).toBeNull();
 });
+
+it('corpus errors name the corpus, not a case conflict', async () => {
+  const { corpusMessage } = await import('./regulatory-research');
+  const { ApiError } = await import('./api');
+  expect(corpusMessage(new ApiError(409))).toBe(
+    'Retrieval corpus unavailable or failed verification.',
+  );
+  expect(corpusMessage(new ApiError(403))).toMatch(
+    /Access is no longer permitted/,
+  );
+});
