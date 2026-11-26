@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import {
   readFileSync,
   writeFileSync,
@@ -47,6 +48,7 @@ async function control(worker: 'start' | 'pause') {
       }
     })
     .toBe(sequence);
+  expectFixtureAck(directory, sequence);
 }
 async function login(page: Page, username = 'uianalyst') {
   await page.goto('/');
@@ -54,7 +56,7 @@ async function login(page: Page, username = 'uianalyst') {
   await page.reload();
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
@@ -65,11 +67,7 @@ async function capture(page: Page, name: string, width = 1440, height = 1000) {
     (document.activeElement as HTMLElement | null)?.blur();
     window.scrollTo(0, 0);
   });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
+  await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
   // Wide tables may scroll inside their labelled container; page actions must remain reachable.
   const clipped = await page.locator('button:visible').evaluateAll((buttons) =>
     buttons
@@ -191,10 +189,13 @@ test('real batch onboarding: authorized desktop/tablet screens and validation pr
 }) => {
   test.setTimeout(90000);
   await login(page, 'uiadmin');
+  // CSV upload: Administration › CSV imports, then the session menu's "Add CSV".
   await page
     .getByRole('navigation', { name: 'Workspace navigation' })
-    .getByRole('link', { name: 'Imports', exact: true })
+    .getByRole('link', { name: 'Administration', exact: true })
     .click();
+  await page.getByLabel('Session options', { exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Add CSV', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Upload CSV', exact: true }),
   ).toBeVisible();

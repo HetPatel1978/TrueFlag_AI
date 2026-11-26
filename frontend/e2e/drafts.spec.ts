@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import {
   readFileSync,
   writeFileSync,
@@ -96,6 +97,7 @@ async function control(command: object) {
   await expect
     .poll(() => existsSync(join(dirname(file!), `ack.${id}.json`)))
     .toBe(true);
+  expectFixtureAck(dirname(file!), id);
 }
 async function open(page: Page, name: string, username = 'uianalyst') {
   await page.goto(`/#/cases/${fixture.cases[name]}/investigation`);
@@ -103,7 +105,7 @@ async function open(page: Page, name: string, username = 'uianalyst') {
   await page.reload();
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();
@@ -324,11 +326,7 @@ test('assigned analyst completes real simulated draft, inspects evidence, resume
     await expect(
       page.getByRole('heading', { name: 'Financial Observations' }),
     ).toBeVisible();
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
+    await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
     await capture(page, `verified-simulated-draft-${name}`);
   }
   expect(run).toMatch(/^[a-f0-9-]{36}$/);

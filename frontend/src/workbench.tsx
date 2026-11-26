@@ -753,7 +753,11 @@ function Results({
     return <ErrorState error={error} retry={() => setRevision((n) => n + 1)} />;
   const versionLine =
     history && history.items.length > 0 ? (
-      <div className="version-line">
+      <div
+        className="version-line"
+        data-testid="assessment-history"
+        data-total={history.total}
+      >
         {history.items.length > 1 && (
           <select
             aria-label="Assessment version"

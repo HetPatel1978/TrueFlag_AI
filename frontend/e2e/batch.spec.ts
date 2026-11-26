@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck } from './session-helpers';
 import { readFileSync, writeFileSync, renameSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -42,6 +43,7 @@ async function control(command: {
       }
     })
     .toBe(sequence);
+  expectFixtureAck(directory, sequence);
 }
 async function login(page: Page, username = 'uiadmin') {
   await page.goto('/');
@@ -77,12 +79,35 @@ function csv(incomes: string[]) {
     ].join('\r\n'),
   );
 }
-async function validate(page: Page, incomes: string[]) {
-  await page.getByRole('link', { name: 'Administration', exact: true }).click();
-  await page.getByRole('link', { name: 'CSV Imports', exact: true }).click();
+// Upload-session actions live in the session's options menu.
+async function sessionMenu(page: Page, item: string) {
+  await page.getByLabel('Session options', { exact: true }).click();
+  await page.getByRole('menuitem', { name: item, exact: true }).click();
+}
+async function newSession(page: Page) {
+  await sessionMenu(page, 'New session');
   await page
-    .getByRole('link', { name: 'Add CSV to this session', exact: true })
+    .getByRole('button', { name: 'Confirm new session', exact: true })
     .click();
+}
+async function openSessionHistory(page: Page) {
+  const choice = page.getByLabel('Open a saved session');
+  if (!(await choice.isVisible())) await sessionMenu(page, 'Session history');
+  await expect(choice).toBeVisible();
+}
+async function expectSessionCases(page: Page, count: number) {
+  await expect(
+    page.getByRole('region', { name: 'Upload session' }),
+  ).toContainText(`· ${count} case${count === 1 ? '' : 's'}`);
+}
+async function validate(page: Page, incomes: string[]) {
+  await page
+    .getByLabel('Workspace navigation')
+    .getByRole('link', { name: 'Administration', exact: true })
+    .click();
+  await page.getByRole('link', { name: 'CSV Imports', exact: true }).click();
+  // The session's "Add CSV" action lives in its options menu.
+  await sessionMenu(page, 'Add CSV');
   await page.waitForURL('**/#/batch/new');
   await expect(
     page.getByRole('button', { name: 'Download CSV template', exact: true }),
@@ -130,12 +155,10 @@ async function start(page: Page) {
     page.getByRole('heading', { name: 'Assessment progress', exact: true }),
   ).toBeVisible();
 }
+// Counts are found by their stable data-stat hook (case-insensitive), whether the UI
+// shows them as a one-line summary or as a labelled list.
 function stat(page: Page, name: string) {
-  return page
-    .locator('.batch-stats > div')
-    .filter({ has: page.getByText(name, { exact: true }) })
-    .locator('dd')
-    .first();
+  return page.locator(`[data-stat="${name}" i]`).locator('strong, dd').first();
 }
 async function accessible(page: Page) {
   const results = await new AxeBuilder({ page })
@@ -249,11 +272,7 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
   expect(text).toContain('Coverage');
   await page.setViewportSize({ width: 390, height: 844 });
   await accessible(page);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
+  await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
   await page.evaluate(() => {
     (document.activeElement as HTMLElement | null)?.blur();
     window.scrollTo(0, 0);
@@ -263,19 +282,11 @@ test('CSV to real RF/SHAP results, lost approval response, idempotency, resume a
     fullPage: true,
   });
   await page
-    .getByRole('link', { name: 'Case & history', exact: true })
+    .getByRole('link', { name: 'Open case', exact: true })
     .first()
     .click();
   await expect(page.getByTestId('rf-score')).toBeVisible();
-  await (
-    await import('./ux-helpers')
-  ).expandSection(page, /^Assessment history/);
-  await (
-    await import('./ux-helpers')
-  ).expandSection(page, /^Assessment history/);
-  await expect(
-    page.getByRole('button', { name: 'View assessment version 1' }),
-  ).toBeVisible();
+  await (await import('./ux-helpers')).expectAssessmentVersions(page, 1);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   await expect(page.getByTestId('rf-score')).toHaveCount(0);
@@ -309,6 +320,8 @@ test('worker downtime and partial failures retain manual-review cases', async ({
   test.setTimeout(90000);
   await control({ worker: 'pause' });
   await login(page);
+  // Own empty session: earlier tests already assessed identical rows.
+  await newSession(page);
   await validate(page, ['', '0']);
   await approve(page);
   await start(page);
@@ -316,14 +329,12 @@ test('worker downtime and partial failures retain manual-review cases', async ({
   await control({ worker: 'start', fail_next: true });
   await expect(stat(page, 'Completed')).toHaveText('1', { timeout: 45000 });
   await expect(stat(page, 'Failed / manual review')).toHaveText('1');
-  await expect(
-    page.getByText('Manual review required', { exact: true }),
-  ).toBeVisible();
+  await expect(page.getByText(/^Manual review required/)).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'View explanation', exact: true }),
   ).toHaveCount(1);
   await expect(
-    page.getByRole('link', { name: 'Case & history', exact: true }),
+    page.getByRole('link', { name: 'Open case', exact: true }),
   ).toHaveCount(2);
 });
 
@@ -365,6 +376,8 @@ test('API/dispatcher restart and browser reload resume one durable batch without
   test.setTimeout(90000);
   await control({ worker: 'pause' });
   await login(page);
+  // Own empty session: earlier tests already assessed identical rows.
+  await newSession(page);
   await validate(page, ['', '0']);
   const importID = await approve(page);
   await start(page);
@@ -393,25 +406,24 @@ test('API/dispatcher restart and browser reload resume one durable batch without
   await expect(
     page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible();
-  await start(page);
+  // Every row is already assessed, so the UI asks before submitting again; the server's
+  // idempotent start must still return the same batch (no reassessment, no version 2).
+  const again = page.getByRole('button', { name: 'Assess again', exact: true });
+  await again.click();
+  await again.click();
+  await expect(
+    page.getByRole('heading', { name: 'Assessment progress', exact: true }),
+  ).toBeVisible();
   expect(new URL(page.url()).hash).toBe(saved);
   await expect(stat(page, 'Completed')).toHaveText('2');
   await expect(
     page.getByRole('button', { name: 'View explanation', exact: true }),
   ).toHaveCount(2);
   await page
-    .getByRole('link', { name: 'Case & history', exact: true })
+    .getByRole('link', { name: 'Open case', exact: true })
     .first()
     .click();
-  await (
-    await import('./ux-helpers')
-  ).expandSection(page, /^Assessment history/);
-  await expect(
-    page.getByRole('button', { name: 'View assessment version 1' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'View assessment version 2' }),
-  ).toHaveCount(0);
+  await (await import('./ux-helpers')).expectAssessmentVersions(page, 1);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
   expect(
@@ -424,73 +436,43 @@ test('upload sessions survive refresh and login, isolate new sessions and restor
 }) => {
   test.setTimeout(90000);
   await login(page);
-  await page
-    .getByRole('button', { name: 'Start new upload session', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Confirm new session', exact: true })
-    .click();
-  await expect(
-    page.getByText('0 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await newSession(page);
+  await expectSessionCases(page, 0);
   await validate(page, ['', '0']);
   const importID = await approve(page);
   await page.getByRole('link', { name: 'Cases', exact: true }).first().click();
-  await expect(
-    page.getByText('2 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await expectSessionCases(page, 2);
   await expect(page.locator('tbody tr')).toHaveCount(2);
   await page.reload();
-  await expect(
-    page.getByText('2 uploaded cases', { exact: true }),
-  ).toBeVisible();
-  await (await import('./ux-helpers')).expandSection(page, 'Session history');
+  await expectSessionCases(page, 2);
+  await openSessionHistory(page);
   const previousID = await page.getByLabel('Open a saved session').inputValue();
-  await page
-    .getByRole('button', { name: 'Start new upload session', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Confirm new session', exact: true })
-    .click();
-  await expect(
-    page.getByText('0 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await newSession(page);
+  await expectSessionCases(page, 0);
   await page.getByRole('link', { name: 'Cases', exact: true }).first().click();
-  await expect(
-    page.getByText('0 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await expectSessionCases(page, 0);
   await expect(page.locator('tbody tr')).toHaveCount(0);
-  await (await import('./ux-helpers')).expandSection(page, 'Session history');
+  await openSessionHistory(page);
   await page.getByLabel('Open a saved session').selectOption(previousID);
-  await expect(
-    page.getByText('2 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await expectSessionCases(page, 2);
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await page.getByLabel('Username', { exact: true }).fill('uiadmin');
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
   await page.getByLabel('Password', { exact: true }).press('Enter');
-  await expect(
-    page.getByText('2 uploaded cases', { exact: true }),
-  ).toBeVisible();
-  await page.getByRole('link', { name: 'Administration', exact: true }).click();
+  await expectSessionCases(page, 2);
+  await page
+    .getByLabel('Workspace navigation')
+    .getByRole('link', { name: 'Administration', exact: true })
+    .click();
   await page.getByRole('link', { name: 'CSV Imports', exact: true }).click();
   await expect(
     page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible();
   await expect(page).toHaveURL(new RegExp('#/batch/import/' + importID + '$'));
-  await page
-    .getByRole('button', { name: 'Start new upload session', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Confirm new session', exact: true })
-    .click();
-  await expect(
-    page.getByText('0 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await newSession(page);
+  await expectSessionCases(page, 0);
   await page.goto('/#/batch/import/' + importID);
-  await expect(
-    page.getByText('2 uploaded cases', { exact: true }),
-  ).toBeVisible();
+  await expectSessionCases(page, 2);
   await expect(
     page.getByRole('heading', { name: 'Assess imported alerts', exact: true }),
   ).toBeVisible();

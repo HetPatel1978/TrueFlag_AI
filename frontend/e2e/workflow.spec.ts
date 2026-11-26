@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { signInButton } from './session-helpers';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -23,7 +24,7 @@ async function login(page: Page, username: string) {
   await page.reload();
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
@@ -43,11 +44,7 @@ async function capturesAtAllSizes(page: Page, name: string) {
     ['mobile', 390, 844],
   ] as const) {
     await page.setViewportSize({ width, height });
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
+    await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
     const violations = (
       await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import { readFileSync, writeFileSync, renameSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
@@ -44,13 +45,14 @@ async function control(command: {
       }
     })
     .toBe(next);
+  expectFixtureAck(directory, next);
 }
 async function login(page: Page, name = 'uianalyst') {
   await page.goto('/');
   await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill(name);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
@@ -63,7 +65,7 @@ async function open(page: Page, name: string, workflow = false) {
   await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill('uianalyst');
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('heading', {
       name: `Case ${fixture.cases[name].slice(0, 8)}`,
@@ -98,7 +100,7 @@ test('login, assignment isolation, server search, pagination, filters and sortin
   await page.goto('/');
   await page.getByLabel('Username').fill('uianalyst');
   await page.getByLabel('Password').fill('wrong-password');
-  await page.getByRole('button', { name: 'Sign in →' }).click();
+  await signInButton(page).click();
   await expect(page.getByRole('alert')).toContainText('Sign-in failed');
   const listResponse = page.waitForResponse(
     (r) =>
@@ -188,12 +190,7 @@ test('real asynchronous request, isolated RF/SHAP execution, provenance and vers
   await expect(
     page.getByText(detail.model_sha256, { exact: true }),
   ).toBeVisible();
-  await (
-    await import('./ux-helpers')
-  ).expandSection(page, /^Assessment history/);
-  await expect(
-    page.getByRole('button', { name: 'View assessment version 1' }),
-  ).toBeVisible();
+  await (await import('./ux-helpers')).expectAssessmentVersions(page, 1);
   await accessible(page);
   await page.screenshot({
     path: '../runtime/phase29-details.png',
@@ -220,12 +217,7 @@ test('real asynchronous request, isolated RF/SHAP execution, provenance and vers
     page.getByText('Assessment and key risk drivers saved.'),
   ).toBeVisible({ timeout: 45000 });
   await page.getByRole('link', { name: 'View verified results →' }).click();
-  await (
-    await import('./ux-helpers')
-  ).expandSection(page, /^Assessment history/);
-  await expect(
-    page.getByRole('button', { name: 'View assessment version 2' }),
-  ).toBeVisible();
+  await (await import('./ux-helpers')).expectAssessmentVersions(page, 2);
 });
 
 test('unauthorized case navigation clears data and supervisor/admin scope is enforced', async ({
@@ -350,11 +342,7 @@ test('mobile layout and keyboard sign-in use real authorized data', async ({
   await expect(
     page.getByRole('heading', { name: 'Cases', exact: true }),
   ).toBeVisible();
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
   await page.screenshot({
     path: '../runtime/phase29-mobile.png',
     fullPage: true,

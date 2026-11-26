@@ -98,12 +98,13 @@ function Pager({
     </div>
   );
 }
-/** Counts as one line ("3 imported · 0 rejected · 0 remaining"); no nested boxes. */
+/** Counts as one line ("3 imported · 0 rejected · 0 remaining"); no nested boxes.
+ * `data-stat` is a stable test hook, independent of how the counts are laid out. */
 function StatLine({ values }: { values: Record<string, number> }) {
   return (
     <p className="stat-line">
       {Object.entries(values).map(([name, count], n) => (
-        <span key={name}>
+        <span key={name} data-stat={name}>
           {n > 0 && ' · '}
           <strong>{count.toLocaleString()}</strong> {name}
         </span>
@@ -116,7 +117,7 @@ function Stats({ values }: { values: Record<string, number> }) {
   return (
     <dl className="batch-stats">
       {Object.entries(values).map(([name, count]) => (
-        <div key={name}>
+        <div key={name} data-stat={name}>
           <dt>{name}</dt>
           <dd>{count.toLocaleString()}</dd>
         </div>

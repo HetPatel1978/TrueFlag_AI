@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import { readFileSync, writeFileSync, renameSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
@@ -93,12 +94,13 @@ async function control(command: {
       }
     })
     .toBe(next);
+  expectFixtureAck(directory, next);
 }
 async function login(page: Page, name = 'uianalyst') {
   await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill(name);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();

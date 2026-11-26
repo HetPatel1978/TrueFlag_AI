@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import { readFileSync, writeFileSync, renameSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -10,7 +11,7 @@ async function login(page: Page, username: string) {
   await (await import('./session-helpers')).resetBrowserSession(page);
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();
@@ -47,11 +48,7 @@ test('administrator sees real blocked accounting, disabled refresh, responsive l
   await expect(
     page.getByRole('heading', { name: 'Regulatory research' }),
   ).toBeVisible();
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
   if (process.env.TRUEFLAG_DRAFT_SCREENSHOTS)
     await page.screenshot({
       path: join(
@@ -97,6 +94,7 @@ test('server role revocation clears previously displayed financial state', async
   await expect
     .poll(() => existsSync(join(dirname(file!), 'ack.1.json')))
     .toBe(true);
+  expectFixtureAck(dirname(file!), 1);
   const denied = page.waitForResponse(
     (response) =>
       response.url().endsWith('/api/v1/internal/provider-usage') &&

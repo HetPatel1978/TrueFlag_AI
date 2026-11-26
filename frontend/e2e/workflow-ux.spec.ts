@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import {
   readFileSync,
   writeFileSync,
@@ -114,11 +115,7 @@ async function capture(page: Page, name: string) {
       join(shots!, name + '-overflow.json'),
       JSON.stringify(overflow),
     );
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  await (await import('./ux-helpers')).expectNoHorizontalOverflow(page);
 }
 async function login(page: Page, username: string, route: string) {
   await page.goto('/#' + route);
@@ -126,7 +123,7 @@ async function login(page: Page, username: string, route: string) {
   await page.reload();
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();
@@ -147,6 +144,7 @@ async function startWorker(command: object = { worker: 'start' }) {
   await expect
     .poll(() => readdirSync(directory).includes(`ack.${sequence}.json`))
     .toBe(true);
+  expectFixtureAck(directory, sequence);
 }
 test('guided workflow: admin overview and grouped operations', async ({
   page,

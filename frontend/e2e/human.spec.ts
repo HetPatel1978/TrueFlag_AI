@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
+import { expectFixtureAck, signInButton } from './session-helpers';
 import {
   readFileSync,
   writeFileSync,
@@ -56,6 +57,7 @@ async function control(command: object) {
   await expect
     .poll(() => existsSync(join(dirname(file), `ack.${sequence}.json`)))
     .toBe(true);
+  expectFixtureAck(dirname(file), sequence);
 }
 async function login(
   page: Page,
@@ -68,7 +70,7 @@ async function login(
   await page.reload();
   await page.getByLabel('Username', { exact: true }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(fixture.password);
-  await page.getByRole('button', { name: 'Sign in →', exact: true }).click();
+  await signInButton(page).click();
   await expect(
     page.getByRole('button', { name: 'Sign out', exact: true }),
   ).toBeVisible();
@@ -221,11 +223,8 @@ test('analyst evidence and simulated findings through independent supervisor res
     ['mobile', 390, 844],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await expect
-      .poll(() =>
-        page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      )
-      .toBe(true);
+    const { overflowingElements } = await import('./ux-helpers');
+    await expect.poll(() => overflowingElements(page)).toEqual([]);
     await capture(page, `casework-${name}`);
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
