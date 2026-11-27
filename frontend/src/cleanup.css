@@ -1,0 +1,578 @@
+/* Analyst-first cleanup: shared display pieces. Loaded last; design-system tokens only. */
+
+/* ---- one status vocabulary, same colours everywhere ---- */
+.badge.tone-open {
+  color: var(--blue);
+  background: var(--surface-selected);
+  border-color: var(--nav-border);
+}
+.badge.tone-info {
+  color: var(--info-text);
+  background: var(--info-bg);
+  border-color: var(--info-border);
+}
+.badge.tone-warning {
+  color: var(--warning);
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+}
+.badge.tone-muted {
+  color: var(--text-muted);
+  background: var(--surface-subtle);
+  border-color: var(--border);
+}
+.badge.tone-success {
+  color: var(--chart-lower);
+  background: var(--info-bg);
+  border-color: var(--info-border);
+}
+.badge.tone-danger {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+.badge.tone-processing {
+  color: var(--navy);
+  background: var(--surface-selected);
+  border-color: var(--nav-border);
+}
+
+/* ---- global footer and header badge ---- */
+footer.app-footer {
+  padding: 16px 42px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.environment-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  letter-spacing: 0.02em;
+}
+.account {
+  align-items: center;
+}
+
+/* ---- audit details, copy values, tooltips ---- */
+.audit-details > summary {
+  padding: 10px 16px;
+}
+.audit-body {
+  padding: 0 16px 16px;
+}
+.audit-list {
+  display: grid;
+  grid-template-columns: minmax(10rem, max-content) 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.audit-list dt {
+  color: var(--text-muted);
+}
+.audit-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.copy-value {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.copy-value code {
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.info-tip {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  font-weight: 400;
+  cursor: help;
+}
+.missing-line {
+  margin: 8px 0 0;
+  color: var(--warning);
+  font-size: 0.9rem;
+}
+.coverage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inline-disclosure {
+  display: inline-block;
+  font-size: 0.85rem;
+}
+.inline-disclosure > summary {
+  cursor: pointer;
+  color: var(--blue);
+}
+.inline-disclosure ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+/* ---- session bar: one compact line plus a menu ---- */
+.upload-session-bar.compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  box-shadow: none;
+  position: relative;
+}
+.upload-session-bar.compact .session-line {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+}
+.session-menu {
+  position: relative;
+}
+.session-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.session-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.session-menu > summary:hover,
+.session-menu[open] > summary {
+  background: var(--surface-selected);
+}
+.session-menu-items {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  display: grid;
+  min-width: 11rem;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: 0 6px 16px var(--shadow);
+}
+.session-menu-items a,
+.session-menu-items button {
+  justify-content: flex-start;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  font-weight: 400;
+  text-align: left;
+}
+.upload-session-bar.compact .session-confirm,
+.upload-session-bar.compact .session-history {
+  flex-basis: 100%;
+}
+.upload-session-bar.compact {
+  flex-wrap: wrap;
+}
+
+/* ---- overview ---- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-tile {
+  display: grid;
+  gap: 4px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--ink);
+}
+a.kpi-tile:hover {
+  text-decoration: none;
+  border-color: var(--border-strong);
+}
+.kpi-label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.kpi-value {
+  font-size: 1.8rem;
+}
+.needs-attention .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px 20px 12px;
+}
+.needs-attention h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.needs-attention > p {
+  padding: 0 20px 16px;
+}
+.needs-attention table td,
+.needs-attention table th {
+  padding: 10px 20px;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 900px) {
+  .kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- cases list: queue selector, search and "More filters" on one row ---- */
+.filters {
+  padding: 14px 20px;
+  gap: 12px;
+}
+.filters .filter-disclosure {
+  flex: 0 0 auto;
+  align-self: end;
+}
+.filters .filter-disclosure[open] {
+  flex-basis: 100%;
+}
+.filters label {
+  font-size: 0.85rem;
+}
+.case-table td,
+.case-table th {
+  padding: 12px 18px;
+}
+.case-table td:first-child {
+  min-width: 0;
+}
+.case-table .case-link {
+  display: inline;
+}
+
+/* =========================================================================================
+   Design layer: Public Sans, one type scale (13/14/16/20/28, weights 400/600), restrained
+   tokens, 4px spacing, one card level, no decorative shadows or motion.
+   ========================================================================================= */
+:root {
+  --ink: #1c2533;
+  --page: #f6f7f9;
+  --surface: #ffffff;
+  --surface-subtle: #f6f7f9;
+  --surface-selected: #edf2fa;
+  --border: #dde2e9;
+  --border-strong: #c4cbd5;
+  --text-muted: #5b6574;
+  --blue: #2f5da8;
+  --blue-hover: #264c8a;
+  --focus: #2f5da8;
+  --nav-active: #edf2fa;
+  --nav-border: #d3deef;
+  /* Evidence blue / verified green / alert amber; red only for errors. */
+  --verified: #2e7a58;
+  --verified-bg: #ebf5f0;
+  --verified-border: #bfdccd;
+  --alert: #b0640f; /* borders, dots, icons */
+  --warning: #a35d0d; /* amber text: 5.1:1 on white, 4.6:1 on its tint (AA) */
+  --warning-bg: #fbf3e8;
+  --warning-border: #ecd3b0;
+  --info-bg: #edf2fa;
+  --info-border: #d3deef;
+  --info-text: #2f5da8;
+  --shadow: transparent;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+}
+body {
+  font-size: 14px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: var(--page);
+}
+b,
+strong,
+th {
+  font-weight: 600;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+h1,
+.page-heading h1 {
+  font-size: 28px;
+  margin: 0;
+}
+h2 {
+  font-size: 20px;
+}
+h3 {
+  font-size: 16px;
+}
+h4,
+h5,
+h6 {
+  font-size: 14px;
+}
+button,
+.button,
+input,
+select,
+textarea {
+  font-size: 14px;
+}
+button,
+.button {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+label,
+small,
+.hint,
+.eyebrow,
+footer,
+th,
+.badge,
+.kpi-label {
+  font-size: 13px;
+}
+.eyebrow {
+  letter-spacing: 0;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.badge {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 2px 8px;
+}
+.badge.tone-success,
+.badge.succeeded,
+.badge.verified {
+  color: var(--verified);
+  background: var(--verified-bg);
+  border-color: var(--verified-border);
+}
+.badge.tone-warning .status-dot,
+.badge.high .status-dot {
+  background: var(--alert);
+}
+
+/* One level of card; no decorative shadows (menus excepted). */
+.panel,
+.kpi-tile,
+.upload-session-bar {
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+.panel .panel {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+*:not(.session-menu-items):not(.sticky-rail) {
+  box-shadow: none;
+}
+.session-menu-items {
+  box-shadow: 0 6px 16px rgb(28 37 51 / 12%);
+}
+
+/* Visible keyboard focus everywhere; no motion for users who ask for less. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* 0s, not 0.01ms: with the default transition-property "all", a non-zero duration
+       would animate every property (e.g. the skip link stays off-screen for a frame). */
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Spacing: 32 page padding, 16 between sections, 24 between cards. */
+main#main-content,
+.work-area main#main-content {
+  padding: 32px;
+  min-height: 0;
+}
+.page-heading {
+  margin-bottom: 16px;
+  align-items: center;
+}
+.upload-session-bar.compact {
+  margin-bottom: 16px;
+}
+footer.app-footer {
+  padding: 16px 32px 24px;
+  font-size: 13px;
+}
+
+/* Shell */
+.nav-item {
+  font-size: 14px;
+  font-weight: 400;
+}
+.nav-item.active {
+  font-weight: 600;
+}
+.breadcrumb {
+  font-size: 14px;
+}
+.topbar-refresh {
+  min-height: 32px;
+  padding: 4px 8px;
+}
+.account {
+  gap: 12px;
+}
+
+/* Tables: square rows, 14px text, clickable rows with a hover state. */
+table td {
+  font-size: 14px;
+}
+table th {
+  color: var(--text-muted);
+}
+tr.row-link {
+  cursor: pointer;
+}
+tr.row-link:hover td {
+  background: var(--surface-selected);
+}
+td.case-id,
+td.case-id a {
+  white-space: nowrap;
+  font-weight: 600;
+}
+td.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
+/* Cases table column widths: Recommendation fits one line at 1440px+. */
+.case-table {
+  table-layout: fixed;
+}
+.case-table .col-case {
+  width: 11%;
+}
+.case-table .col-priority {
+  width: 12%;
+}
+.case-table .col-score {
+  width: 9%;
+}
+.case-table .col-recommendation {
+  width: 32%;
+}
+.case-table .col-assignee {
+  width: 20%;
+}
+.case-table .col-updated {
+  width: 16%;
+}
+.case-table td,
+.case-table th {
+  padding: 12px 16px;
+}
+
+/* Overview: KPI tiles and the list share one width grid; the page ends after content. */
+.kpi-row {
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.kpi-tile {
+  padding: 16px;
+}
+.kpi-value {
+  font-size: 20px;
+  font-weight: 600;
+}
+.needs-attention .section-heading {
+  padding: 16px;
+}
+.needs-attention h2 {
+  font-size: 16px;
+}
+.needs-attention table td,
+.needs-attention table th {
+  padding: 12px 16px;
+}
+.needs-attention > p {
+  padding: 0 16px 16px;
+  margin: 0;
+}
+
+/* Type-scale corrections for shell elements that carried rem sizes. */
+.brand span {
+  font-size: 20px;
+}
+.brand b {
+  font-size: 13px;
+}
+.account b {
+  font-size: 14px;
+}
+.account small,
+.account .environment-badge {
+  font-size: 13px;
+}
+.upload-session-bar.compact .session-line,
+.upload-session-bar.compact .session-line strong,
+.upload-session-bar.compact .session-line .muted {
+  font-size: 14px;
+}
+.session-menu > summary {
+  font-size: 16px;
+}
+.info-tip {
+  font-size: 13px;
+}
+.page-heading .info-tip {
+  font-size: 16px;
+  vertical-align: middle;
+}
+.work-area summary {
+  font-size: 14px;
+}
+.filters label,
+.filter-grid label {
+  font-size: 13px;
+}
+.pager,
+.pager span {
+  font-size: 13px;
+}
+.pager button,
+.pager .button {
+  font-size: 14px;
+}

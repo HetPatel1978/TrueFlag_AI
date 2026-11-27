@@ -1,0 +1,1148 @@
+/* Case file: header tabs, 65/35 story column + sticky rail. Imported after cleanup.css. */
+.case-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.case-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.case-title-row h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+.case-step-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.case-step-tabs .workflow-navigation ol {
+  display: flex;
+  gap: 4px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+.case-step-tabs .workflow-navigation li {
+  border: 0;
+  flex: 0 0 auto;
+}
+.case-step-tabs .workflow-navigation a,
+.case-step-tabs .workflow-unavailable {
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+  padding: 10px 12px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-muted);
+}
+.case-step-tabs .workflow-navigation a:hover {
+  background: none;
+  color: var(--ink);
+}
+.case-step-tabs .workflow-navigation a[aria-current='step'] {
+  background: none;
+  box-shadow: none;
+  color: var(--ink);
+  border-bottom-color: var(--blue);
+}
+.case-step-tabs .workflow-navigation strong {
+  font-size: 14px;
+  font-weight: 400;
+}
+.case-step-tabs .workflow-navigation a[aria-current='step'] strong {
+  font-weight: 600;
+}
+/* Step state stays available to assistive technology; the tab shows only its name. */
+.case-step-tabs .workflow-navigation small,
+.case-step-tabs .workflow-unavailable small {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.case-step-tabs .workflow-number {
+  flex: 0 0 22px;
+  height: 22px;
+  line-height: 20px;
+  font-size: 13px;
+}
+.case-step-tabs .activity-link {
+  margin-left: auto;
+  padding: 10px 12px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.case-step-tabs .activity-link[aria-current='page'] {
+  color: var(--ink);
+  font-weight: 600;
+  border-bottom-color: var(--blue);
+}
+.case-file {
+  display: grid;
+  grid-template-columns: minmax(0, 65fr) minmax(300px, 35fr);
+  gap: 24px;
+  align-items: start;
+}
+.case-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.case-main > *,
+.case-main .investigation-workspace > *,
+.case-main .drafts-workspace > *,
+.case-main .evidence-step > *,
+.case-main .human-casework > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.case-main .investigation-workspace,
+.case-main .drafts-workspace,
+.case-main .evidence-step,
+.case-main .human-casework {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.case-rail {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(28, 37, 51, 0.08);
+}
+.rail-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.rail-score strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+.rail-score .muted {
+  font-size: 13px;
+}
+.rail-facts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.rail-facts > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.rail-facts dt {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.rail-facts dd {
+  margin: 0;
+  text-align: right;
+}
+.rail-assignee {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rail-missing,
+.case-rail .missing-line {
+  margin: 0;
+}
+.rail-action {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+button.small,
+.button.small {
+  min-height: 28px;
+  padding: 2px 10px;
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .case-file {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case-rail {
+    position: static;
+  }
+}
+
+/* Step 1 */
+.assessment-card .assessment-head {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+.assessment-card .score {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+.assessment-route h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.assessment-card > p {
+  margin: 12px 0 0;
+}
+.version-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.version-line select {
+  width: auto;
+  min-height: 28px;
+  font-size: 13px;
+}
+.explanation .legend {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+.explanation .legend .raise,
+.contributions .direction.raise {
+  color: var(--warning);
+}
+.explanation .legend .lower,
+.contributions .direction.lower {
+  color: var(--verified);
+}
+.contributions .direction {
+  display: inline-block;
+  width: 14px;
+  font-weight: 600;
+}
+.contributions li {
+  padding: 8px 0;
+}
+.contribution-bar rect.raise {
+  fill: var(--alert);
+}
+.contribution-bar rect.lower {
+  fill: var(--verified);
+}
+
+/* Step 2 */
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.card-head h2,
+.evidence-step h2,
+.decision-card h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.evidence-step section > h2 {
+  margin-bottom: 12px;
+}
+.fact-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+.fact-row dt {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.fact-row dd {
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+.customer-card .missing-line {
+  margin: 12px 0 0;
+}
+.account-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.account-rows li {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.account-rows li:last-child {
+  border-bottom: 0;
+}
+.accounts-card > p.muted {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+.activity-card .investigation-query {
+  border: 0;
+  padding: 0;
+  margin: 0 0 16px;
+}
+.transactions-table td,
+.transactions-table th {
+  padding: 6px 8px;
+}
+.table-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.table-foot .muted {
+  margin-left: auto;
+  font-size: 13px;
+}
+.audit-body h5 {
+  margin: 16px 0 4px;
+  font-size: 13px;
+}
+.audit-events {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+
+/* Step 3: traceability highlight */
+.provider-line {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+.key-findings li,
+.source-rows li,
+.ai-result-block {
+  transition: background-color 0.12s;
+}
+.key-findings li.is-traced,
+.source-rows li.is-traced,
+.ai-result-block.is-traced {
+  background: var(--info-bg);
+  box-shadow: inset 3px 0 var(--blue);
+}
+@media (prefers-reduced-motion: reduce) {
+  .key-findings li,
+  .source-rows li,
+  .ai-result-block {
+    transition: none;
+  }
+}
+
+/* Step 4 */
+.decision-card .status-line {
+  margin: 8px 0 16px;
+  color: var(--text-muted);
+}
+.action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.action-row label,
+.form-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.decision-card .case-action {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+}
+.decision-card .human-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.decision-card .human-form > button {
+  align-self: flex-start;
+}
+.decision-card .actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.compact-timeline {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.compact-timeline li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.compact-timeline li:last-child {
+  border-bottom: 0;
+}
+.timeline-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.timeline-head .muted {
+  font-size: 13px;
+}
+.compact-timeline .human-rationale {
+  margin: 4px 0 0;
+}
+
+/* Card padding and compact disclosures inside the story column. */
+.case-main .panel {
+  padding: 20px 24px;
+  margin: 0;
+}
+.case-main .panel .panel {
+  padding: 0;
+}
+.case-main .panel.disclosure:not([open]) {
+  padding: 4px 0;
+  margin: 0;
+}
+.case-main .disclosure {
+  margin: 0;
+}
+.case-main .disclosure > summary {
+  padding: 8px 0;
+}
+.case-main .panel.disclosure[open] {
+  padding: 4px 24px 20px;
+}
+.case-step-tabs .workflow-navigation {
+  border: 0;
+  background: none;
+  padding: 0;
+}
+/* Rail facts: one column of label/value rows; values never break mid-word. */
+.case-rail dl.rail-facts {
+  grid-template-columns: minmax(0, 1fr);
+  font-size: 14px;
+}
+.case-rail .rail-facts dd {
+  overflow-wrap: normal;
+}
+.case-rail .rail-facts dt {
+  flex: 0 0 auto;
+}
+/* Step 2: customer and accounts side by side. */
+.evidence-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.evidence-top .fact-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.evidence-top .fact-row > div:last-child {
+  grid-column: 1 / -1;
+}
+.case-main dl.fact-row {
+  font-size: 14px;
+}
+.case-main .fact-row > div {
+  display: block;
+}
+.account-rows li {
+  padding: 4px 0;
+}
+.transactions-table td {
+  padding: 4px 8px;
+}
+.table-foot .button.primary {
+  margin-left: 0;
+}
+/* Step 3: compact header and blocks. */
+.case-main .draft-action .section-heading {
+  margin: 0;
+  align-items: flex-start;
+}
+.case-main .draft-action h3 {
+  margin: 0;
+}
+.case-main .spend-line {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.case-main .draft-state-line {
+  margin: 8px 0 0;
+}
+.case-main .ai-result-status {
+  margin-top: 12px;
+}
+.case-main .ai-result-block {
+  padding: 10px 0;
+  margin: 0;
+}
+.case-main .ai-result-block h4 {
+  margin: 0 0 4px;
+}
+.case-main .ai-result-block p,
+.case-main .ai-result-block ul,
+.case-main .ai-result-block ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.case-main .key-findings li,
+.case-main .plain-list li {
+  padding: 2px 0;
+}
+.case-main .source-rows li {
+  padding: 6px 10px;
+}
+.inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
+}
+.case-main .ai-footer {
+  margin: 0;
+  text-align: left;
+}
+
+/* Collapsed sections share one row; an opened section takes the full width. */
+.disclosure-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0 24px;
+}
+.disclosure-bar > details {
+  flex: 0 0 auto;
+}
+.disclosure-bar > details[open] {
+  flex: 1 1 100%;
+  order: 2;
+}
+.case-main .panel {
+  padding: 16px 20px;
+}
+.evidence-top .fact-row {
+  grid-template-columns: repeat(3, minmax(0, auto));
+  gap: 12px 20px;
+}
+.evidence-top .fact-row > div:last-child {
+  grid-column: auto;
+}
+.transactions-block {
+  margin-top: 16px;
+}
+/* Step 3 header: title, action and spend note in a tight block. */
+.case-main .draft-action {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+}
+.case-main .draft-action > * {
+  margin: 0;
+}
+.case-main .draft-state-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+.case-main .draft-state-line:empty {
+  display: none;
+}
+.case-main .ai-result-block h4 + .hint {
+  margin-top: -2px;
+}
+
+.case-main .header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.case-main .header-actions .draft-state-line button {
+  min-height: 28px;
+  padding: 2px 10px;
+  font-size: 13px;
+}
+.case-main .ai-result {
+  gap: 8px;
+}
+.case-main .ai-result-status {
+  margin-top: 0;
+  padding-top: 8px;
+}
+.case-main .ai-result-block {
+  padding: 8px 0 0;
+}
+.case-main .ai-result-block h4 .hint {
+  font-weight: 400;
+  font-size: 13px;
+}
+.case-main .source-rows {
+  gap: 4px;
+}
+.case-main .source-rows li {
+  padding: 4px 10px;
+}
+.case-main .key-findings,
+.case-main .plain-list {
+  gap: 2px;
+}
+.case-main .ai-conclusion {
+  font-size: 15px;
+}
+.case-main .ai-result .ai-footer {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.case-header {
+  margin-bottom: 16px;
+}
+footer.app-footer {
+  padding-bottom: 16px;
+}
+
+/* Legend is plain coloured text (the old legend used filled swatches). */
+.explanation .legend .raise,
+.explanation .legend .lower {
+  background: none;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+}
+
+/* ---------- Round 3 fixes ---------- */
+/* Footer sits at the bottom of the viewport on short pages. */
+.work-area {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.work-area > main#main-content {
+  flex: 1 0 auto;
+}
+.work-area > footer.app-footer {
+  flex-shrink: 0;
+}
+/* 24px between the logo and the first navigation item. */
+.sidebar-heading + nav {
+  margin-top: 24px;
+}
+/* Below 1400px the rail is a one-row summary bar above the main column. */
+@media (max-width: 1399px) {
+  .case-file {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .case-rail {
+    order: -1;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    padding: 12px 16px;
+    box-shadow: none;
+  }
+  .case-rail .rail-score {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .case-rail .rail-score strong {
+    font-size: 20px;
+  }
+  .case-rail .rail-caveat {
+    display: none;
+  }
+  .case-rail dl.rail-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    padding: 0;
+    border: 0;
+  }
+  .case-rail .rail-facts > div {
+    gap: 8px;
+  }
+  .case-rail .rail-action {
+    width: auto;
+    margin-left: auto;
+  }
+}
+/* Tables never wrap a cell. */
+.transactions-table th,
+.transactions-table td,
+.drafts-workspace .compact-table th,
+.drafts-workspace .compact-table td {
+  white-space: nowrap;
+}
+.transactions-table {
+  width: 100%;
+}
+/* Activity: all five values in one row. */
+.case-main dl.activity-totals {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.activity-totals dd {
+  white-space: nowrap;
+}
+/* Customer card: values never wrap; the KYC scale lives in a tooltip. */
+.evidence-top .fact-row dd {
+  white-space: nowrap;
+}
+.has-tip {
+  border-bottom: 1px dotted var(--text-muted);
+  cursor: help;
+}
+.tag {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+/* AI investigation header. */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  padding: 0;
+}
+.header-actions {
+  flex-direction: row !important;
+  align-items: center !important;
+}
+.ai-conclusion .chips {
+  margin-left: 8px;
+}
+/* Regulatory basis rows: one line each, title truncated with a tooltip. */
+.case-main .source-rows {
+  padding-left: 0;
+  list-style: none;
+}
+.case-main .source-rows li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+.source-rows .source-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.source-rows .source-rank,
+.source-rows .used-in {
+  white-space: nowrap;
+  text-align: right;
+  font-size: 13px;
+}
+
+/* Tables inside Audit details scroll sideways instead of wrapping. */
+.audit-body .table-wrap {
+  overflow-x: auto;
+}
+.audit-body table th,
+.audit-body table td {
+  white-space: nowrap;
+}
+
+/* Activity History: day groups, one line per event. */
+.activity-panel .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.compact-filter select {
+  width: auto;
+  min-height: 32px;
+  font-size: 13px;
+}
+.activity-day h3 {
+  margin: 16px 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.activity-list.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.activity-list.timeline > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 6px 0;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-list.timeline > li:last-child {
+  border-bottom: 0;
+}
+.activity-list.timeline strong {
+  font-weight: 600;
+}
+.activity-list.timeline .muted {
+  font-size: 13px;
+}
+.activity-icon {
+  width: 16px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.activity-icon.ai {
+  color: var(--blue);
+}
+.activity-steps {
+  margin-left: auto;
+  font-size: 13px;
+}
+.activity-steps ol {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+/* Group 3: admin and queue pages. */
+.provider-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.provider-card,
+.review-queue,
+.diagnostics-panel {
+  padding: 16px 20px;
+}
+.provider-card .card-head h2 {
+  margin-right: 4px;
+}
+.provider-card .fact-row {
+  margin: 12px 0;
+}
+.kv-table th {
+  width: 200px;
+  text-align: left;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.import-complete {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.queue-table td,
+.queue-table th,
+.batch-panel table td,
+.batch-panel table th {
+  white-space: nowrap;
+}
+
+.rail-facts:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* Missing-evidence items on one row, separated by a middle dot (no overlapping bullets). */
+ul.inline-list {
+  list-style: none;
+  padding-left: 0;
+  gap: 2px 0;
+}
+ul.inline-list > li + li::before {
+  content: '·';
+  margin: 0 8px;
+  color: var(--text-muted);
+}
+/* Main always spans the work area, whatever its content width. */
+.work-area {
+  align-items: stretch;
+}
+.work-area > main#main-content {
+  /* Auto side margins centre main but disable flex stretch; a full width restores it. */
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.case-header,
+.case-file {
+  width: 100%;
+}
+@media (max-width: 1399px) {
+  .case-rail > * {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+  .case-rail dl.rail-facts {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    min-width: 0;
+    gap: 16px;
+  }
+  /* The badge and the name speak for themselves in the bar. */
+  .case-rail .rail-priority dt,
+  .case-rail .rail-assignee-row dt,
+  .case-rail .rail-rec dt {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .case-rail .rail-rec {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+  .case-rail .rail-rec dd {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .case-rail .rail-score .rail-label {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1399px) {
+  .case-rail {
+    gap: 8px 12px;
+  }
+  .case-rail dl.rail-facts {
+    gap: 12px;
+  }
+  .case-rail .rail-score .rail-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .case-rail .rail-rec dd {
+    max-width: 200px;
+  }
+  .case-rail .rail-action {
+    min-height: 32px;
+    padding: 4px 12px;
+    font-size: 13px;
+  }
+}
+
+/* ---- Group 3 follow-up: provider cards, retrieval corpus, imports, activity ---- */
+.provider-cards {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.provider-lines {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.provider-collapsed {
+  padding: 12px 20px;
+}
+.provider-collapsed > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted, #5b6472);
+}
+.provider-collapsed > summary h2 {
+  display: inline;
+  margin: 0;
+  font-size: 16px;
+  color: var(--text, #111827);
+}
+.provider-collapsed[open] > summary {
+  margin-bottom: 12px;
+}
+.corpus-panel {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.corpus-line {
+  margin: 0 0 12px;
+}
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inline-form input {
+  flex: 1 1 280px;
+  max-width: 420px;
+  margin: 0;
+}
+.inline-form label {
+  margin: 0;
+  font-weight: 600;
+}
+.retrieval-table {
+  width: 100%;
+  table-layout: fixed;
+  margin-top: 8px;
+}
+.retrieval-table th:nth-child(1),
+.retrieval-table td:nth-child(1) {
+  width: 56px;
+}
+.retrieval-table th:nth-child(2),
+.retrieval-table td:nth-child(2) {
+  width: 110px;
+}
+.retrieval-table th:nth-child(4),
+.retrieval-table td:nth-child(4) {
+  width: 80px;
+}
+.retrieval-table .source-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.other-sources {
+  margin-top: 8px;
+}
+.stat-line {
+  margin: 8px 0 12px;
+}
+.stat-line strong {
+  font-variant-numeric: tabular-nums;
+}
+.already-assessed {
+  margin: 0 0 8px;
+}
+.show-older {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+time.has-tip {
+  cursor: help;
+}
+.provider-card .card-head {
+  justify-content: flex-start;
+}
+.provider-card .card-head .tag {
+  margin-left: auto;
+}
+.assess-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.assess-row label {
+  margin: 0;
+}
+.assess-row select {
+  width: auto;
+  min-width: 180px;
+  margin: 0;
+}
+
+/* Regulatory basis: one compact line per cited source ("R3 · § 1020.210 Title · Used in: …"). */
+.case-main .source-rows li {
+  grid-template-columns: auto minmax(0, max-content) auto;
+  justify-content: start;
+  gap: 6px;
+}
+.source-rows .used-in {
+  text-align: left;
+}
+.research-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+.also-retrieved,
+.retrieval-how {
+  margin-top: 4px;
+  font-size: 13px;
+}
+.also-retrieved > summary,
+.retrieval-how > summary {
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.retrieval-how p {
+  margin: 2px 0;
+}
+.source-text h5 .tag {
+  margin-left: 8px;
+  font-weight: 400;
+}
+.excerpt-sent > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.source-rows .source-title::before,
+.source-rows .used-in::before {
+  content: '· ';
+}
+
+/* Indicator chips read as a list ("T1, T2"); the separator text carries the spacing. */
+.chips.chip-list {
+  gap: 0;
+}
+.chips.chip-list .chip-sep {
+  white-space: pre;
+}

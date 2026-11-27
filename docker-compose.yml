@@ -1,0 +1,101 @@
+name: trueflag-ai
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: trueflag
+      POSTGRES_DB: trueflag
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python scripts/init_env.py}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trueflag -d trueflag"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  migrate:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://trueflag:${POSTGRES_PASSWORD}@db:5432/trueflag
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db: {condition: service_healthy}
+    restart: "no"
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      APP_ENV: compose
+      BATCH_ASSESSMENT_DISPATCH_ENABLED: "true"
+      DATABASE_URL: postgresql+psycopg://trueflag:${POSTGRES_PASSWORD}@db:5432/trueflag
+    ports: ["127.0.0.1:${BACKEND_PORT:-8010}:8000"]
+    volumes: ["csv-staging:/app/runtime/csv-staging"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:${FRONTEND_PORT:-8088}:8080"]
+    depends_on:
+      backend: {condition: service_healthy}
+  assessment-worker:
+    profiles: [assessment-worker]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.ml-worker
+    environment:
+      DATABASE_URL: postgresql+psycopg://trueflag:${POSTGRES_PASSWORD}@db:5432/trueflag
+    secrets: [assessment_worker_token]
+    volumes:
+      - ./assets/local/baseline/model:/assets/local/baseline/model:ro
+      - ./assets/local/baseline/contracts:/assets/local/baseline/contracts:ro
+      - ./assets/local/baseline/reference/research/src/trueflag:/assets/local/baseline/reference/research/src/trueflag:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=256m"]
+    mem_limit: 3g
+    cpus: 2
+    pids_limit: 128
+    stop_grace_period: 10s
+    restart: unless-stopped
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  csv-import-worker:
+    profiles: [csv-import-worker]
+    build: ./backend
+    command: ["python", "-B", "-m", "app.workers.csv_import_worker"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://trueflag:${POSTGRES_PASSWORD}@db:5432/trueflag
+      CSV_IMPORT_LEASE_SECONDS: ${CSV_IMPORT_LEASE_SECONDS:-60}
+      CSV_IMPORT_CHUNK_TIMEOUT_SECONDS: ${CSV_IMPORT_CHUNK_TIMEOUT_SECONDS:-10}
+      CSV_MAX_BYTES: ${CSV_MAX_BYTES:-1048576}
+      CSV_MAX_ROWS: ${CSV_MAX_ROWS:-2000}
+      CSV_MAX_COLUMNS: ${CSV_MAX_COLUMNS:-64}
+      CSV_MAX_FIELD_BYTES: ${CSV_MAX_FIELD_BYTES:-16384}
+    secrets: [csv_import_worker_token]
+    volumes: ["csv-staging:/app/runtime/csv-staging:ro"]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=32m"]
+    mem_limit: 512m
+    cpus: 1
+    pids_limit: 64
+    stop_grace_period: 20s
+    restart: unless-stopped
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+secrets:
+  assessment_worker_token:
+    file: ./runtime/assessment_worker_token
+  csv_import_worker_token:
+    file: ./runtime/csv-import-access/worker_token
+volumes:
+  postgres-data:
+  csv-staging:

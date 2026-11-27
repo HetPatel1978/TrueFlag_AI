@@ -1,0 +1,18 @@
+{
+  "version": "trueflag.claude-development-financial-scope.v1",
+  "scope": "development_no_spend_cap_v1",
+  "prepared_date": "2026-11-22",
+  "authority": "Project owner explicitly withdrew the $20 total testing allowance and $2.15 reservation restriction for this development task in the conversation.",
+  "purpose": "development_validation",
+  "provider": "anthropic",
+  "data_scope": "synthetic_only",
+  "total_spend_cap_usd": null,
+  "application_reservation_required": false,
+  "historical_ledger_may_be_modified": false,
+  "max_outstanding_requests": 1,
+  "max_requests_per_exact_approval": 1,
+  "automatic_retries": false,
+  "requires_new_exact_payload_approval": true,
+  "general_analyst_inference_authorized": false,
+  "applies_to_luminal_or_other_scopes": false
+}

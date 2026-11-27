@@ -1,0 +1,9 @@
+# Local acceptance only. Application code, private assets and credentials are never copied.
+FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 NUMBA_CACHE_DIR=/tmp/numba MPLCONFIGDIR=/tmp/matplotlib PYTHONPATH=/workspace/backend
+WORKDIR /workspace
+COPY requirements.lock ml-requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.lock -r /tmp/ml-requirements.txt \
+    && useradd --create-home --uid 10001 trueflag
+USER 10001
+CMD ["python", "-B", "scripts/verify_assessment_persistence.py"]

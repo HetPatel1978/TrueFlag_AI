@@ -1,0 +1,288 @@
+{
+  "environment": {
+    "container_cpu_limit_cores": 2,
+    "container_pid_limit": 128,
+    "postgresql": "17.11",
+    "python": "3.11.18",
+    "scientific_runtime": "backend/ml-requirements.txt (SHA-verified fitted baseline)"
+  },
+  "interpretation": "Single local Linux/PG run, cold per-job initialization; descriptive measurements, not production capacity or an SLA.",
+  "invariants": {
+    "automatic_case_actions": 0,
+    "committed_jobs": 16,
+    "completed_assessments": 14,
+    "duplicate_assessments": 0,
+    "lost_jobs": 0,
+    "succeeded": 14,
+    "terminal_manual_review": 2,
+    "unauthorized_successful_reads": 0
+  },
+  "monitoring": {
+    "api": {
+      "authorization_denials": 0,
+      "client_error_rate": 0.07462686567164178,
+      "client_errors": 5,
+      "error_rate": 0.14925373134328357,
+      "latency": {
+        "count": 67,
+        "mean_ms": 15.472458208892226,
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 50,
+        "p99_upper_bound_ms": 100
+      },
+      "not_found_or_hidden": 1,
+      "queue_contention": 4,
+      "queue_saturation": 1,
+      "rate_limited": 1,
+      "requests": 67,
+      "server_error_rate": 0.07462686567164178,
+      "server_errors": 5,
+      "unavailable": 5
+    },
+    "coverage": {
+      "export_interval_seconds": 5,
+      "invalid_rows": 0,
+      "local_dropped_observations": 0,
+      "quantiles": "histogram upper bounds; null means empty or overflow",
+      "retention_minutes": 120,
+      "row_limit": 10000,
+      "truncated": false
+    },
+    "durable_events": {
+      "assessment.job.claimed": 19,
+      "assessment.job.failed": 2,
+      "assessment.job.retry_scheduled": 3,
+      "assessment.job.succeeded": 14
+    },
+    "series": [
+      {
+        "count": 4,
+        "kind": "counter",
+        "label": "ok",
+        "name": "api.queue_contention"
+      },
+      {
+        "count": 1,
+        "kind": "counter",
+        "label": "ok",
+        "name": "api.queue_saturation"
+      },
+      {
+        "count": 1,
+        "kind": "histogram",
+        "label": "assessment_job|GET|2xx",
+        "mean_ms": 14.750819000255433,
+        "name": "api.request",
+        "p50_upper_bound_ms": 20,
+        "p95_upper_bound_ms": 20,
+        "p99_upper_bound_ms": 20
+      },
+      {
+        "count": 1,
+        "kind": "histogram",
+        "label": "assessment_job|GET|404",
+        "mean_ms": 13.687255999684567,
+        "name": "api.request",
+        "p50_upper_bound_ms": 20,
+        "p95_upper_bound_ms": 20,
+        "p99_upper_bound_ms": 20
+      },
+      {
+        "count": 1,
+        "kind": "histogram",
+        "label": "assessment_job|GET|429",
+        "mean_ms": 6.96576199879928,
+        "name": "api.request",
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 10,
+        "p99_upper_bound_ms": 10
+      },
+      {
+        "count": 17,
+        "kind": "histogram",
+        "label": "case_assignment|PUT|2xx",
+        "mean_ms": 8.29364229385272,
+        "name": "api.request",
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 20,
+        "p99_upper_bound_ms": 20
+      },
+      {
+        "count": 16,
+        "kind": "histogram",
+        "label": "ingest|POST|2xx",
+        "mean_ms": 8.77584725003544,
+        "name": "api.request",
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 50,
+        "p99_upper_bound_ms": 50
+      },
+      {
+        "count": 4,
+        "kind": "histogram",
+        "label": "operational_metrics|GET|2xx",
+        "mean_ms": 11.731852000139043,
+        "name": "api.request",
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 20,
+        "p99_upper_bound_ms": 20
+      },
+      {
+        "count": 19,
+        "kind": "histogram",
+        "label": "request_assessment|POST|2xx",
+        "mean_ms": 25.174692000004335,
+        "name": "api.request",
+        "p50_upper_bound_ms": 50,
+        "p95_upper_bound_ms": 100,
+        "p99_upper_bound_ms": 100
+      },
+      {
+        "count": 3,
+        "kind": "histogram",
+        "label": "request_assessment|POST|409",
+        "mean_ms": 9.681565333570083,
+        "name": "api.request",
+        "p50_upper_bound_ms": 10,
+        "p95_upper_bound_ms": 20,
+        "p99_upper_bound_ms": 20
+      },
+      {
+        "count": 5,
+        "kind": "histogram",
+        "label": "request_assessment|POST|503",
+        "mean_ms": 33.11082719992555,
+        "name": "api.request",
+        "p50_upper_bound_ms": 50,
+        "p95_upper_bound_ms": 50,
+        "p99_upper_bound_ms": 50
+      },
+      {
+        "count": 17,
+        "kind": "histogram",
+        "label": "observed",
+        "mean_ms": 1071.0839532940179,
+        "name": "model.initialization",
+        "p50_upper_bound_ms": 2000,
+        "p95_upper_bound_ms": 5000,
+        "p99_upper_bound_ms": 5000
+      },
+      {
+        "count": 14,
+        "kind": "histogram",
+        "label": "observed",
+        "mean_ms": 19.395953357291415,
+        "name": "model.scoring",
+        "p50_upper_bound_ms": 20,
+        "p95_upper_bound_ms": 50,
+        "p99_upper_bound_ms": 50
+      },
+      {
+        "count": 14,
+        "kind": "histogram",
+        "label": "observed",
+        "mean_ms": 41.40339499969871,
+        "name": "model.shap",
+        "p50_upper_bound_ms": 50,
+        "p95_upper_bound_ms": 50,
+        "p99_upper_bound_ms": 50
+      },
+      {
+        "count": 2,
+        "kind": "histogram",
+        "label": "failed",
+        "mean_ms": 1763.388317501267,
+        "name": "worker.execution",
+        "p50_upper_bound_ms": 1000,
+        "p95_upper_bound_ms": 5000,
+        "p99_upper_bound_ms": 5000
+      },
+      {
+        "count": 2,
+        "kind": "histogram",
+        "label": "pending",
+        "mean_ms": 893.4077465000883,
+        "name": "worker.execution",
+        "p50_upper_bound_ms": 1000,
+        "p95_upper_bound_ms": 1000,
+        "p99_upper_bound_ms": 1000
+      },
+      {
+        "count": 13,
+        "kind": "histogram",
+        "label": "succeeded",
+        "mean_ms": 2555.7019836924155,
+        "name": "worker.execution",
+        "p50_upper_bound_ms": 5000,
+        "p95_upper_bound_ms": 5000,
+        "p99_upper_bound_ms": 5000
+      },
+      {
+        "count": 1,
+        "kind": "counter",
+        "label": "ok",
+        "name": "worker.recovered"
+      },
+      {
+        "count": 131,
+        "kind": "counter",
+        "label": "ok",
+        "name": "worker.recovery_scan"
+      }
+    ]
+  },
+  "profile": {
+    "dataset": "new synthetic 27-feature records; no replay fixture used",
+    "deadline_seconds": 180,
+    "queue_capacity": 4,
+    "steady_jobs": 12,
+    "submission_concurrency": 4,
+    "synthetic_cases": 16,
+    "waves": 3,
+    "worker_concurrency": 2
+  },
+  "recovery": {
+    "abrupt_worker_exit_recovered": true,
+    "authorization_revocation_blocked_publication": true,
+    "inflight_pg_connection_termination_rolled_back": true,
+    "rate_limit_enforced": true,
+    "same_claim_retry_succeeded": true,
+    "stale_worker_fenced": true,
+    "terminal_manual_review_after_three_attempts": true
+  },
+  "resources": {
+    "container_memory_limit_bytes": 3221225472,
+    "container_peak_bytes": 739504128,
+    "cpu_seconds": 33.234,
+    "database_resources_included": false,
+    "reaped_children_peak_rss_kib": 303360,
+    "self_peak_rss_kib": 162148
+  },
+  "status": "PASS",
+  "steady_load": {
+    "admission_contention_retries": 4,
+    "expected_http_outcomes": {
+      "202": 15,
+      "409": 3,
+      "503": 1
+    },
+    "jobs_per_second": 0.5394,
+    "oldest_pending_age_seconds_observed": 2.231,
+    "peak_active_queue": 4,
+    "submission_latency": {
+      "count": 12,
+      "p50_ms": 47.474,
+      "p95_ms": 2081.868,
+      "p99_ms": 2086.47
+    },
+    "submission_latency_includes_retry_wait": true,
+    "unexpected_failures": 0,
+    "wall_seconds": 22.248,
+    "worker_wall_latency": {
+      "count": 12,
+      "p50_ms": 2496.296,
+      "p95_ms": 3135.003,
+      "p99_ms": 3136.122
+    }
+  }
+}

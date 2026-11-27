@@ -1,0 +1,14 @@
+{
+  "version": "trueflag.probe-a-authorization.v1",
+  "basis": "explicit-user-request-g4.2b.4",
+  "scope": "exact-synthetic-probe-a-only",
+  "package_sha256": "338703d5b331f6d98e84e58be4977adb49cf80a269af2fb49cacbe74b0d99183",
+  "request_sha256": "135f684427912c0231d0a97f09f7773ff73882e033aed5045fd59fd350c886f6",
+  "terms_review_sha256": "0fa6f6c4e8434988546f12f47e847a64ff63d35f3ddf88c3e2582fe2715e66b6",
+  "privacy_review_sha256": "ceefc6b9c408c8da9ed2963d6fbc855800a6413dbc5b5e28a49e8c29728328bc",
+  "maximum_attempts": 1,
+  "application_reservation_ceiling_usd": "1.00",
+  "automatic_paid_retries": false,
+  "provider_invoice_cap_verified": false,
+  "signed_identity_attestation": false
+}

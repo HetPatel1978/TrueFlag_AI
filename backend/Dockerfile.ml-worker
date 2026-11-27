@@ -1,0 +1,12 @@
+# Public application source only; approved private RF assets mount read-only at runtime.
+FROM python:3.11-slim
+LABEL org.opencontainers.image.version="0.1.0" io.trueflag.release-contract="trueflag.release.v1"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 NUMBA_CACHE_DIR=/tmp/numba MPLCONFIGDIR=/tmp/matplotlib OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+WORKDIR /app
+COPY requirements.lock ml-requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.lock -r /tmp/ml-requirements.txt \
+    && useradd --create-home --uid 10001 trueflag
+COPY app ./app
+COPY trueflag_ml ./trueflag_ml
+USER 10001
+CMD ["python", "-B", "-m", "app.workers.assessment_worker"]

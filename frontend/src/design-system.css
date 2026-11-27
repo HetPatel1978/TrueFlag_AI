@@ -1,0 +1,153 @@
+/* Shared presentation tokens. System fonts only; no remote font or asset requests. */
+:root {
+  --navy: #1b3152;
+  --navy-deep: #172b49;
+  --nav-active: #edf3fc;
+  --nav-border: #d7e3f5;
+  --blue: #245fbb;
+  --blue-hover: #194b99;
+  --cyan: #89cce6;
+  --ink: #23272f;
+  --text-muted: #606775;
+  --text-on-dark: #f4f7fb;
+  --text-on-dark-muted: #becbdf;
+  --page: #f6f7f9;
+  --surface: #ffffff;
+  --surface-subtle: #f8f9fb;
+  --surface-selected: #edf3fc;
+  --border: #e2e5eb;
+  --border-strong: #b8bfcb;
+  --info-bg: #f0f6fa;
+  --info-border: #cbdde9;
+  --info-text: #28546a;
+  --chart-raise: #3269b9;
+  --chart-lower: #157286;
+  --focus: #245fbb;
+  --shadow: rgb(23 35 56 / 3%);
+  --danger: #943b32;
+  --danger-bg: #fff3f1;
+  --danger-border: #eed2cd;
+  --warning: #765719;
+  --warning-bg: #fcf7eb;
+  --warning-border: #e8dcbd;
+  --radius-sm: 7px;
+  --radius-md: 11px;
+  --radius-lg: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --sidebar-width: 232px;
+  --motion-fast: 140ms;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', ui-sans-serif, system-ui,
+    sans-serif;
+  color: var(--ink);
+  background: var(--page);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.ui-icon {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+.page-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.technical-details {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.technical-details summary {
+  font-weight: 400;
+}
+.technical-details[open] {
+  margin-bottom: var(--space-4);
+}
+.case-reference {
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.context-nav-label {
+  margin-top: var(--space-8);
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.breadcrumb .ui-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+}
+.breadcrumb a {
+  color: var(--text-muted);
+}
+.breadcrumb span {
+  padding: 0;
+  white-space: nowrap;
+}
+.nav-item .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+.sidebar .brand b {
+  color: var(--blue);
+}
+.sidebar .environment,
+.sidebar-bottom .environment {
+  color: var(--text-muted);
+}
+.sidebar-bottom .environment {
+  display: inline-flex;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+}
+.nav-item.active .ui-icon {
+  color: var(--blue);
+}
+button,
+.button,
+.nav-item {
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
+}
+.financial-facts,
+.score,
+td,
+.batch-stats {
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}

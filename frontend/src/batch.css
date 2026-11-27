@@ -1,0 +1,206 @@
+.batch-workspace {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.batch-panel {
+  margin-bottom: 1.25rem;
+  padding: 1.5rem;
+}
+.batch-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.12rem;
+}
+.batch-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 0;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+.batch-steps li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.8rem;
+  border-bottom: 3px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.batch-steps li span {
+  font-weight: 600;
+}
+.batch-steps li.reached {
+  border-color: var(--blue);
+  color: var(--blue-hover);
+}
+.batch-steps li[aria-current] {
+  background: var(--surface-selected);
+  border-radius: 6px 6px 0 0;
+  font-weight: 600;
+}
+.batch-drop {
+  display: block;
+  padding: 1.5rem;
+  background: var(--surface-subtle);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+}
+.batch-drop input {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+.batch-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.batch-stats div {
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+}
+.batch-stats dt {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.batch-stats dd {
+  font-size: 1.55rem;
+  font-weight: 600;
+  margin: 0.2rem 0 0;
+  color: var(--ink);
+}
+.batch-mapping {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1.5rem;
+  margin: 1.25rem 0;
+}
+.batch-mapping label {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(110px, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid #e7edf7;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.batch-mapping small,
+.batch-workspace td small {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+.batch-workspace select,
+.batch-workspace input:not([type='checkbox']) {
+  max-width: 100%;
+}
+.batch-confirm {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  margin: 1.2rem 0;
+  font-size: 0.9rem;
+}
+.batch-confirm input {
+  width: 18px;
+  height: 18px;
+  margin: 0.1rem 0 0;
+  flex-shrink: 0;
+}
+.batch-export,
+.batch-resume {
+  display: flex;
+  align-items: end;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.batch-export label {
+  flex: 1;
+  min-width: 160px;
+  font-size: 0.9rem;
+}
+.batch-export label input,
+.batch-export label select {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+.batch-resume label {
+  align-self: center;
+}
+.batch-resume input {
+  flex: 1;
+  min-width: 180px;
+}
+.batch-workspace progress {
+  width: 100%;
+  height: 0.8rem;
+  accent-color: var(--blue);
+}
+.batch-upload-progress {
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.batch-id {
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+.batch-disclaimer {
+  background: var(--info-bg);
+  border-left: 3px solid var(--chart-lower);
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  color: var(--info-text);
+}
+.batch-alert {
+  margin-bottom: 1rem;
+}
+.batch-workspace td {
+  vertical-align: top;
+}
+.batch-workspace td:last-child a {
+  display: block;
+  margin-top: 0.3rem;
+}
+.batch-workspace #batch-policy {
+  margin: 0.5rem 0.8rem 1rem 0;
+  min-width: 180px;
+}
+@media (max-width: 900px) {
+  .batch-mapping {
+    grid-template-columns: 1fr;
+  }
+  .batch-steps {
+    gap: 0.15rem;
+  }
+  .batch-steps li {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (max-width: 560px) {
+  .batch-panel {
+    padding: 1rem;
+  }
+  .batch-mapping label {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .batch-steps li {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.2rem;
+  }
+  .batch-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

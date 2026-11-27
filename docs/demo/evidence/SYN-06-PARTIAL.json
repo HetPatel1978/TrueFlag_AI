@@ -1,0 +1,124 @@
+{
+  "catalog_version": "trueflag.demo-cases.v2",
+  "case_id": "SYN-06-PARTIAL",
+  "title": "Suspicious-looking activity but only part of the history is available",
+  "note": "Generated synthetic evidence. Bound to the uploaded case by scripts/attach_demo_evidence.py; model inputs are declared, not derived from it.",
+  "coverage": "partial",
+  "window_start": "2025-10-03T00:00:00+00:00",
+  "as_of": "2026-01-01T00:00:00+00:00",
+  "manifest": {
+    "generator_version": "trueflag.synthetic-evidence.v1",
+    "config_version": "trueflag.evidence-config.v1",
+    "dictionary_sha256": "6d262b3b8cce169fd3898019d46bb0dc542a3054f51ff3f2c80d5cf3b14de442",
+    "data_classification": "synthetic",
+    "origin_kind": "generated_synthetic",
+    "scenario_id": "9fdb7129-2ad3-55c7-acce-c8b7b0832e0d",
+    "seed": 0,
+    "source_revision": 1,
+    "as_of": "2026-01-01T00:00:00Z",
+    "window_start": "2025-10-03T00:00:00Z",
+    "coverage": "partial",
+    "config_sha256": "d05c117aa89e58687cace8664bae040853908188b3f3f07b76a2c197148a8a7a",
+    "declarations_sha256": "9744907f93a305c00ea271e7243dfcb4600647549edd1011e72c9037641bffaf",
+    "record_sha256": {
+      "account-main": "1daf4cae80119ed6a78864124ebe7c68c3b349b2cb89bed8519625954ce285ef",
+      "holder-main": "0144435d2756bec1e893a7a4cf708878426f252e772f90d703917c6d38dffa00",
+      "kyc-primary": "d9c9b4ac89b08daf13969651d1c989c49d4e83d493de0e636ad3bd0edfa57ac4",
+      "p2p-wallet-a": "754ec93935e82d6edb980c82ab2e1675043697419e08fb1121b6c9a2f4acd0af",
+      "txn-001": "9e845798d18a972c5179afef8c322ede46595a452572d9d25cd615632e95e321",
+      "txn-002": "4f32518ec3ac5cecbcfd7ae37303a32f890cc7f6451767442a202b57feb28f14",
+      "txn-003": "2b7e63e0d87c2da1c2447e806e11b97e0764d4cea2b634cd83a9bd2404ba4fda",
+      "txn-004": "9a13e282356d3a8cfc3aac8781b0cbc58e93d7fc737966a55ca1c0d591486ac3"
+    }
+  },
+  "records": {
+    "account-main": {
+      "kind": "account",
+      "key": "account-main",
+      "alias": "SYN-ACCOUNT-49201a18",
+      "currency": "USD",
+      "opened_at": "2023-01-07T00:00:00+00:00"
+    },
+    "holder-main": {
+      "kind": "relationship",
+      "key": "holder-main",
+      "customer_key": "kyc-primary",
+      "account_key": "account-main",
+      "relation": "declared_holder",
+      "observed_at": "2025-09-23T00:00:00+00:00"
+    },
+    "kyc-primary": {
+      "kind": "customer",
+      "key": "kyc-primary",
+      "subject_key": "party-main",
+      "alias": "SYN-CUSTOMER-4c409059",
+      "observed_at": "2025-09-23T00:00:00+00:00",
+      "annual_income": null,
+      "currency": "USD",
+      "kyc_score": 3
+    },
+    "p2p-wallet-a": {
+      "kind": "account",
+      "key": "p2p-wallet-a",
+      "alias": "SYN-ACCOUNT-387ac71f",
+      "currency": "USD",
+      "opened_at": "2024-11-27T00:00:00+00:00"
+    },
+    "txn-001": {
+      "kind": "transaction",
+      "key": "txn-001",
+      "account_key": "account-main",
+      "counterparty_key": null,
+      "amount": "6000",
+      "currency": "USD",
+      "event_at": "2025-10-22T15:00:00+00:00",
+      "original_time": "2025-10-22T15:00:00+00:00",
+      "event_kind": "payment",
+      "direction": "credit",
+      "channel": "cashlike",
+      "reverses_key": null
+    },
+    "txn-002": {
+      "kind": "transaction",
+      "key": "txn-002",
+      "account_key": "account-main",
+      "counterparty_key": "p2p-wallet-a",
+      "amount": "5800",
+      "currency": "USD",
+      "event_at": "2025-10-28T15:00:00+00:00",
+      "original_time": "2025-10-28T15:00:00+00:00",
+      "event_kind": "transfer",
+      "direction": "debit",
+      "channel": "internal",
+      "reverses_key": null
+    },
+    "txn-003": {
+      "kind": "transaction",
+      "key": "txn-003",
+      "account_key": "account-main",
+      "counterparty_key": null,
+      "amount": "6200",
+      "currency": "USD",
+      "event_at": "2025-11-21T15:00:00+00:00",
+      "original_time": "2025-11-21T15:00:00+00:00",
+      "event_kind": "payment",
+      "direction": "credit",
+      "channel": "cashlike",
+      "reverses_key": null
+    },
+    "txn-004": {
+      "kind": "transaction",
+      "key": "txn-004",
+      "account_key": "account-main",
+      "counterparty_key": "p2p-wallet-a",
+      "amount": "6100",
+      "currency": "USD",
+      "event_at": "2025-11-28T15:00:00+00:00",
+      "original_time": "2025-11-28T15:00:00+00:00",
+      "event_kind": "transfer",
+      "direction": "debit",
+      "channel": "internal",
+      "reverses_key": null
+    }
+  }
+}

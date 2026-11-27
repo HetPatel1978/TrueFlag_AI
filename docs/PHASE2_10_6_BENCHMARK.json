@@ -1,0 +1,188 @@
+{
+  "api_latency": {
+    "assessment_replay": {
+      "count": 2,
+      "p50_ms": 57.951,
+      "p95_ms": 58.162,
+      "p99_ms": 58.181
+    },
+    "assessment_start": {
+      "count": 2,
+      "p50_ms": 139.797,
+      "p95_ms": 154.364,
+      "p99_ms": 155.659
+    },
+    "batch_status": {
+      "count": 236,
+      "p50_ms": 14.835,
+      "p95_ms": 19.311,
+      "p99_ms": 55.404
+    },
+    "case_overview": {
+      "count": 2,
+      "p50_ms": 54.353,
+      "p95_ms": 57.776,
+      "p99_ms": 58.08
+    },
+    "export": {
+      "count": 3,
+      "p50_ms": 1290.683,
+      "p95_ms": 1325.746,
+      "p99_ms": 1328.863
+    },
+    "history": {
+      "count": 2,
+      "p50_ms": 60.255,
+      "p95_ms": 62.209,
+      "p99_ms": 62.382
+    },
+    "import_approval": {
+      "count": 12,
+      "p50_ms": 18.394,
+      "p95_ms": 73.916,
+      "p99_ms": 81.239
+    },
+    "import_status": {
+      "count": 2,
+      "p50_ms": 51.496,
+      "p95_ms": 56.623,
+      "p99_ms": 57.079
+    },
+    "oversized_upload": {
+      "count": 1,
+      "p50_ms": 66.991,
+      "p95_ms": 66.991,
+      "p99_ms": 66.991
+    },
+    "results": {
+      "count": 44,
+      "p50_ms": 83.063,
+      "p95_ms": 92.946,
+      "p99_ms": 112.633
+    },
+    "upload": {
+      "count": 2,
+      "p50_ms": 61.887,
+      "p95_ms": 67.874,
+      "p99_ms": 68.407
+    },
+    "validation": {
+      "count": 2,
+      "p50_ms": 90.908,
+      "p95_ms": 107.811,
+      "p99_ms": 109.314
+    }
+  },
+  "environment": {
+    "api_rate_limit_per_minute": 120,
+    "container_memory_peak_bytes": 519925760,
+    "cpus": 2,
+    "database_cpu_memory_excluded": true,
+    "db_sampling_seconds": "1 during import; 5 during assessment",
+    "deadline_seconds": 3600,
+    "default_parser_and_import_limits_unchanged": true,
+    "memory_limit_bytes": 3221225472,
+    "python": "3.11.18",
+    "queue_capacity": 20,
+    "worker_concurrency": 2
+  },
+  "event": "report",
+  "http_status_counts": {
+    "200": 289,
+    "201": 4,
+    "202": 12,
+    "413": 1,
+    "429": 4
+  },
+  "interpretation": "Single local synthetic run with cold per-case RF/SHAP children; descriptive baseline, not production capacity or certification.",
+  "sensitive_log_leaks": 0,
+  "status": "PASS",
+  "unsupported_5000": {
+    "configured_row_limit": 2000,
+    "http_status": 413,
+    "limits_raised": false
+  },
+  "worker_outcomes": {
+    "succeeded": 1096
+  },
+  "workloads": [
+    {
+      "accepted_to_last_job_seconds": 80.282,
+      "assessed": 98,
+      "assessment_records_per_second": 0.9262,
+      "assessment_seconds": 105.805,
+      "backpressure_events": 36,
+      "cpu_seconds_self_and_reaped_children": 177.051,
+      "cpu_utilization_pct_of_two_core_limit": 79.13,
+      "db_active_connections_peak": 2,
+      "db_connections_peak": 8,
+      "dispatch_jobs_per_second_including_backpressure": 1.2207,
+      "duplicate_assessments": 0,
+      "failures": 0,
+      "import_seconds": 5.106,
+      "lost_jobs": 0,
+      "memory_current_peak_bytes": 512196608,
+      "oldest_pending_age_peak_seconds": 18.299,
+      "queue_depth_peak": 20,
+      "queued_to_persisted_latency": {
+        "count": 98,
+        "p50_ms": 18074.611,
+        "p95_ms": 20595.788,
+        "p99_ms": 20966.787
+      },
+      "records": 100,
+      "rejected": 2,
+      "retries": 0,
+      "skipped": 0,
+      "upload_seconds": 0.055,
+      "valid_imported": 98,
+      "validation_seconds": 0.072,
+      "worker_wall_latency": {
+        "count": 98,
+        "p50_ms": 2054.544,
+        "p95_ms": 2277.31,
+        "p99_ms": 2311.022
+      },
+      "workflow_seconds": 111.874
+    },
+    {
+      "accepted_to_last_job_seconds": 996.055,
+      "assessed": 998,
+      "assessment_records_per_second": 0.9326,
+      "assessment_seconds": 1070.083,
+      "backpressure_events": 474,
+      "cpu_seconds_self_and_reaped_children": 1799.462,
+      "cpu_utilization_pct_of_two_core_limit": 83.18,
+      "db_active_connections_peak": 2,
+      "db_connections_peak": 8,
+      "dispatch_jobs_per_second_including_backpressure": 1.002,
+      "duplicate_assessments": 0,
+      "failures": 0,
+      "import_seconds": 5.158,
+      "lost_jobs": 0,
+      "memory_current_peak_bytes": 519172096,
+      "oldest_pending_age_peak_seconds": 19.357,
+      "queue_depth_peak": 20,
+      "queued_to_persisted_latency": {
+        "count": 998,
+        "p50_ms": 19128.483,
+        "p95_ms": 20884.444,
+        "p99_ms": 21467.707
+      },
+      "records": 1000,
+      "rejected": 2,
+      "retries": 0,
+      "skipped": 0,
+      "upload_seconds": 0.069,
+      "valid_imported": 998,
+      "validation_seconds": 0.11,
+      "worker_wall_latency": {
+        "count": 998,
+        "p50_ms": 2081.946,
+        "p95_ms": 2338.831,
+        "p99_ms": 2446.178
+      },
+      "workflow_seconds": 1081.661
+    }
+  ]
+}

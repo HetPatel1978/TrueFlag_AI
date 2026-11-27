@@ -1,0 +1,863 @@
+{
+ "abstentions": [
+  "no_money_laundering_violation_or_sar_conclusion"
+ ],
+ "conflicts": [],
+ "context": {
+  "available_categories": [
+   "customer",
+   "account",
+   "relationship",
+   "transaction"
+  ],
+  "case_id": "8a8b6f51-863e-4d49-b316-8355786e874b",
+  "human_disposition": null,
+  "missing_categories": [],
+  "state": "open"
+ },
+ "coordinator_version": "trueflag.evidence-investigation.v1",
+ "evidence": [
+  {
+   "identity_id": "c54df3cf-82b6-58d4-aaa3-0781daf41533",
+   "kind": "transaction",
+   "record_version_id": "1e9d8768-9f09-589d-ad7f-613984d27b9e",
+   "sha256": "5a4926cc49d2f659fbc65822bc513245e95c56e08428aa74b5e9c3cb6fed5cce",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "25a1d67a-4fac-5827-9be0-74556d07b1e6",
+   "kind": "transaction",
+   "record_version_id": "22669921-7724-508b-b244-01b13eee0771",
+   "sha256": "7fe93fa96342730f46e8335403dd999a0959527cd8bf41390a8dc31cdff17365",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "kind": "account",
+   "record_version_id": "2e92869b-c664-56e8-8a02-66da90adb7a3",
+   "sha256": "525646f9bc7487ddf1094b42a32355dde0ac30880adaefda20d85400da6012a5",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "77191311-c9a5-5a43-9faf-d599cbde2b0d",
+   "kind": "transaction",
+   "record_version_id": "46aabfca-8c08-5bb8-9fbf-ecbe0bd752a4",
+   "sha256": "230c6e13ad63241d06c831a4c3b09a4c0deb333c6d1aac9b407a89b22007c996",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "14006ab1-62bd-5d11-b3fe-51df0084cce0",
+   "kind": "account",
+   "record_version_id": "5d71ff1e-4d5f-5044-a557-6860cdac600c",
+   "sha256": "9065ab1caa11c6e1ffb0989f6e3efe4fe2cb169a43a2518665157b937fe57ff3",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "d8903e8f-20b0-5951-8bc1-908ab25c77a3",
+   "kind": "transaction",
+   "record_version_id": "636b2c51-dcbb-51ba-b840-7f9f560bffe8",
+   "sha256": "03b8f9294c773c6995acfd22a35593018a974835e539e177346a0c1e213e4071",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "67068a92-6596-58b0-85ed-2d6362d41afb",
+   "kind": "transaction",
+   "record_version_id": "6ad319b5-d888-52f7-b3a8-c156586402b3",
+   "sha256": "ce83e4eba29490fca0e0480d2e99e3b65e9b629908c69058e876f826a7bfeba5",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "f029e952-7b78-5996-9bc3-ffea392db4ac",
+   "kind": "transaction",
+   "record_version_id": "8669b00c-24c1-52fb-8f41-02e6dd733ece",
+   "sha256": "0897939f31afa8c4b879a4b2ca092eb803f6a0cb2dd5f9c9e0d6173606a6a664",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "64471955-ecd9-524a-8a16-cece972e183b",
+   "kind": "transaction",
+   "record_version_id": "901b7185-c854-51fc-8e99-cb4a9a47f94a",
+   "sha256": "7b1ccf396ac482544f731c23895f702b56d11214432b86123c6a776f8561db94",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "c7bc76fd-6b23-5f2f-a9fd-66321e1211e6",
+   "kind": "transaction",
+   "record_version_id": "a7dafa3e-d31f-5e10-ac84-1feac21db2ad",
+   "sha256": "ee295112df031637a2d744efb43116db95f9a5f898eb1ee4f0c52099816b78b1",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "kind": "account",
+   "record_version_id": "a95e0557-b566-5a64-a4e5-5c7cc8b12334",
+   "sha256": "e8a0debf461a59572737af8fbef902385fa4b91b1ab6413233ecff91958f20e6",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "d6ac4ddd-bc4e-5932-87e5-57dc36a6996a",
+   "kind": "transaction",
+   "record_version_id": "aa13553d-3ef1-524e-b889-683f0f86b28b",
+   "sha256": "41638425978a017900b0e4da5c49e7a503449e1246a4a8ec96772a9d799ae955",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "fbc7f322-59af-5c3b-85d2-11751e411f87",
+   "kind": "transaction",
+   "record_version_id": "c376a8aa-5ea7-5877-9196-de028685be25",
+   "sha256": "05edf45ca8e345688f9ffe15bc3ae56a4c208a2e097b5e81bd6a1b9e04f8b7cf",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "301e3a51-78f6-5bb5-b7f0-8a5994718962",
+   "kind": "transaction",
+   "record_version_id": "c88a6c45-42c3-560b-8a7d-d2c86354cc30",
+   "sha256": "35e9165ec4c8237b103934829310f53738bdb2b9b8840fea03b0f1d2a3d9d3d8",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "346de9dd-17d3-5168-9535-9191c7f94638",
+   "kind": "relationship",
+   "record_version_id": "e7d19a4b-8da6-51bb-96f7-e15b07444182",
+   "sha256": "0144435d2756bec1e893a7a4cf708878426f252e772f90d703917c6d38dffa00",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "516f3c8a-0f46-5994-baf9-523aab52ce82",
+   "kind": "transaction",
+   "record_version_id": "ec18c05a-ebbf-5d28-9824-82e03ec41914",
+   "sha256": "dac87b2d8d9a2538aa46bf8fa7095e3cedce25f2c5af8f52deb6fa60fce19bdd",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  },
+  {
+   "identity_id": "d8a13586-d614-5a50-8e02-d9aed4ad5423",
+   "kind": "customer",
+   "record_version_id": "f32aab7e-4214-52c5-94c6-f0fca4bcaa30",
+   "sha256": "d403c4abdf9d3af669c4cca7c2d961b2fb53428881b5c51ec3862ae44d91b999",
+   "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+   "version": 1
+  }
+ ],
+ "facts": [
+  {
+   "coverage": {
+    "filter_excluded": 0,
+    "historical_versions_excluded": 0,
+    "limitations": [
+     "synthetic_observations_only",
+     "settlement_status_not_recorded",
+     "sampling_metadata_not_recorded",
+     "rf_inputs_not_transaction_derivations"
+    ],
+    "outside_window_excluded": 0,
+    "requested": {
+     "end": "2026-01-01T00:00:00Z",
+     "start": "2025-10-03T00:00:00Z"
+    },
+    "sampling": "not_recorded",
+    "status": "complete_declared_window",
+    "unknown_time_excluded": 0
+   },
+   "input_record_ids": [
+    "aa13553d-3ef1-524e-b889-683f0f86b28b",
+    "6ad319b5-d888-52f7-b3a8-c156586402b3",
+    "22669921-7724-508b-b244-01b13eee0771",
+    "a7dafa3e-d31f-5e10-ac84-1feac21db2ad",
+    "1e9d8768-9f09-589d-ad7f-613984d27b9e",
+    "46aabfca-8c08-5bb8-9fbf-ecbe0bd752a4",
+    "636b2c51-dcbb-51ba-b840-7f9f560bffe8",
+    "c376a8aa-5ea7-5877-9196-de028685be25",
+    "ec18c05a-ebbf-5d28-9824-82e03ec41914",
+    "901b7185-c854-51fc-8e99-cb4a9a47f94a",
+    "c88a6c45-42c3-560b-8a7d-d2c86354cc30",
+    "8669b00c-24c1-52fb-8f41-02e6dd733ece"
+   ],
+   "reference_id": "c5da47ce-31d3-54ef-91e9-378634da6f97",
+   "result": {
+    "buckets": [],
+    "calculation": "count_totals",
+    "calculation_version": "trueflag.transaction-analytics.v1",
+    "concentration": [],
+    "concentration_truncated": false,
+    "currency": "USD",
+    "expected_activity_comparison": "not_requested",
+    "incoming_count": 4,
+    "incoming_total": "4000.00000000",
+    "large_amount_criterion": null,
+    "large_observed_count": null,
+    "observed_count": 12,
+    "observed_total": "10020.00000000",
+    "outgoing_count": 8,
+    "outgoing_total": "6020.00000000",
+    "repeated_amounts": [],
+    "repeated_groups_truncated": false,
+    "repeated_minimum": null,
+    "reversal_observations": 0,
+    "status": "complete_declared_window",
+    "treatment": "gross_observations",
+    "unit": "currency_major_units",
+    "unknown_counterparty_count": 0,
+    "unmatched_reversals": 0,
+    "verified_reversal_pairs_excluded": 0,
+    "window": {
+     "end": "2026-01-01T00:00:00Z",
+     "start": "2025-10-03T00:00:00Z"
+    }
+   }
+  },
+  {
+   "coverage": {
+    "filter_excluded": 0,
+    "historical_versions_excluded": 0,
+    "limitations": [
+     "synthetic_observations_only",
+     "settlement_status_not_recorded",
+     "sampling_metadata_not_recorded",
+     "rf_inputs_not_transaction_derivations"
+    ],
+    "outside_window_excluded": 0,
+    "requested": {
+     "end": "2026-01-01T00:00:00Z",
+     "start": "2025-10-03T00:00:00Z"
+    },
+    "sampling": "not_recorded",
+    "status": "complete_declared_window",
+    "unknown_time_excluded": 0
+   },
+   "input_record_ids": [
+    "aa13553d-3ef1-524e-b889-683f0f86b28b",
+    "6ad319b5-d888-52f7-b3a8-c156586402b3",
+    "22669921-7724-508b-b244-01b13eee0771",
+    "a7dafa3e-d31f-5e10-ac84-1feac21db2ad",
+    "1e9d8768-9f09-589d-ad7f-613984d27b9e",
+    "46aabfca-8c08-5bb8-9fbf-ecbe0bd752a4",
+    "636b2c51-dcbb-51ba-b840-7f9f560bffe8",
+    "c376a8aa-5ea7-5877-9196-de028685be25",
+    "ec18c05a-ebbf-5d28-9824-82e03ec41914",
+    "901b7185-c854-51fc-8e99-cb4a9a47f94a",
+    "c88a6c45-42c3-560b-8a7d-d2c86354cc30",
+    "8669b00c-24c1-52fb-8f41-02e6dd733ece"
+   ],
+   "reference_id": "0a9b6b5a-c1c0-558e-8bad-e526363e16a6",
+   "result": {
+    "buckets": [],
+    "calculation": "concentration",
+    "calculation_version": "trueflag.transaction-analytics.v1",
+    "concentration": [
+     {
+      "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+      "observed_count": 9,
+      "observed_total": "9000.00000000",
+      "share_of_observed_amount": "0.8982035928143713"
+     },
+     {
+      "counterparty_handle": "14006ab1-62bd-5d11-b3fe-51df0084cce0",
+      "observed_count": 3,
+      "observed_total": "1020.00000000",
+      "share_of_observed_amount": "0.1017964071856287"
+     }
+    ],
+    "concentration_truncated": false,
+    "currency": "USD",
+    "expected_activity_comparison": "not_requested",
+    "incoming_count": 4,
+    "incoming_total": "4000.00000000",
+    "large_amount_criterion": null,
+    "large_observed_count": null,
+    "observed_count": 12,
+    "observed_total": "10020.00000000",
+    "outgoing_count": 8,
+    "outgoing_total": "6020.00000000",
+    "repeated_amounts": [],
+    "repeated_groups_truncated": false,
+    "repeated_minimum": null,
+    "reversal_observations": 0,
+    "status": "complete_declared_window",
+    "treatment": "gross_observations",
+    "unit": "currency_major_units",
+    "unknown_counterparty_count": 0,
+    "unmatched_reversals": 0,
+    "verified_reversal_pairs_excluded": 0,
+    "window": {
+     "end": "2026-01-01T00:00:00Z",
+     "start": "2025-10-03T00:00:00Z"
+    }
+   }
+  }
+ ],
+ "human_review_required": true,
+ "limitations": [
+  "deterministic_foundation_not_validated_ai_investigator",
+  "synthetic_observations_only",
+  "gross_observations_not_settled_cashflow",
+  "observations_include_all_authorized_times_calculations_use_requested_window",
+  "no_external_or_regulatory_context",
+  "human_semantic_review_required"
+ ],
+ "manifest_sha256": "90eacc599bdb0fff7f8a1f936fae17c5a89198cf409d5c365c8a8ad5dec3731d",
+ "missing_evidence": [
+  "comparable_expected_activity",
+  "curated_documents",
+  "sampling_metadata",
+  "settlement_status"
+ ],
+ "mode": "deterministic_evidence_only",
+ "model_interpretation": "model_signal_not_fact_or_proof_of_crime",
+ "model_signal": {
+  "alert_id": "194124cd-008a-441b-bf74-3bb70cbda865",
+  "assessment_id": "c34ef700-ba91-4c55-a094-ce6416eaa923",
+  "case_id": "8a8b6f51-863e-4d49-b316-8355786e874b",
+  "case_version": 2,
+  "content_sha256": "ade420b4bfa8cd5c7fb0aaa997855c7e96b25db3e431994e21111906494bf572",
+  "explanation": {
+   "base_value": 0.10237777777777775,
+   "features": [
+    {
+     "contribution": 0.0009341509945952693,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "kycRiskScore"
+    },
+    {
+     "contribution": 0.003971101693878961,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "income"
+    },
+    {
+     "contribution": 0.0027675256725318603,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "tenureMonths"
+    },
+    {
+     "contribution": 0.016069404625742294,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "creditScore"
+    },
+    {
+     "contribution": 5.521805786754833e-05,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "state"
+    },
+    {
+     "contribution": -0.0030132147534553374,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "nbrPurchases90d"
+    },
+    {
+     "contribution": 0.041044538354418396,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "avgTxnSize90d"
+    },
+    {
+     "contribution": 0.1258123704181521,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "totalSpend90d"
+    },
+    {
+     "contribution": 0.001922823150659279,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrDistinctMerch90d"
+    },
+    {
+     "contribution": 0.048952119398820486,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrMerchCredits90d"
+    },
+    {
+     "contribution": -0.002070945970251462,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "nbrMerchCreditsRndDollarAmt90d"
+    },
+    {
+     "contribution": 0.2556692569422363,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "totalMerchCred90d"
+    },
+    {
+     "contribution": -0.011050009837040322,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "nbrMerchCreditsWoOffsettingPurch"
+    },
+    {
+     "contribution": 0.001747387299318188,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrPayments90d"
+    },
+    {
+     "contribution": -0.009351270688438622,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "totalPaymentAmt90d"
+    },
+    {
+     "contribution": -0.00025860384620101886,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "overpaymentAmt90d"
+    },
+    {
+     "contribution": 0.0023301851760989174,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "overpaymentInd90d"
+    },
+    {
+     "contribution": 0.0001717964126601659,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrCustReqRefunds90d"
+    },
+    {
+     "contribution": 0.025931881557227417,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "totalRefundsToCust90d"
+    },
+    {
+     "contribution": 0.04155720644651969,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrPaymentsCashLike90d"
+    },
+    {
+     "contribution": -0.007555157624295057,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "maxRevolveLine"
+    },
+    {
+     "contribution": 0.0033210360646268975,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "indOwnsHome"
+    },
+    {
+     "contribution": 0.004482604385186161,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrInquiries1y"
+    },
+    {
+     "contribution": -0.00019823921986538397,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "nbrCollections3y"
+    },
+    {
+     "contribution": 0.004751620445840786,
+     "direction": "raises_score",
+     "missing": false,
+     "name": "nbrWebLogins90d"
+    },
+    {
+     "contribution": -0.0014151404551306693,
+     "direction": "lowers_score",
+     "missing": false,
+     "name": "nbrPointRed90d"
+    },
+    {
+     "contribution": 0.0,
+     "direction": "no_contribution",
+     "missing": false,
+     "name": "PEP"
+    }
+   ],
+   "method": {
+    "algorithm": "Exact TreeSHAP",
+    "approximate": false,
+    "background": "fitted_tree_path_counts",
+    "feature_perturbation": "tree_path_dependent",
+    "library_version": "0.51.0",
+    "model_output_argument": "raw",
+    "output_space": "SAR-positive predict_proba score",
+    "positive_class_index": 1,
+    "positive_class_label": 1
+   },
+   "other_features_contribution": 0.17614802717835473,
+   "ranking": [
+    "totalMerchCred90d",
+    "totalSpend90d",
+    "nbrMerchCredits90d",
+    "nbrPaymentsCashLike90d",
+    "avgTxnSize90d",
+    "totalRefundsToCust90d",
+    "creditScore",
+    "nbrMerchCreditsWoOffsettingPurch",
+    "totalPaymentAmt90d",
+    "maxRevolveLine",
+    "nbrWebLogins90d",
+    "nbrInquiries1y",
+    "income",
+    "indOwnsHome",
+    "nbrPurchases90d",
+    "tenureMonths",
+    "overpaymentInd90d",
+    "nbrMerchCreditsRndDollarAmt90d",
+    "nbrDistinctMerch90d",
+    "nbrPayments90d",
+    "nbrPointRed90d",
+    "kycRiskScore",
+    "overpaymentAmt90d",
+    "nbrCollections3y",
+    "nbrCustReqRefunds90d",
+    "state",
+    "PEP"
+   ],
+   "reconstruction_residual": -6.661338147750939e-16,
+   "status": "verified",
+   "top_features": [
+    "totalMerchCred90d",
+    "totalSpend90d",
+    "nbrMerchCreditsWoOffsettingPurch"
+   ],
+   "verification": {
+    "approved_artifact_identities": {
+     "contracts/predictor_contract.json": "97ec1a8c39bb368621609ea66d1a652179dee8a1c910bc7c14c1b3ff81f72747",
+     "model/selected_pipeline.joblib": "ea0806d579345d7085c00d26c188805e74de574028bda4a4573222b06e739917",
+     "reference/research/src/trueflag/__init__.py": "385ec0c72df04cb7416966d559b15a4d1d251b6c8563df6a7693e50d36f4108c",
+     "reference/research/src/trueflag/datarobot_cleaning.py": "109d49c28591f4888221914121669b447f4272c9619fc7ea2a0871c00af57c81",
+     "reference/research/src/trueflag/model_feasibility.py": "13d0f9fa99d18757045a4a00e5d42240ebb35148059f7236d0db17f1212fe67e"
+    },
+    "group_atol": 1e-12,
+    "independent_model_and_root_checks": true,
+    "reconstruction_atol": 1e-06,
+    "rtol": 0,
+    "runtime_dependencies": {
+     "annotated-types": "0.8.0",
+     "joblib": "1.5.3",
+     "numpy": "2.3.5",
+     "pandas": "3.0.1",
+     "pydantic": "2.14.2",
+     "pydantic_core": "2.50.2",
+     "scikit-learn": "1.9.0",
+     "scipy": "1.17.0",
+     "threadpoolctl": "3.6.0",
+     "typing-inspection": "0.4.4",
+     "typing_extensions": "4.16.0"
+    },
+    "score_atol": 1e-12,
+    "status": "verified",
+    "verifier": "trueflag.independent-explanation.v1"
+   }
+  },
+  "human_decision_required": true,
+  "input_provenance": {
+   "contract_sha256": "97ec1a8c39bb368621609ea66d1a652179dee8a1c910bc7c14c1b3ff81f72747",
+   "feature_contract_version": "datarobot_provisional_v1",
+   "hash_schema": "trueflag.explanation-input.rational.v1",
+   "ingestion_input_sha256": "1ce21aff9f91e2ea3306362c90645d2ed6f0bacd9bf8d90c8f5a7dc74943dcaa"
+  },
+  "input_sha256": "bbe0d3b8544c3821194a79e47f7fbad064fd14ac7c329b52d48376da507a90cf",
+  "model_sha256": "ea0806d579345d7085c00d26c188805e74de574028bda4a4573222b06e739917",
+  "model_version": "20261018_183648_RF",
+  "policy_trace": {
+   "coverage_changed_route": false,
+   "coverage_protection": false,
+   "override_reason": null,
+   "policy_sha256": "c530a4f71c554172a0dde4d2574f28efdc2ee860a4e32c74bd1ec548d359ac3f",
+   "priority_group": "High",
+   "routing_reason": "score_at_or_above_threshold",
+   "score_based_retention": true,
+   "threshold": 0.16040515630453706
+  },
+  "policy_version": "20261018_183648_RF:c530a4f71c554172a0dde4d2574f28efdc2ee860a4e32c74bd1ec548d359ac3f",
+  "processed_at": "2026-11-23T12:22:11.887957Z",
+  "recommended_route": "retain_human_review",
+  "run_id": "5eb1174a-3b09-43e7-b0d5-7a9bc5512e7f",
+  "score": 0.6489574224794813,
+  "selected_policy": "Balanced",
+  "status": "completed",
+  "version": 2
+ },
+ "outcome": "packet_ready",
+ "provider_used": false,
+ "questions": [
+  "obtain_comparable_declared_activity_expectations",
+  "review_authorized_source_observations"
+ ],
+ "regulatory_citations": [],
+ "run_id": "428fb21d-c3b6-4e00-9b5a-337a18808ccf",
+ "transactions": [
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "10.00000000",
+   "channel": "card",
+   "counterparty_handle": "14006ab1-62bd-5d11-b3fe-51df0084cce0",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-11-27T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-11-27T00:00:00+00:00",
+   "reference": {
+    "identity_id": "d6ac4ddd-bc4e-5932-87e5-57dc36a6996a",
+    "kind": "transaction",
+    "record_version_id": "aa13553d-3ef1-524e-b889-683f0f86b28b",
+    "sha256": "41638425978a017900b0e4da5c49e7a503449e1246a4a8ec96772a9d799ae955",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "10.00000000",
+   "channel": "card",
+   "counterparty_handle": "14006ab1-62bd-5d11-b3fe-51df0084cce0",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-11-30T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-11-30T00:00:00+00:00",
+   "reference": {
+    "identity_id": "67068a92-6596-58b0-85ed-2d6362d41afb",
+    "kind": "transaction",
+    "record_version_id": "6ad319b5-d888-52f7-b3a8-c156586402b3",
+    "sha256": "ce83e4eba29490fca0e0480d2e99e3b65e9b629908c69058e876f826a7bfeba5",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "cashlike",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "credit",
+   "event_at": "2025-12-03T00:00:00Z",
+   "event_kind": "payment",
+   "original_time": "2025-12-03T00:00:00+00:00",
+   "reference": {
+    "identity_id": "25a1d67a-4fac-5827-9be0-74556d07b1e6",
+    "kind": "transaction",
+    "record_version_id": "22669921-7724-508b-b244-01b13eee0771",
+    "sha256": "7fe93fa96342730f46e8335403dd999a0959527cd8bf41390a8dc31cdff17365",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-06T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-06T00:00:00+00:00",
+   "reference": {
+    "identity_id": "c7bc76fd-6b23-5f2f-a9fd-66321e1211e6",
+    "kind": "transaction",
+    "record_version_id": "a7dafa3e-d31f-5e10-ac84-1feac21db2ad",
+    "sha256": "ee295112df031637a2d744efb43116db95f9a5f898eb1ee4f0c52099816b78b1",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-09T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-09T00:00:00+00:00",
+   "reference": {
+    "identity_id": "c54df3cf-82b6-58d4-aaa3-0781daf41533",
+    "kind": "transaction",
+    "record_version_id": "1e9d8768-9f09-589d-ad7f-613984d27b9e",
+    "sha256": "5a4926cc49d2f659fbc65822bc513245e95c56e08428aa74b5e9c3cb6fed5cce",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "cashlike",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "credit",
+   "event_at": "2025-12-12T00:00:00Z",
+   "event_kind": "payment",
+   "original_time": "2025-12-12T00:00:00+00:00",
+   "reference": {
+    "identity_id": "77191311-c9a5-5a43-9faf-d599cbde2b0d",
+    "kind": "transaction",
+    "record_version_id": "46aabfca-8c08-5bb8-9fbf-ecbe0bd752a4",
+    "sha256": "230c6e13ad63241d06c831a4c3b09a4c0deb333c6d1aac9b407a89b22007c996",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "14006ab1-62bd-5d11-b3fe-51df0084cce0",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-15T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-15T00:00:00+00:00",
+   "reference": {
+    "identity_id": "d8903e8f-20b0-5951-8bc1-908ab25c77a3",
+    "kind": "transaction",
+    "record_version_id": "636b2c51-dcbb-51ba-b840-7f9f560bffe8",
+    "sha256": "03b8f9294c773c6995acfd22a35593018a974835e539e177346a0c1e213e4071",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-18T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-18T00:00:00+00:00",
+   "reference": {
+    "identity_id": "fbc7f322-59af-5c3b-85d2-11751e411f87",
+    "kind": "transaction",
+    "record_version_id": "c376a8aa-5ea7-5877-9196-de028685be25",
+    "sha256": "05edf45ca8e345688f9ffe15bc3ae56a4c208a2e097b5e81bd6a1b9e04f8b7cf",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "cashlike",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "credit",
+   "event_at": "2025-12-21T00:00:00Z",
+   "event_kind": "payment",
+   "original_time": "2025-12-21T00:00:00+00:00",
+   "reference": {
+    "identity_id": "516f3c8a-0f46-5994-baf9-523aab52ce82",
+    "kind": "transaction",
+    "record_version_id": "ec18c05a-ebbf-5d28-9824-82e03ec41914",
+    "sha256": "dac87b2d8d9a2538aa46bf8fa7095e3cedce25f2c5af8f52deb6fa60fce19bdd",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-24T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-24T00:00:00+00:00",
+   "reference": {
+    "identity_id": "64471955-ecd9-524a-8a16-cece972e183b",
+    "kind": "transaction",
+    "record_version_id": "901b7185-c854-51fc-8e99-cb4a9a47f94a",
+    "sha256": "7b1ccf396ac482544f731c23895f702b56d11214432b86123c6a776f8561db94",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "card",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "debit",
+   "event_at": "2025-12-27T00:00:00Z",
+   "event_kind": "purchase",
+   "original_time": "2025-12-27T00:00:00+00:00",
+   "reference": {
+    "identity_id": "301e3a51-78f6-5bb5-b7f0-8a5994718962",
+    "kind": "transaction",
+    "record_version_id": "c88a6c45-42c3-560b-8a7d-d2c86354cc30",
+    "sha256": "35e9165ec4c8237b103934829310f53738bdb2b9b8840fea03b0f1d2a3d9d3d8",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  },
+  {
+   "account_handle": "001e97ed-5069-5c19-8e53-f2a95714a000",
+   "amount": "1000.00000000",
+   "channel": "cashlike",
+   "counterparty_handle": "91cca991-066b-5284-bfc5-e55d1d1fcd7c",
+   "currency": "USD",
+   "direction": "credit",
+   "event_at": "2025-12-30T00:00:00Z",
+   "event_kind": "payment",
+   "original_time": "2025-12-30T00:00:00+00:00",
+   "reference": {
+    "identity_id": "f029e952-7b78-5996-9bc3-ffea392db4ac",
+    "kind": "transaction",
+    "record_version_id": "8669b00c-24c1-52fb-8f41-02e6dd733ece",
+    "sha256": "0897939f31afa8c4b879a4b2ca092eb803f6a0cb2dd5f9c9e0d6173606a6a664",
+    "source_version_id": "5bc98c46-fa46-5574-a423-806cd2d7c3bd",
+    "version": 1
+   },
+   "reverses_handle": null,
+   "settlement_status": "not_recorded"
+  }
+ ]
+}

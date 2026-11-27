@@ -1,0 +1,238 @@
+{
+  "candidate": {
+    "approved_sources": 0,
+    "cases": 19,
+    "draft_3_ecfr_questions": {
+      "mrr": 1.0,
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0
+    },
+    "draft_all_7_questions": {
+      "mrr": 0.42857142857142855,
+      "precision_at_5": 0.08571428571428572,
+      "recall_at_5": 0.42857142857142855
+    },
+    "filter_violations": 0,
+    "independent_labels": 0,
+    "latency_ms_p50": 4.378598998300731,
+    "latency_ms_p95": 9.619522985303774,
+    "legal_quality_approved": false,
+    "observations": [
+      {
+        "id": "sar-bank",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 9.619522985303774,
+        "returned": [
+          {
+            "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+            "section": "1020.320",
+            "source_key": "ecfr-us-banks",
+            "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+          },
+          {
+            "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+            "section": "1020.210",
+            "source_key": "ecfr-us-banks",
+            "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+          }
+        ]
+      },
+      {
+        "id": "aml-program",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 5.089807003969327,
+        "returned": [
+          {
+            "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+            "section": "1020.210",
+            "source_key": "ecfr-us-banks",
+            "text_sha256": "38d435ad12a6a106c079ffe64512b5a429c569aa149c3c8b166ed1a9965342c9"
+          }
+        ]
+      },
+      {
+        "id": "sar-exceptions",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 6.10544701339677,
+        "returned": [
+          {
+            "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+            "section": "1020.320",
+            "source_key": "ecfr-us-banks",
+            "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+          }
+        ]
+      },
+      {
+        "id": "critical-items",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 4.771915002493188,
+        "returned": []
+      },
+      {
+        "id": "amended-sar",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 4.433624999364838,
+        "returned": []
+      },
+      {
+        "id": "recordkeeping",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 4.137023992370814,
+        "returned": []
+      },
+      {
+        "id": "continuing-sar",
+        "kind": "unreviewed_candidate_query",
+        "labels": "engineering_proposals_not_independent_ground_truth",
+        "latency_ms": 4.260187997715548,
+        "returned": []
+      },
+      {
+        "id": "wrong-jurisdiction",
+        "kind": "candidate_scope_control",
+        "latency_ms": 3.266439016442746,
+        "returned": []
+      },
+      {
+        "id": "wrong-entity",
+        "kind": "candidate_scope_control",
+        "latency_ms": 3.322962991660461,
+        "returned": []
+      },
+      {
+        "id": "wrong-date",
+        "kind": "candidate_scope_control",
+        "latency_ms": 3.3733570016920567,
+        "returned": []
+      },
+      {
+        "id": "superseded",
+        "kind": "simulated_candidate_exclusion_only",
+        "latency_ms": 4.324784007621929,
+        "limitation": "Simulated candidate exclusion, not a fabricated legal amendment or approved successor",
+        "returned": []
+      },
+      {
+        "id": "exceptions",
+        "kind": "candidate_technical_control",
+        "latency_ms": 5.317481001839042,
+        "returned": [
+          {
+            "raw_sha256": "2588950c5c16efb45a2a78369e08bda2174bf9a8be5afd634235a406f51924bb",
+            "section": "1020.320",
+            "source_key": "ecfr-us-banks",
+            "text_sha256": "5b0da52152092d3cf083a89c92c47a1b6dcb55249e53061dcca7d3472d9c4c26"
+          }
+        ]
+      },
+      {
+        "id": "embedded-instructions",
+        "instructions_executed": false,
+        "kind": "synthetic_parser_control_only",
+        "limitation": "Synthetic text only; actual source bytes unchanged; no LLM/tool-execution claim"
+      },
+      {
+        "http_status": 404,
+        "id": "forged-reference",
+        "kind": "actual_protected_api_control"
+      },
+      {
+        "http_status": 404,
+        "id": "unauthorized",
+        "kind": "actual_protected_api_control"
+      },
+      {
+        "id": "empty",
+        "kind": "candidate_technical_control",
+        "latency_ms": 4.942789004417136,
+        "returned": []
+      },
+      {
+        "id": "ambiguous",
+        "kind": "candidate_technical_control",
+        "latency_ms": 2.7582649781834334,
+        "returned": []
+      },
+      {
+        "id": "unapproved-guidance",
+        "kind": "candidate_technical_control",
+        "latency_ms": 4.432413988979533,
+        "returned": []
+      },
+      {
+        "id": "withdrawn",
+        "kind": "unapproved_candidate_withdrawal",
+        "latency_ms": 3.2150479964911938,
+        "returned": []
+      }
+    ],
+    "published_releases": 0,
+    "review_packet_sha256": "e3d8c4e4500e12c8fa8357b6121973b23cbbe3bf96e327397c1210378d184f1c",
+    "source_proposal_sha256": "832f42eafdc27a1e7847a8acf21c4b0615c8ca129f3117df969ec116fefc84c1",
+    "status": "UNREVIEWED_CANDIDATE_DIAGNOSTICS_ONLY",
+    "test_counts": {
+      "failed": 0,
+      "passed": 91,
+      "skipped": 0
+    },
+    "timed_queries": 16
+  },
+  "decision": "STOP_AT_HUMAN_APPROVAL_GATE",
+  "formal_legal_quality_metrics": null,
+  "independent_ground_truth_available": false,
+  "live_demo_migrated": false,
+  "manifest_byte_identity": {
+    "checkout_modes_verified": [
+      "core.autocrlf=true",
+      "core.autocrlf=false"
+    ],
+    "existing_proposal_line_endings": "CRLF preserved exactly",
+    "existing_proposal_semantic_changes": 0,
+    "indexed_bytes_match_dossier": true,
+    "new_blank_packet_line_endings": "LF preserved exactly",
+    "previous_git_normalization_corrected": true
+  },
+  "migration": {
+    "approved_sources": 0,
+    "archive_access": "current_os_user_only",
+    "archive_bytes": 406916,
+    "archive_format": "PostgreSQL custom",
+    "empty_rollback": "0012_evidence_foundation",
+    "gin_index_verified": true,
+    "invalid_constraints": 0,
+    "legacy_row_fingerprints_match": true,
+    "legacy_schema_inventory_matches": true,
+    "legacy_tables_verified": 36,
+    "legacy_triggers_and_functions_match": true,
+    "live_schema_before_after": "0012_evidence_foundation",
+    "published_releases": 0,
+    "restore_verified": true,
+    "retained_history_rollback": "blocked_as_required",
+    "reupgrade": "0013_reference_corpus",
+    "schema_drift": false,
+    "source_database_write_commands": 0,
+    "status": "PASS",
+    "upgrade": "0013_reference_corpus"
+  },
+  "phase3_5_started": false,
+  "production_application_changed": false,
+  "scope": "historical US bank 2026-11-02; knowledge cutoff 2026-11-04",
+  "sqlite_new_gate_tests": {
+    "failed": 0,
+    "passed": 2,
+    "skipped": 2
+  },
+  "starting_commit": "b0a1642",
+  "windows_postgres_clone": {
+    "failed": 0,
+    "passed": 4,
+    "skipped": 0
+  }
+}

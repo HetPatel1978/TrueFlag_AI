@@ -1,0 +1,173 @@
+{
+  "schema_version": "trueflag.reference-evaluation-proposals.v1",
+  "review_status": "proposed",
+  "reviewer": null,
+  "source_manifest_sha256": "832f42eafdc27a1e7847a8acf21c4b0615c8ca129f3117df969ec116fefc84c1",
+  "cases": [
+    {
+      "id": "sar-bank",
+      "request": {
+        "query": "Reports by banks of suspicious transactions"
+      },
+      "relevant_sections": [
+        "1020.320"
+      ],
+      "expected_authority": "binding_regulation",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "aml-program",
+      "request": {
+        "query": "Anti-money laundering program independent testing customer due diligence"
+      },
+      "relevant_sections": [
+        "1020.210"
+      ],
+      "expected_authority": "binding_regulation",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "sar-exceptions",
+      "request": {
+        "query": "Exceptions to reporting requirements"
+      },
+      "relevant_sections": [
+        "1020.320"
+      ],
+      "expected_authority": "binding_regulation",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "critical-items",
+      "request": {
+        "query": "critical non-critical unknown fields"
+      },
+      "relevant_sections": [
+        "faq-1"
+      ],
+      "expected_authority": "guidance",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "amended-sar",
+      "request": {
+        "query": "corrected amended SAR"
+      },
+      "relevant_sections": [
+        "faq-6"
+      ],
+      "expected_authority": "guidance",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "recordkeeping",
+      "request": {
+        "query": "supporting documentation recordkeeping"
+      },
+      "relevant_sections": [
+        "faq-11"
+      ],
+      "expected_authority": "guidance",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "continuing-sar",
+      "request": {
+        "query": "continuing suspicious activity timeline"
+      },
+      "relevant_sections": [
+        "faq-16"
+      ],
+      "expected_authority": "guidance",
+      "label_status": "needs_human_review"
+    }
+  ],
+  "negative_acceptance_cases": [
+    {
+      "id": "wrong-jurisdiction",
+      "mutation": "CA document in otherwise approved release",
+      "expected": "excluded before ranking",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "wrong-entity",
+      "mutation": "casino document",
+      "expected": "excluded before ranking",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "wrong-date",
+      "mutation": "future effective, expired or insufficiently verified text",
+      "expected": "excluded; outdated if no eligible corpus",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "superseded",
+      "mutation": "approved applicable successor outside old immutable release",
+      "expected": "old citation unavailable until current release approved",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "withdrawn",
+      "mutation": "source/version/release withdrawal",
+      "expected": "excluded; existing reference no longer resolvable",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "exceptions",
+      "request": {
+        "section": "1020.320"
+      },
+      "expected": "complete section including exceptions, not excerpted obligation",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "embedded-instructions",
+      "mutation": "plain instructions embedded in source body",
+      "expected": "treated only as untrusted quoted text; no execution",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "forged-reference",
+      "mutation": "random UUID or reference from different context",
+      "expected": "404",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "unauthorized",
+      "mutation": "unassigned analyst or revoked context grant",
+      "expected": "404 before disclosure",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "empty",
+      "request": {
+        "query": "nonexistentlexicaltermxyz"
+      },
+      "expected": "empty",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "ambiguous",
+      "request": {
+        "query": "the and of"
+      },
+      "expected": "ambiguous",
+      "label_status": "needs_human_review"
+    },
+    {
+      "id": "unapproved-guidance",
+      "mutation": "FinCEN validity remains unknown",
+      "expected": "not published or returned",
+      "label_status": "needs_human_review"
+    }
+  ],
+  "measurement_rules": {
+    "precision_at_5": "relevant returned sections / 5; absent slots count as misses",
+    "recall_at_5": "relevant returned sections / reviewed relevant sections",
+    "ranking": "mean reciprocal rank of first reviewed relevant section",
+    "filter_violations": "count of returned out-of-scope, date-ineligible or unapproved passages",
+    "latency": "local PostgreSQL service wall time; no production SLO claim",
+    "approval": "source approval and human label review are separate gates; no real-corpus quality claim yet"
+  }
+}
