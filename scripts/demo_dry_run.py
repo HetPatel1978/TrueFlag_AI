@@ -70,13 +70,16 @@ def up():
     directory = BASE / tag
     for sub in ("staging", "numba"):
         (directory / sub).mkdir(parents=True)
+    # Same staged copy the native runtime runs: candidate migrations 0020-0023 applied and
+    # expected schema 0023, so research tables exist exactly as in the live system.
+    source = runtime.stage_source(directory, "source")
     database = f"tf_windows_test_demo_{tag}"
     url = make_url(native["database_url"]).set(database=database)
     ports = [runtime_port() for _ in range(2)]
     state = {
         **native,
         "directory": str(directory),
-        "source": str(ROOT),
+        "source": str(source),
         "database_url": url.render_as_string(hide_password=False),
         "test_url": url.render_as_string(hide_password=False),
         "api_port": ports[0],
@@ -100,11 +103,11 @@ def up():
             "-m",
             "alembic",
             "-c",
-            str(ROOT / "backend/alembic.ini"),
+            str(source / "backend/alembic.ini"),
             "upgrade",
             "head",
         ],
-        cwd=ROOT,
+        cwd=source,
         env=env,
         capture_output=True,
         timeout=300,
@@ -159,14 +162,14 @@ def start_processes(directory, state):
         if role == "frontend":
             command = [
                 shutil.which("node.exe"),
-                str(ROOT / "frontend/node_modules/vite/bin/vite.js"),
+                str(Path(state["source"]) / "frontend/node_modules/vite/bin/vite.js"),
                 "--host",
                 "127.0.0.1",
                 "--port",
                 str(state["frontend_port"]),
                 "--strictPort",
             ]
-            cwd, process_env = str(ROOT / "frontend"), {**env}
+            cwd, process_env = str(Path(state["source"]) / "frontend"), {**env}
         else:
             command = [
                 str(runtime.PYTHON),
@@ -176,7 +179,7 @@ def start_processes(directory, state):
                 "--role",
                 role,
             ]
-            cwd, process_env = str(ROOT), env
+            cwd, process_env = state["source"], env
         process = subprocess.Popen(
             command,
             cwd=cwd,
@@ -241,6 +244,17 @@ def down():
             "SELECT count(*) FROM pg_database WHERE datname = %s", (database,)
         ).fetchone()[0]
     (BASE / "current.json").unlink()
+    # Remove the staged copy, logs and throwaway logins. Junctions are unlinked first so
+    # nothing behind them (shared assets, node_modules) is ever deleted.
+    for link in (
+        "source/assets/local/baseline",
+        "source/assets/local/explanation_reference",
+        "source/frontend/node_modules",
+    ):
+        target = directory / link
+        if target.exists():
+            os.rmdir(target)
+    shutil.rmtree(directory)
     print(json.dumps({"status": "down", "dropped": database, "remaining": remaining}))
 
 

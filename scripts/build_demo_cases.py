@@ -66,10 +66,24 @@ def packet_like(bundle, drivers):
         "sampling_metadata",
         "settlement_status",
     }
+    window = {"start": bundle.window_start.isoformat(), "end": bundle.as_of.isoformat()}
     return {
         "model_signal": {"explanation": {"features": drivers}},
+        # As in the packet: every in-window transaction, and facts that carry the window.
+        "transactions": [
+            {
+                "amount": str(t.amount),
+                "currency": t.currency,
+                "event_at": t.event_at.isoformat(),
+                "direction": t.direction,
+                "channel": t.channel,
+                "counterparty_handle": t.counterparty_key,
+            }
+            for t in transactions
+            if t.event_at is not None and bundle.window_start <= t.event_at < bundle.as_of
+        ],
         # Concentration is calculated whenever the window has transactions.
-        "facts": [{"result": {"concentration": [1]}}] if transactions else [],
+        "facts": [{"result": {"concentration": [1] if transactions else [], "window": window}}],
         "missing_evidence": sorted(missing),
         "conflicts": [],
     }
@@ -117,10 +131,17 @@ def offline_results():
                 (f for f in features if f["direction"] == "raises_score" and not f["missing"]),
                 key=lambda f: (-f["contribution"], f["name"]),
             )
-            case_inputs = rr.case_inputs(packet_like(bundle, features))
+            packet = packet_like(bundle, features)
+            # Before: the v4 rule (unchanged for stored v1-v4 records).
+            case_inputs = rr.case_inputs(packet)
             terms = rr.map_terms(case_inputs)
             ranked, matched = rr.rank(session, chunks, rr.or_query(terms))
             strong = rr.strong_matches(ranked)
+            # After: the v5 rule used for new records.
+            inputs_v5, patterns, dropped = rr.case_inputs_v5(packet, inputs["income"])
+            weighted = rr.weighted_terms_v5(inputs_v5)
+            ranked_v5, matched_v5 = rr.rank_v5(session, chunks, weighted)
+            strong_v5 = rr.strong_matches(ranked_v5)
             routes = {}
             for mode in POLICIES:
                 recommendation = policy.evaluate(score, mode, kyc_risk_score=inputs["kycRiskScore"])
@@ -143,17 +164,36 @@ def offline_results():
                     if bundle.coverage != "complete_declared_window" or not transactions
                     else "packet_ready",
                 },
-                "retrieval_inputs": case_inputs,
-                "retrieval_query": " ".join(terms),
-                "matched_sections": int(matched),
+                "retrieval_v4_before": {
+                    "inputs": case_inputs,
+                    "query": " ".join(terms),
+                    "matched_sections": int(matched),
+                    "strong_matches": [
+                        {"section": s, "score": sc, "title": titles[s]} for s, sc in strong
+                    ],
+                },
+                "retrieval_inputs": inputs_v5,
+                "dropped_inputs": dropped,
+                "patterns_fired": patterns,
+                "retrieval_query": " ".join(t for t, _ in weighted),
+                "weighted_terms": [[t, w] for t, w in weighted],
+                "matched_sections": int(matched_v5),
                 "strong_matches": [
-                    {"section": s, "score": sc, "title": titles[s]} for s, sc in strong
+                    {"section": s, "score": sc, "title": titles[s]} for s, sc in strong_v5
                 ],
             }
     engine.dispose()
     tops = sorted({r["strong_matches"][0]["section"] for r in results.values()})
     every = sorted({m["section"] for r in results.values() for m in r["strong_matches"]})
-    summary = {"distinct_top_sections": tops, "distinct_strong_sections": every}
+    before = sorted(
+        {r["retrieval_v4_before"]["strong_matches"][0]["section"] for r in results.values()}
+    )
+    summary = {
+        "retrieval_rule": "v5 (binding v5)",
+        "distinct_top_sections": tops,
+        "distinct_strong_sections": every,
+        "v4_distinct_top_sections": before,
+    }
     (OUT / "demo_cases_offline.json").write_text(
         json.dumps({"summary": summary, "cases": results}, indent=2, default=str) + "\n",
         encoding="utf-8",
@@ -168,7 +208,9 @@ def main():
         print(
             f"{case_id:<20} score {r['score']:.4f} {r['priority']:<8} "
             f"{'/'.join(v[:6] for v in r['routes'].values())} "
-            f"top {[m['section'] for m in r['strong_matches']]} {r['evidence']['expected_packet']}"
+            f"v4 {[m['section'] for m in r['retrieval_v4_before']['strong_matches']]} "
+            f"v5 {[m['section'] for m in r['strong_matches']]} "
+            f"rules {[p['rule'] for p in r['patterns_fired']]} {r['evidence']['expected_packet']}"
         )
     print(json.dumps(summary))
 

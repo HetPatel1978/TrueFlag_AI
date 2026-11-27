@@ -81,6 +81,7 @@ def test_case_stories_are_visible_in_the_generated_evidence():
     assert spend > 3 * Decimal(income.declarations["income"])
 
 
+@pytest.mark.skipif(not DEMO_CSV.exists(), reason="docs CSV is not part of staged copies")
 def test_committed_csv_matches_the_catalog_in_template_order():
     rows = list(csv.DictReader(io.StringIO(DEMO_CSV.read_text(encoding="utf-8"))))
     assert list(rows[0]) == list(COLUMNS)

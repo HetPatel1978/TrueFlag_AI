@@ -1,13 +1,22 @@
 {
   "summary": {
+    "retrieval_rule": "v5 (binding v5)",
     "distinct_top_sections": [
       "1020.210",
       "1020.220",
       "1020.315",
-      "1020.320"
+      "1020.410"
     ],
     "distinct_strong_sections": [
       "1020.100",
+      "1020.210",
+      "1020.220",
+      "1020.313",
+      "1020.315",
+      "1020.320",
+      "1020.410"
+    ],
+    "v4_distinct_top_sections": [
       "1020.210",
       "1020.220",
       "1020.315",
@@ -51,32 +60,149 @@
         "transactions": 12,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalMerchCred90d",
+          "risk_driver:totalPaymentAmt90d",
+          "risk_driver:nbrPaymentsCashLike90d",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "credit refund return funds payment transfer amount cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.220",
+            "score": "8.100000",
+            "title": "Customer identification program requirements for banks"
+          },
+          {
+            "section": "1020.315",
+            "score": "8.000000",
+            "title": "Transactions of exempt persons"
+          },
+          {
+            "section": "1020.210",
+            "score": "2.800000",
+            "title": "Anti-money laundering program requirements for banks"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalMerchCred90d",
         "risk_driver:totalPaymentAmt90d",
         "risk_driver:nbrPaymentsCashLike90d",
+        "evidence_pattern:cash_below_reporting_threshold",
+        "evidence_pattern:activity_above_declared_income"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "credit refund return funds payment transfer amount cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
-      "strong_matches": [
+      "patterns_fired": [
         {
-          "section": "1020.220",
-          "score": "8.100000",
-          "title": "Customer identification program requirements for banks"
+          "rule": "cash_below_reporting_threshold",
+          "observed": "10",
+          "threshold": "3"
         },
         {
+          "rule": "activity_above_declared_income",
+          "observed": "340667",
+          "threshold": "144000"
+        }
+      ],
+      "retrieval_query": "currency structured reports aggregation diligence beneficial ownership profile credit refund return funds payment transfer amount cash transaction",
+      "weighted_terms": [
+        [
+          "currency",
+          3
+        ],
+        [
+          "structured",
+          3
+        ],
+        [
+          "reports",
+          3
+        ],
+        [
+          "aggregation",
+          3
+        ],
+        [
+          "diligence",
+          3
+        ],
+        [
+          "beneficial",
+          3
+        ],
+        [
+          "ownership",
+          3
+        ],
+        [
+          "profile",
+          3
+        ],
+        [
+          "credit",
+          1
+        ],
+        [
+          "refund",
+          1
+        ],
+        [
+          "return",
+          1
+        ],
+        [
+          "funds",
+          1
+        ],
+        [
+          "payment",
+          1
+        ],
+        [
+          "transfer",
+          1
+        ],
+        [
+          "amount",
+          1
+        ],
+        [
+          "cash",
+          1
+        ],
+        [
+          "transaction",
+          1
+        ]
+      ],
+      "matched_sections": 15,
+      "strong_matches": [
+        {
           "section": "1020.315",
-          "score": "8.000000",
+          "score": "15.868421",
           "title": "Transactions of exempt persons"
         },
         {
+          "section": "1020.320",
+          "score": "14.795918",
+          "title": "Reports by banks of suspicious transactions"
+        },
+        {
           "section": "1020.210",
-          "score": "2.800000",
+          "score": "14.545455",
           "title": "Anti-money laundering program requirements for banks"
         }
       ]
@@ -117,33 +243,150 @@
         "transactions": 12,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalPaymentAmt90d",
+          "risk_driver:overpaymentAmt90d",
+          "risk_driver:nbrPaymentsCashLike90d",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "payment transfer funds amount overpayment refund return cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.315",
+            "score": "8.000000",
+            "title": "Transactions of exempt persons"
+          },
+          {
+            "section": "1020.220",
+            "score": "7.700000",
+            "title": "Customer identification program requirements for banks"
+          },
+          {
+            "section": "1020.320",
+            "score": "2.700000",
+            "title": "Reports by banks of suspicious transactions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalPaymentAmt90d",
         "risk_driver:overpaymentAmt90d",
         "risk_driver:nbrPaymentsCashLike90d",
+        "evidence_pattern:rapid_in_out",
+        "evidence_pattern:activity_above_declared_income"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "payment transfer funds amount overpayment refund return cash currency transaction counterparty customer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
+      "patterns_fired": [
+        {
+          "rule": "rapid_in_out",
+          "observed": "6",
+          "threshold": "3"
+        },
+        {
+          "rule": "activity_above_declared_income",
+          "observed": "239967",
+          "threshold": "183000"
+        }
+      ],
+      "retrieval_query": "transfer transmittal originator beneficiary diligence beneficial ownership profile payment funds amount overpayment refund return cash currency transaction",
+      "weighted_terms": [
+        [
+          "transfer",
+          3
+        ],
+        [
+          "transmittal",
+          3
+        ],
+        [
+          "originator",
+          3
+        ],
+        [
+          "beneficiary",
+          3
+        ],
+        [
+          "diligence",
+          3
+        ],
+        [
+          "beneficial",
+          3
+        ],
+        [
+          "ownership",
+          3
+        ],
+        [
+          "profile",
+          3
+        ],
+        [
+          "payment",
+          1
+        ],
+        [
+          "funds",
+          1
+        ],
+        [
+          "amount",
+          1
+        ],
+        [
+          "overpayment",
+          1
+        ],
+        [
+          "refund",
+          1
+        ],
+        [
+          "return",
+          1
+        ],
+        [
+          "cash",
+          1
+        ],
+        [
+          "currency",
+          1
+        ],
+        [
+          "transaction",
+          1
+        ]
+      ],
+      "matched_sections": 14,
       "strong_matches": [
         {
+          "section": "1020.410",
+          "score": "15.927536",
+          "title": "Records to be made and retained by banks"
+        },
+        {
+          "section": "1020.210",
+          "score": "10.444444",
+          "title": "Anti-money laundering program requirements for banks"
+        },
+        {
           "section": "1020.315",
-          "score": "8.000000",
+          "score": "9.830508",
           "title": "Transactions of exempt persons"
-        },
-        {
-          "section": "1020.220",
-          "score": "7.700000",
-          "title": "Customer identification program requirements for banks"
-        },
-        {
-          "section": "1020.320",
-          "score": "2.700000",
-          "title": "Reports by banks of suspicious transactions"
         }
       ]
     },
@@ -183,33 +426,116 @@
         "transactions": 43,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalMerchCred90d",
+          "risk_driver:totalSpend90d",
+          "risk_driver:nbrMerchCredits90d",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "credit refund return funds transaction amount aggregate counterparty transfer customer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.220",
+            "score": "8.100000",
+            "title": "Customer identification program requirements for banks"
+          },
+          {
+            "section": "1020.315",
+            "score": "6.600000",
+            "title": "Transactions of exempt persons"
+          },
+          {
+            "section": "1020.210",
+            "score": "2.800000",
+            "title": "Anti-money laundering program requirements for banks"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalMerchCred90d",
         "risk_driver:totalSpend90d",
         "risk_driver:nbrMerchCredits90d",
+        "evidence_pattern:many_sources"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "credit refund return funds transaction amount aggregate counterparty transfer customer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
+      "patterns_fired": [
+        {
+          "rule": "many_sources",
+          "observed": "25",
+          "threshold": "10"
+        }
+      ],
+      "retrieval_query": "aggregate multiple sources aggregation credit refund return funds transaction amount",
+      "weighted_terms": [
+        [
+          "aggregate",
+          3
+        ],
+        [
+          "multiple",
+          3
+        ],
+        [
+          "sources",
+          3
+        ],
+        [
+          "aggregation",
+          3
+        ],
+        [
+          "credit",
+          1
+        ],
+        [
+          "refund",
+          1
+        ],
+        [
+          "return",
+          1
+        ],
+        [
+          "funds",
+          1
+        ],
+        [
+          "transaction",
+          1
+        ],
+        [
+          "amount",
+          1
+        ]
+      ],
+      "matched_sections": 11,
       "strong_matches": [
         {
-          "section": "1020.220",
-          "score": "8.100000",
-          "title": "Customer identification program requirements for banks"
-        },
-        {
           "section": "1020.315",
-          "score": "6.600000",
+          "score": "11.772727",
           "title": "Transactions of exempt persons"
         },
         {
-          "section": "1020.210",
-          "score": "2.800000",
-          "title": "Anti-money laundering program requirements for banks"
+          "section": "1020.320",
+          "score": "11.677419",
+          "title": "Reports by banks of suspicious transactions"
+        },
+        {
+          "section": "1020.313",
+          "score": "7.230769",
+          "title": "Aggregation"
         }
       ]
     },
@@ -249,32 +575,100 @@
         "transactions": 15,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:tenureMonths",
+          "risk_driver:income",
+          "risk_driver:state",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "account opened customer relationship occupation business address location counterparty transfer due diligence risk profile documents records verification retained transaction",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.210",
+            "score": "2.800000",
+            "title": "Anti-money laundering program requirements for banks"
+          },
+          {
+            "section": "1020.320",
+            "score": "2.700000",
+            "title": "Reports by banks of suspicious transactions"
+          },
+          {
+            "section": "1020.100",
+            "score": "2.400000",
+            "title": "Definitions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:tenureMonths",
         "risk_driver:income",
-        "risk_driver:state",
+        "risk_driver:state"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "account opened customer relationship occupation business address location counterparty transfer due diligence risk profile documents records verification retained transaction",
-      "matched_sections": 16,
+      "patterns_fired": [],
+      "retrieval_query": "account opened customer relationship occupation business address location",
+      "weighted_terms": [
+        [
+          "account",
+          1
+        ],
+        [
+          "opened",
+          1
+        ],
+        [
+          "customer",
+          1
+        ],
+        [
+          "relationship",
+          1
+        ],
+        [
+          "occupation",
+          1
+        ],
+        [
+          "business",
+          1
+        ],
+        [
+          "address",
+          1
+        ],
+        [
+          "location",
+          1
+        ]
+      ],
+      "matched_sections": 11,
       "strong_matches": [
         {
-          "section": "1020.210",
-          "score": "2.800000",
-          "title": "Anti-money laundering program requirements for banks"
+          "section": "1020.220",
+          "score": "7.918033",
+          "title": "Customer identification program requirements for banks"
         },
         {
-          "section": "1020.320",
-          "score": "2.700000",
-          "title": "Reports by banks of suspicious transactions"
+          "section": "1020.410",
+          "score": "6.857143",
+          "title": "Records to be made and retained by banks"
         },
         {
           "section": "1020.100",
-          "score": "2.400000",
+          "score": "4.677419",
           "title": "Definitions"
         }
       ]
@@ -315,33 +709,93 @@
         "transactions": 15,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:kycRiskScore",
+          "risk_driver:creditScore",
+          "risk_driver:income",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "customer identification verification credit occupation business counterparty transfer due diligence risk profile documents records retained transaction",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.315",
+            "score": "8.200000",
+            "title": "Transactions of exempt persons"
+          },
+          {
+            "section": "1020.210",
+            "score": "2.800000",
+            "title": "Anti-money laundering program requirements for banks"
+          },
+          {
+            "section": "1020.320",
+            "score": "2.500000",
+            "title": "Reports by banks of suspicious transactions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:kycRiskScore",
         "risk_driver:creditScore",
-        "risk_driver:income",
+        "risk_driver:income"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "customer identification verification credit occupation business counterparty transfer due diligence risk profile documents records retained transaction",
-      "matched_sections": 16,
+      "patterns_fired": [],
+      "retrieval_query": "customer identification verification credit occupation business",
+      "weighted_terms": [
+        [
+          "customer",
+          1
+        ],
+        [
+          "identification",
+          1
+        ],
+        [
+          "verification",
+          1
+        ],
+        [
+          "credit",
+          1
+        ],
+        [
+          "occupation",
+          1
+        ],
+        [
+          "business",
+          1
+        ]
+      ],
+      "matched_sections": 7,
       "strong_matches": [
         {
+          "section": "1020.220",
+          "score": "5.882353",
+          "title": "Customer identification program requirements for banks"
+        },
+        {
+          "section": "1020.410",
+          "score": "5.855072",
+          "title": "Records to be made and retained by banks"
+        },
+        {
           "section": "1020.315",
-          "score": "8.200000",
+          "score": "2.803922",
           "title": "Transactions of exempt persons"
-        },
-        {
-          "section": "1020.210",
-          "score": "2.800000",
-          "title": "Anti-money laundering program requirements for banks"
-        },
-        {
-          "section": "1020.320",
-          "score": "2.500000",
-          "title": "Reports by banks of suspicious transactions"
         }
       ]
     },
@@ -381,32 +835,108 @@
         "transactions": 4,
         "expected_packet": "abstained"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalPaymentAmt90d",
+          "risk_driver:nbrPaymentsCashLike90d",
+          "risk_driver:nbrWebLogins90d",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "payment transfer funds amount cash currency transaction online access account counterparty customer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.320",
+            "score": "2.700000",
+            "title": "Reports by banks of suspicious transactions"
+          },
+          {
+            "section": "1020.210",
+            "score": "2.600000",
+            "title": "Anti-money laundering program requirements for banks"
+          },
+          {
+            "section": "1020.100",
+            "score": "2.000000",
+            "title": "Definitions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalPaymentAmt90d",
         "risk_driver:nbrPaymentsCashLike90d",
-        "risk_driver:nbrWebLogins90d",
+        "risk_driver:nbrWebLogins90d"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "payment transfer funds amount cash currency transaction online access account counterparty customer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
+      "patterns_fired": [],
+      "retrieval_query": "payment transfer funds amount cash currency transaction online access account",
+      "weighted_terms": [
+        [
+          "payment",
+          1
+        ],
+        [
+          "transfer",
+          1
+        ],
+        [
+          "funds",
+          1
+        ],
+        [
+          "amount",
+          1
+        ],
+        [
+          "cash",
+          1
+        ],
+        [
+          "currency",
+          1
+        ],
+        [
+          "transaction",
+          1
+        ],
+        [
+          "online",
+          1
+        ],
+        [
+          "access",
+          1
+        ],
+        [
+          "account",
+          1
+        ]
+      ],
+      "matched_sections": 14,
       "strong_matches": [
         {
-          "section": "1020.320",
-          "score": "2.700000",
-          "title": "Reports by banks of suspicious transactions"
+          "section": "1020.410",
+          "score": "9.910714",
+          "title": "Records to be made and retained by banks"
         },
         {
-          "section": "1020.210",
-          "score": "2.600000",
-          "title": "Anti-money laundering program requirements for banks"
+          "section": "1020.315",
+          "score": "5.883721",
+          "title": "Transactions of exempt persons"
         },
         {
           "section": "1020.100",
-          "score": "2.000000",
+          "score": "4.629630",
           "title": "Definitions"
         }
       ]
@@ -447,33 +977,136 @@
         "transactions": 21,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalMerchCred90d",
+          "risk_driver:nbrPaymentsCashLike90d",
+          "risk_driver:tenureMonths",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "credit refund return funds cash currency transaction account opened customer relationship counterparty transfer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.210",
+            "score": "3.000000",
+            "title": "Anti-money laundering program requirements for banks"
+          },
+          {
+            "section": "1020.100",
+            "score": "2.800000",
+            "title": "Definitions"
+          },
+          {
+            "section": "1020.320",
+            "score": "2.700000",
+            "title": "Reports by banks of suspicious transactions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalMerchCred90d",
         "risk_driver:nbrPaymentsCashLike90d",
         "risk_driver:tenureMonths",
+        "evidence_pattern:dormant_then_active"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "credit refund return funds cash currency transaction account opened customer relationship counterparty transfer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
+      "patterns_fired": [
+        {
+          "rule": "dormant_then_active",
+          "observed": "75 days quiet, 21 transactions",
+          "threshold": "60 days, 10 transactions"
+        }
+      ],
+      "retrieval_query": "ongoing monitoring update risk credit refund return funds cash currency transaction account opened customer relationship",
+      "weighted_terms": [
+        [
+          "ongoing",
+          3
+        ],
+        [
+          "monitoring",
+          3
+        ],
+        [
+          "update",
+          3
+        ],
+        [
+          "risk",
+          3
+        ],
+        [
+          "credit",
+          1
+        ],
+        [
+          "refund",
+          1
+        ],
+        [
+          "return",
+          1
+        ],
+        [
+          "funds",
+          1
+        ],
+        [
+          "cash",
+          1
+        ],
+        [
+          "currency",
+          1
+        ],
+        [
+          "transaction",
+          1
+        ],
+        [
+          "account",
+          1
+        ],
+        [
+          "opened",
+          1
+        ],
+        [
+          "customer",
+          1
+        ],
+        [
+          "relationship",
+          1
+        ]
+      ],
+      "matched_sections": 15,
       "strong_matches": [
         {
           "section": "1020.210",
-          "score": "3.000000",
+          "score": "16.782609",
           "title": "Anti-money laundering program requirements for banks"
         },
         {
-          "section": "1020.100",
-          "score": "2.800000",
-          "title": "Definitions"
+          "section": "1020.315",
+          "score": "11.911504",
+          "title": "Transactions of exempt persons"
         },
         {
-          "section": "1020.320",
-          "score": "2.700000",
-          "title": "Reports by banks of suspicious transactions"
+          "section": "1020.220",
+          "score": "10.913043",
+          "title": "Customer identification program requirements for banks"
         }
       ]
     },
@@ -513,32 +1146,115 @@
         "transactions": 36,
         "expected_packet": "packet_ready"
       },
+      "retrieval_v4_before": {
+        "inputs": [
+          "risk_driver:totalSpend90d",
+          "risk_driver:totalPaymentAmt90d",
+          "risk_driver:avgTxnSize90d",
+          "calculation:counterparty_concentration",
+          "missing_evidence:comparable_expected_activity",
+          "missing_evidence:curated_documents",
+          "missing_evidence:sampling_metadata",
+          "missing_evidence:settlement_status"
+        ],
+        "query": "transaction amount aggregate payment transfer funds counterparty customer due diligence risk profile documents records verification retained",
+        "matched_sections": 16,
+        "strong_matches": [
+          {
+            "section": "1020.220",
+            "score": "7.700000",
+            "title": "Customer identification program requirements for banks"
+          },
+          {
+            "section": "1020.315",
+            "score": "6.600000",
+            "title": "Transactions of exempt persons"
+          },
+          {
+            "section": "1020.320",
+            "score": "2.800000",
+            "title": "Reports by banks of suspicious transactions"
+          }
+        ]
+      },
       "retrieval_inputs": [
         "risk_driver:totalSpend90d",
         "risk_driver:totalPaymentAmt90d",
         "risk_driver:avgTxnSize90d",
+        "evidence_pattern:activity_above_declared_income"
+      ],
+      "dropped_inputs": [
         "calculation:counterparty_concentration",
         "missing_evidence:comparable_expected_activity",
         "missing_evidence:curated_documents",
         "missing_evidence:sampling_metadata",
         "missing_evidence:settlement_status"
       ],
-      "retrieval_query": "transaction amount aggregate payment transfer funds counterparty customer due diligence risk profile documents records verification retained",
-      "matched_sections": 16,
+      "patterns_fired": [
+        {
+          "rule": "activity_above_declared_income",
+          "observed": "269674",
+          "threshold": "63000"
+        }
+      ],
+      "retrieval_query": "diligence beneficial ownership profile transaction amount aggregate payment transfer funds",
+      "weighted_terms": [
+        [
+          "diligence",
+          3
+        ],
+        [
+          "beneficial",
+          3
+        ],
+        [
+          "ownership",
+          3
+        ],
+        [
+          "profile",
+          3
+        ],
+        [
+          "transaction",
+          1
+        ],
+        [
+          "amount",
+          1
+        ],
+        [
+          "aggregate",
+          1
+        ],
+        [
+          "payment",
+          1
+        ],
+        [
+          "transfer",
+          1
+        ],
+        [
+          "funds",
+          1
+        ]
+      ],
+      "matched_sections": 14,
       "strong_matches": [
         {
-          "section": "1020.220",
-          "score": "7.700000",
-          "title": "Customer identification program requirements for banks"
+          "section": "1020.210",
+          "score": "10.444444",
+          "title": "Anti-money laundering program requirements for banks"
         },
         {
           "section": "1020.315",
-          "score": "6.600000",
+          "score": "7.777778",
           "title": "Transactions of exempt persons"
         },
         {
           "section": "1020.320",
-          "score": "2.800000",
+          "score": "6.677419",
           "title": "Reports by banks of suspicious transactions"
         }
       ]

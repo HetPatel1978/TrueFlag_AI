@@ -192,8 +192,8 @@ const phases = {
     };
     const reviewFinding = async (source, rationale, name, confirmName) => {
       const action = await human(source);
-      await action.selectOption({ label: 'Review simulated findings' });
-      await page.getByRole('button', { name: 'Load my verified simulated findings' }).click();
+      await action.selectOption({ label: 'Review AI findings' });
+      await page.getByRole('button', { name: 'Load my latest verified AI findings' }).click();
       await page.getByRole('combobox', { name: 'Review decision' }).selectOption({ label: 'Accept for consideration' });
       await page.getByRole('textbox', { name: 'Decision rationale' }).fill(rationale);
       if (name) await shot(page, name, { full: true });
@@ -239,6 +239,68 @@ const phases = {
       'Repeated deposits just under the USD 10,000 reporting threshold followed by large transfers out. Recommend compliance review for a possible SAR referral.',
       '35-escalated-syn01',
     );
+  },
+  async escalate(page) {
+    // No simulation: notes, an information request and escalations (each confirmed).
+    const c = notes.cases;
+    await signIn(page, 'windowsanalyst');
+    const human = async (source) => {
+      await page.waitForTimeout(45000); // shared per-user request limit (120/min)
+      await openCase(page, c[source], 'Human Decision');
+      const action = page.getByRole('combobox', { name: 'Action', exact: true });
+      await action.waitFor({ timeout: 30000 });
+      return action;
+    };
+    const recorded = () =>
+      page.getByText('Human casework recorded').first().waitFor({ timeout: 30000 });
+    let action = await human('SYN-04-SAVER');
+    await action.selectOption({ label: 'Write note' });
+    await page.getByRole('textbox', { name: 'Investigation note' }).fill(
+      'Salary direct deposits every two weeks, regular bill payments and two small P2P transfers. Matches the declared income and a normal saver profile.',
+    );
+    await shot(page, '23-note-syn04', { full: true });
+    await page.getByRole('button', { name: 'Submit investigation note' }).click();
+    await recorded();
+    action = await human('SYN-04-SAVER');
+    await action.selectOption({ label: 'Escalate to supervisor' });
+    await page.getByRole('textbox', { name: 'Decision rationale' }).fill(
+      'Recommend closing as a false positive: activity is consistent with the declared salary and bills. No further action proposed.',
+    );
+    await page.getByRole('button', { name: 'Request supervisor review' }).click();
+    await page.getByRole('button', { name: 'Confirm and record decision' }).waitFor();
+    await shot(page, '32-confirm-decision');
+    await page.getByRole('button', { name: 'Confirm and record decision' }).click();
+    await recorded();
+    await shot(page, '33-escalated-syn04', { full: true });
+    action = await human('SYN-01-STRUCTURING');
+    await action.selectOption({ label: 'Request information' });
+    await page.getByRole('textbox', { name: 'Decision rationale' }).fill(
+      'Ten cash-like deposits between USD 9,400 and 9,900 in 90 days. Request the customer’s source of cash and expected activity.',
+    );
+    await shot(page, '25-request-info-syn01', { full: true });
+    await page.getByRole('button', { name: 'Record information request' }).click();
+    await recorded();
+    action = await human('SYN-01-STRUCTURING');
+    await action.selectOption({ label: 'Escalate to supervisor' });
+    await page.getByRole('textbox', { name: 'Decision rationale' }).fill(
+      'Repeated cash deposits just under the USD 10,000 report level, then large transfers out. Recommend compliance review.',
+    );
+    await page.getByRole('button', { name: 'Request supervisor review' }).click();
+    await page.getByRole('button', { name: 'Confirm and record decision' }).click();
+    await recorded();
+    await shot(page, '35-escalated-syn01', { full: true });
+    await signIn(page, 'windowssupervisor');
+    await page.getByLabel('Workspace navigation').getByRole('link', { name: 'Review Queue', exact: true }).click();
+    await page.waitForTimeout(4000);
+    await shot(page, '36-review-queue', { full: true });
+  },
+  async queue(page) {
+    await signIn(page, 'windowssupervisor');
+    await page.waitForTimeout(5000);
+    await page.getByLabel('Workspace navigation').getByRole('link', { name: 'Review Queue', exact: true }).click();
+    await page.getByRole('heading', { name: 'Review Queue' }).waitFor({ timeout: 30000 });
+    await page.waitForTimeout(4000);
+    await shot(page, '36-review-queue', { full: true });
   },
   async supervisor(page) {
     // Supervisor: independent review of each escalation, then the final internal resolution.
@@ -325,12 +387,13 @@ const phases = {
     await page.getByRole('heading', { name: 'Provider usage' }).waitFor();
     await page.waitForTimeout(4000);
     await shot(page, '42-provider-usage', { full: true });
-    for (const [source, name] of [
-      ['SYN-02-PASSTHROUGH', '43-test-retrieval-syn02'],
-      ['SYN-07-DORMANT', '44-test-retrieval-syn07'],
+    // Each case's evidence-pattern words (retrieval v5 rule table), tested on their own.
+    for (const [words, name] of [
+      ['structured currency reports aggregation', '43-test-retrieval-syn01'],
+      ['transfer transmittal originator beneficiary', '44-test-retrieval-syn02'],
     ]) {
       const box = page.getByRole('textbox', { name: 'Test retrieval' });
-      await box.fill(offline.cases[source].retrieval_query);
+      await box.fill(words);
       await page.getByRole('button', { name: 'Test retrieval', exact: true }).click();
       await page.getByText(/strong match/).first().waitFor({ timeout: 30000 });
       await page.waitForTimeout(1500);
@@ -340,6 +403,68 @@ const phases = {
     await page.getByRole('link', { name: 'Diagnostics', exact: true }).click();
     await page.waitForTimeout(5000);
     await shot(page, '45-diagnostics', { full: true });
+  },
+  async retrieval(page) {
+    await signIn(page, 'windowsadmin');
+    await page.getByLabel('Workspace navigation').getByRole('link', { name: 'Administration', exact: true }).click();
+    await page.getByRole('link', { name: 'Provider Usage', exact: true }).click();
+    await page.getByRole('heading', { name: 'Provider usage' }).waitFor();
+    for (const [words, name] of [
+      ['structured currency reports aggregation', '43-test-retrieval-syn01'],
+      ['transfer transmittal originator beneficiary', '44-test-retrieval-syn02'],
+    ]) {
+      await page.getByRole('textbox', { name: 'Test retrieval' }).fill(words);
+      await page.getByRole('button', { name: 'Test retrieval', exact: true }).click();
+      await page.getByText(/strong match/).first().waitFor({ timeout: 30000 });
+      await page.waitForTimeout(1500);
+      await page.getByRole('heading', { name: 'Regulatory retrieval corpus' }).scrollIntoViewIfNeeded();
+      await shot(page, name);
+    }
+  },
+  async verifyanalyst(page) {
+    // Verification only (dry run with --simulation; nothing here goes into docs/demo).
+    const c = notes.cases['SYN-04-SAVER'];
+    await signIn(page, 'windowsanalyst');
+    await openCase(page, c, 'Human Decision');
+    const action = page.getByRole('combobox', { name: 'Action', exact: true });
+    await action.waitFor({ timeout: 60000 });
+    await action.selectOption({ label: 'Review AI findings' });
+    await page.getByRole('button', { name: 'Load my latest verified AI findings' }).click();
+    await page.getByRole('combobox', { name: 'Review decision' }).selectOption({ label: 'Accept for consideration' });
+    await page.getByRole('textbox', { name: 'Decision rationale' }).fill('Verification of the case decision display only.');
+    await page.getByRole('button', { name: 'Record finding review' }).click();
+    await page.getByRole('button', { name: 'Confirm and record decision' }).click();
+    await page.getByText('Human casework recorded').first().waitFor({ timeout: 30000 });
+    console.log('finding reviewed');
+  },
+  async verifysupervisor(page) {
+    const c = notes.cases['SYN-04-SAVER'];
+    await signIn(page, 'windowssupervisor');
+    await openCase(page, c, 'Human Decision');
+    const action = page.getByRole('combobox', { name: 'Action', exact: true });
+    await action.waitFor({ timeout: 60000 });
+    if (process.env.STEP !== 'resolve') {
+      await action.selectOption({ label: 'Supervisor review' });
+      await page.getByRole('combobox', { name: 'Supervisor decision' }).selectOption('approve_resolution');
+      const outcomes = page.getByRole('combobox', { name: 'Proposed outcome' });
+      const labels = await outcomes.locator('option').allInnerTexts();
+      await outcomes.selectOption({ label: labels.find((l) => /compliance review/i.test(l)) });
+      await page.getByRole('textbox', { name: 'Decision rationale' }).fill('Verification of the case decision display only.');
+      await page.getByRole('button', { name: 'Review supervisor response' }).click();
+      await page.getByRole('button', { name: 'Confirm and record decision' }).click();
+      await page.getByText('Human casework recorded').first().waitFor({ timeout: 30000 });
+      console.log('approved');
+      return;
+    }
+    await action.selectOption({ label: 'Record resolution' });
+    await page.getByRole('textbox', { name: 'Decision rationale' }).fill('Verification of the case decision display only.');
+    await page.getByRole('button', { name: 'Review final case resolution' }).click();
+    await page.getByRole('button', { name: 'Confirm and record decision' }).click();
+    await page.getByText(/Resolution: (?!Not recorded)/).first().waitFor({ timeout: 30000 });
+    await page.waitForTimeout(4000);
+    await page.screenshot({ path: path.join(marker.directory, 'verify-decision.png'), fullPage: true });
+    const rail = await page.getByRole('complementary', { name: 'Case summary' }).innerText();
+    console.log('RAIL', rail.replace(/\s+/g, ' '));
   },
   async resolved(page) {
     await signIn(page, 'windowssupervisor');
