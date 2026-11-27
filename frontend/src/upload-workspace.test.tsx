@@ -146,3 +146,22 @@ it('shows an empty authorized workspace without falling back to unscoped case re
   expect(screen.queryByText(`Cases scoped to ${active.id}`)).toBeNull();
   expect(fetcher).toHaveBeenCalledTimes(1);
 });
+
+it('refreshes the case count when an import finishes (no route change)', async () => {
+  const { SESSION_CHANGED } = await import('./upload-workspace');
+  let count = 0;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify(workspace({ ...active, case_count: count })),
+        ),
+    ),
+  );
+  mount();
+  await screen.findByText(/0 cases/);
+  count = 8;
+  window.dispatchEvent(new Event(SESSION_CHANGED));
+  await screen.findByText(/8 cases/);
+});

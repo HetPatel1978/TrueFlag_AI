@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ApiError, message, request, type User } from './api';
 
+/** Window event: the active upload session's contents changed (for example, an import finished). */
+export const SESSION_CHANGED = 'trueflag:upload-session-changed';
+
 export type UploadSession = {
   id: string;
   created_at: string;
@@ -115,7 +118,12 @@ export function UploadWorkspace({
   useEffect(() => {
     const focus = () => setRevision((n) => n + 1);
     window.addEventListener('focus', focus);
-    return () => window.removeEventListener('focus', focus);
+    // An import finishing changes the session's case count without a route change.
+    window.addEventListener(SESSION_CHANGED, focus);
+    return () => {
+      window.removeEventListener('focus', focus);
+      window.removeEventListener(SESSION_CHANGED, focus);
+    };
   }, []);
   useEffect(() => {
     if (checking || !['#/batch', '#/batch/'].includes(route)) return;

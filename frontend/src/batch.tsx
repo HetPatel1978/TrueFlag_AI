@@ -10,6 +10,7 @@ import {
 import { Badge, Explanation } from './workbench';
 import { TERMS, featureLabel } from './terminology';
 import { PageHeader } from './ui';
+import { SESSION_CHANGED } from './upload-workspace';
 import {
   download,
   uuid,
@@ -361,6 +362,18 @@ export function BatchProcessing({
     navigate(`#/batch/import/${resume}`);
   }
 
+  // Tell the upload-session bar once each import finishes, so its case count is current.
+  const announced = useRef('');
+  useEffect(() => {
+    if (
+      imported &&
+      ['completed', 'partially_completed'].includes(imported.status) &&
+      announced.current !== imported.import_id
+    ) {
+      announced.current = imported.import_id;
+      window.dispatchEvent(new Event(SESSION_CHANGED));
+    }
+  }, [imported]);
   if (user.role !== 'admin')
     return (
       <section className="state" role="alert">
