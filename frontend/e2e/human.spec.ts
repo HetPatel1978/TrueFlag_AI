@@ -185,10 +185,10 @@ test('analyst evidence and simulated findings through independent supervisor res
   ).toBeVisible();
   await (
     await import('./ux-helpers')
-  ).expandSection(page, 'Review simulated findings');
+  ).expandSection(page, 'Review AI findings');
   await page
     .getByRole('button', {
-      name: 'Load my verified simulated findings',
+      name: 'Load my latest verified AI findings',
       exact: true,
     })
     .click();

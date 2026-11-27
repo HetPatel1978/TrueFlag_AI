@@ -7,6 +7,12 @@ import { scorePercent, shortId } from './format';
 import { displayLabel } from './terminology';
 import { StatusBadge } from './ui';
 
+/** The human decision shown on the case: the recorded casework resolution first. */
+export function decisionText(record: WorkflowCase): string {
+  if (record.resolution) return label(record.resolution);
+  return record.disposition ? label(record.disposition) : 'Not recorded';
+}
+
 export function assigneeName(record: WorkflowCase, user: User): string {
   if (record.assigned_investigator) return record.assigned_investigator;
   if (record.assigned_to === user.id) return user.username;
@@ -105,9 +111,7 @@ export function CaseRail({
         </div>
         <div>
           <dt>Decision</dt>
-          <dd>
-            {record.disposition ? label(record.disposition) : 'Not recorded'}
-          </dd>
+          <dd>{decisionText(record)}</dd>
         </div>
       </dl>
       {missing === null ? (

@@ -230,7 +230,7 @@ export function HumanCasework({
       );
       if (!candidate) {
         setNotice(
-          'No completed simulated draft is available in your latest history. Generate one in Investigation first.',
+          'No completed, verified AI investigation is available yet. Generate one in AI Investigation first.',
         );
         return;
       }
@@ -238,12 +238,9 @@ export function HumanCasework({
         id,
         candidate.draft_run_id,
       );
-      if (
-        !detail.draft ||
-        !detail.draft.simulation ||
-        detail.draft.live_provider_used ||
-        !detail.draft.content_sha256
-      )
+      // Simulated or live: the server re-verifies the result (references, numbers and the
+      // content hash) before it is shown here and again when a review is recorded.
+      if (!detail.draft || !detail.draft.content_sha256)
         throw new ApiError(409);
       if (!signal.aborted) setDraft(detail.draft);
     } catch (e) {
@@ -362,7 +359,7 @@ export function HumanCasework({
             'Respond to information request',
             open.length > 0,
           ],
-          ['finding_review', 'Review simulated findings', true],
+          ['finding_review', 'Review AI findings', true],
           [
             'escalation',
             'Escalate to supervisor',
@@ -620,16 +617,20 @@ export function HumanCasework({
             {chosen === 'finding_review' && (
               <div className="case-action" aria-label="Review Findings">
                 <p className="muted">
-                  Offline simulation · Accepting a finding for consideration
-                  does not establish criminal activity, approve a SAR or resolve
-                  the case.
+                  {draft
+                    ? draft.live_provider_used
+                      ? 'Live AI result (verified) · '
+                      : 'Offline simulation · '
+                    : ''}
+                  Accepting a finding for consideration does not establish
+                  criminal activity, approve a SAR or resolve the case.
                 </p>
                 <div className="actions">
                   <button
                     onClick={() => void loadFindings()}
                     disabled={disabled}
                   >
-                    Load my verified simulated findings
+                    Load my latest verified AI findings
                   </button>
                   <a href={`#/cases/${id}/investigation`}>
                     Open AI Investigation
@@ -651,7 +652,7 @@ export function HumanCasework({
                   >
                     <div className="form-row">
                       <label>
-                        Simulated finding
+                        AI finding
                         <select name="reference_id">
                           {draft.findings.map((r, i) => (
                             <option key={r.reference_id} value={r.reference_id}>
@@ -816,7 +817,7 @@ export function HumanCasework({
                                 r.payload.responsible_party ?? 'not_recorded',
                               )} · Due ${r.payload.due_date ?? 'not set'}`}
                             {r.binding?.finding &&
-                              `Offline simulation · ${label(r.binding.finding.claim_type)} · original finding preserved`}
+                              `${r.binding.finding.mode === 'claude_live' ? 'Live AI result' : 'Offline simulation'} · ${label(r.binding.finding.claim_type)} · original finding preserved`}
                           </p>
                         )}
                         {r.payload.supporting_records.length > 0 && (

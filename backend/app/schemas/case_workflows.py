@@ -21,6 +21,16 @@ class QueueCase(WorkbenchCase):
     # newest event shown in the case's Activity History.
     assessment_score: float | None = None
     last_activity_at: datetime | None = None
+    # The latest recorded human casework resolution (four-eyes), if any.
+    resolution: (
+        Literal[
+            "additional_review_required",
+            "no_further_action_recommended",
+            "escalated_for_compliance_review",
+            "investigation_completed",
+        ]
+        | None
+    ) = None
 
 
 class QueuePage(BaseModel):

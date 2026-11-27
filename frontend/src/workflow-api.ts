@@ -9,6 +9,13 @@ export type WorkflowCase = Case & {
   assessment_score?: number | null;
   /** Time of the newest Activity History event. */
   last_activity_at?: string | null;
+  /** Latest recorded human casework resolution (four-eyes), if any. */
+  resolution?:
+    | 'additional_review_required'
+    | 'no_further_action_recommended'
+    | 'escalated_for_compliance_review'
+    | 'investigation_completed'
+    | null;
 };
 export type Directory = Page<{ id: string; username: string }> & {
   case_version: number;

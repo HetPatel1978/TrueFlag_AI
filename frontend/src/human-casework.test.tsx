@@ -264,7 +264,7 @@ describe('Human investigation casework', () => {
     expect(options).toEqual([
       'Write note',
       'Request information',
-      'Review simulated findings',
+      'Review AI findings',
       'Escalate to supervisor',
       'Link supporting evidence',
     ]);
@@ -277,6 +277,46 @@ describe('Human investigation casework', () => {
     )) as HTMLSelectElement;
     expect(picker.value).toBe('escalation');
     await screen.findByRole('form', { name: 'Supervisor Escalation' });
+  });
+  it('loads a verified live AI result for review, labelled as live', async () => {
+    const e = setup();
+    const live = {
+      status: 'succeeded',
+      draft_run_id: 'run-live',
+      draft: {
+        draft_run_id: 'run-live',
+        content_sha256: 'a'.repeat(64),
+        simulation: false,
+        live_provider_used: true,
+        findings: [
+          {
+            reference_id: '12345678-0000-4000-8000-000000000000',
+            claim_type: 'observed_fact',
+          },
+        ],
+      },
+    };
+    e.evidence.draftHistory = vi.fn().mockResolvedValue({
+      items: [{ draft_run_id: 'run-live', status: 'succeeded' }],
+      total: 1,
+      limit: 10,
+      offset: 0,
+    }) as never;
+    e.evidence.draftDetail = vi.fn().mockResolvedValue(live) as never;
+    const picker = (await screen.findByLabelText(
+      'Action',
+    )) as HTMLSelectElement;
+    fireEvent.change(picker, { target: { value: 'finding_review' } });
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Load my latest verified AI findings',
+      }),
+    );
+    await screen.findByRole('form', { name: 'Finding Review Decision' });
+    expect(screen.getByText(/Live AI result \(verified\)/)).toBeTruthy();
+    expect(
+      screen.queryByText(/No completed, verified AI investigation/),
+    ).toBeNull();
   });
   it('aborts pending reads on unmount', () => {
     const e = setup();

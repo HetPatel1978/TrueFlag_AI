@@ -36,7 +36,7 @@ export type HumanEntry = {
     evidence_revision: number;
     access_revision: number;
     finding?: {
-      mode: 'offline_simulation';
+      mode: 'offline_simulation' | 'claude_live';
       draft_sha256: string;
       claim_type: string;
     };

@@ -312,3 +312,24 @@ describe('case workflows', () => {
     });
   });
 });
+
+describe('case decision text', () => {
+  it('shows a recorded resolution even when the case stays open', async () => {
+    const { decisionText } = await import('./case-file');
+    const base = { disposition: null, resolution: null } as never;
+    expect(decisionText(base)).toBe('Not recorded');
+    expect(
+      decisionText({
+        ...(base as object),
+        resolution: 'escalated_for_compliance_review',
+      } as never),
+    ).toBe('Escalated for compliance review');
+    expect(
+      decisionText({
+        ...(base as object),
+        disposition: 'close',
+        resolution: 'no_further_action_recommended',
+      } as never),
+    ).toBe('No further action recommended');
+  });
+});

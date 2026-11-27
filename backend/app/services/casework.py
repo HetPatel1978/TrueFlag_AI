@@ -29,7 +29,14 @@ KINDS = {
 class CaseworkService:
     def __init__(self, engine, settings):
         self.engine, self.settings = engine, settings
-        self.gateway = DraftAPIService(engine, settings)
+        # Same gateway rule as the draft API: with academic research enabled, verified
+        # research (Claude) results are projected, re-verified and reviewable like any other.
+        if settings.academic_research_enabled:
+            from app.services.research_api import ResearchDraftAPIService
+
+            self.gateway = ResearchDraftAPIService(engine, settings)
+        else:
+            self.gateway = DraftAPIService(engine, settings)
         self.coordinator = self.gateway.drafts.coordinator
         self.reader = self.coordinator.reader
 

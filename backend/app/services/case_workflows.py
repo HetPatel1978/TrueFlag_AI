@@ -7,6 +7,7 @@ from sqlalchemy import String, and_, cast, exists, func, or_, select
 from sqlalchemy.orm import aliased
 
 from app.models import Assessment, AssessmentJob, AuditEvent, Case, User
+from app.models.casework import CaseworkEntry
 from app.models.investigation_drafts import DraftRun
 from app.models.investigations import InvestigationRun
 from app.services.assessments import AssessmentNotFound, _locked_case, _read
@@ -153,6 +154,14 @@ def version(details, key):
     return value if type(value) is int and 0 <= value <= 2147483647 else None
 
 
+RESOLUTIONS = {
+    "additional_review_required",
+    "no_further_action_recommended",
+    "escalated_for_compliance_review",
+    "investigation_completed",
+}
+
+
 class CaseWorkflowService:
     def __init__(self, engine):
         self.engine = engine
@@ -188,11 +197,18 @@ class CaseWorkflowService:
                 score = content["score"]["score"]
             if recommendation not in {"retain_human_review", "review_reduction_candidate"}:
                 raise CaseDataUnavailable
+        resolution = session.scalar(
+            select(CaseworkEntry.payload["outcome"].as_string())
+            .where(CaseworkEntry.case_id == case.id, CaseworkEntry.kind == "resolution")
+            .order_by(CaseworkEntry.revision.desc())
+            .limit(1)
+        )
         return dict(
             assigned_investigator=name,
             review_recommendation=recommendation,
             assessment_version=assessment.version if assessment else None,
             assessment_score=score,
+            resolution=resolution if resolution in RESOLUTIONS else None,
         )
 
     @atomic
@@ -409,9 +425,7 @@ def last_activity(session, case_ids):
         .where(AssessmentJob.case_id.in_(ids), AuditEvent.action.in_(ASSESSMENT_EVENTS)),
         select(InvestigationRun.case_id.label("case_id"), AuditEvent.created_at)
         .join(AuditEvent, AuditEvent.resource_id == cast(InvestigationRun.id, String))
-        .where(
-            InvestigationRun.case_id.in_(ids), AuditEvent.action.in_(INVESTIGATION_EVENTS)
-        ),
+        .where(InvestigationRun.case_id.in_(ids), AuditEvent.action.in_(INVESTIGATION_EVENTS)),
         select(InvestigationRun.case_id.label("case_id"), AuditEvent.created_at)
         .join(DraftRun, DraftRun.parent_run_id == InvestigationRun.id)
         .join(AuditEvent, AuditEvent.resource_id == cast(DraftRun.id, String))
@@ -425,9 +439,7 @@ def last_activity(session, case_ids):
     rows = session.execute(
         select(events.c.case_id, func.max(events.c.created_at)).group_by(events.c.case_id)
     ).all()
-    return {
-        case_id: at if at.tzinfo else at.replace(tzinfo=timezone.utc) for case_id, at in rows
-    }
+    return {case_id: at if at.tzinfo else at.replace(tzinfo=timezone.utc) for case_id, at in rows}
 
 
 def valid_uuid(value):

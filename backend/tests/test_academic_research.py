@@ -6,6 +6,7 @@ import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from uuid import UUID, uuid4
 
 import httpx
@@ -44,6 +45,15 @@ pytestmark = [
     pytest.mark.skipif(
         sys.platform != "win32" or not os.environ.get("TRUEFLAG_TEST_POSTGRES_URL"),
         reason="isolated native Windows PostgreSQL required",
+    ),
+    # Research tables come from candidate migrations 0020-0023, which only the native
+    # runtime's staged copy applies. Run with scripts/run_staged_tests.py.
+    pytest.mark.skipif(
+        not (
+            Path(__file__).resolve().parents[1]
+            / "alembic/versions/0023_durable_regulatory_start.py"
+        ).exists(),
+        reason="Needs the staged 0020-0023 chain; run scripts/run_staged_tests.py",
     ),
 ]
 
@@ -424,9 +434,7 @@ def retirement_events(session, run_id):
     ).all()
 
 
-def test_viewing_an_expired_request_never_writes_and_retirement_records_once(
-    research, monkeypatch
-):
+def test_viewing_an_expired_request_never_writes_and_retirement_records_once(research, monkeypatch):
     from app.models.regulatory_drafts import DraftRegulatoryBinding
 
     e = research
@@ -490,12 +498,16 @@ def test_expired_research_drafts_release_pending_slots(research, monkeypatch):
     ]
     # Three unexpired drafts legitimately hold the per-actor limit and are never retired.
     with pytest.raises(InvestigationBusy, match="draft_queue_full"):
-        e["research"].stage(e["actor"], e["case"], "research-slot-3", e["request"], e["binding"], configs[3])
+        e["research"].stage(
+            e["actor"], e["case"], "research-slot-3", e["request"], e["binding"], configs[3]
+        )
     with Session(e["platform"][1]) as session:
         assert {session.get(DraftJob, r).status for r in runs} == {"pending"}
     advance_snapshot_clock(monkeypatch, 901)
     fresh = e["bridge"].prepare(
-        e["actor"], e["case"], e["binding"].investigation_run_id,
+        e["actor"],
+        e["case"],
+        e["binding"].investigation_run_id,
         ReferenceQuery(query="suspicious transactions"),
     )
     packet = e["bridge"].provider_input(e["actor"], fresh)
@@ -509,7 +521,11 @@ def test_expired_research_drafts_release_pending_slots(research, monkeypatch):
     with Session(e["platform"][1]) as session:
         for run_id in runs:
             job = session.get(DraftJob, run_id)
-            assert (job.status, job.error_code, job.attempts) == ("invalidated", "input_invalidated", 0)
+            assert (job.status, job.error_code, job.attempts) == (
+                "invalidated",
+                "input_invalidated",
+                0,
+            )
             assert len(retirement_events(session, run_id)) == 1
         assert session.get(DraftJob, UUID(new["draft_run_id"])).status == "pending"
         assert session.scalar(select(func.count()).select_from(DraftAttempt)) == 0
@@ -552,14 +568,18 @@ def test_invalid_claude_output_is_not_reported_as_provider_unavailable(research,
     class Runner:
         def invoke(self, *args):
             if received:  # HTTP 200, parseable, but outside TrueFlag's output contract.
-                raise ProviderRejected("provider_unavailable", http_status=200, diagnostics=diagnostics)
+                raise ProviderRejected(
+                    "provider_unavailable", http_status=200, diagnostics=diagnostics
+                )
             raise ProviderRejected("provider_unavailable", http_status=503)
 
     e["research"]._runner = Runner()
     result = e["research"].run_once(e["token"])
     expected = "invalid_provider_output" if received else "provider_unavailable"
     assert (result["status"], result["error_code"]) == ("failed", expected)
-    view = ResearchDraftAPIService(e["platform"][1], e["platform"][2]).detail(e["actor"], e["case"], run_id)
+    view = ResearchDraftAPIService(e["platform"][1], e["platform"][2]).detail(
+        e["actor"], e["case"], run_id
+    )
     assert view.status == "failed" and view.error_code == expected and view.draft is None
     with Session(e["platform"][1]) as session:
         receipt = session.scalar(select(DraftReceipt))
@@ -665,8 +685,16 @@ def test_research_worker_is_fenced_after_long_job_deadline(research, monkeypatch
 def test_new_research_defaults_preserve_historical_configurations(research):
     config = research["config"]
     assert config.request_deadline_seconds == 120 and config.max_output_tokens == 4096
-    raw = json.loads(request_body(research["packet"], max_output_tokens=config.max_output_tokens, wire_format=config.wire_format))
-    assert raw["output_config"]["effort"] == "medium" and raw["thinking"] == {"type": "between_tools"}
+    raw = json.loads(
+        request_body(
+            research["packet"],
+            max_output_tokens=config.max_output_tokens,
+            wire_format=config.wire_format,
+        )
+    )
+    assert raw["output_config"]["effort"] == "medium" and raw["thinking"] == {
+        "type": "between_tools"
+    }
     assert raw["max_tokens"] == 4096
     original = config.model_dump(mode="json")
     original.update(request_deadline_seconds=20, max_output_tokens=4096)
@@ -685,16 +713,20 @@ def test_native_research_worker_waits_for_explicit_click(research):
 
 
 def test_protected_research_button_uses_one_existing_job(research, monkeypatch, tmp_path):
-    from app.services.live_provider_runner import ProviderRunner
     from app.models.investigation_drafts import DraftRequest
+    from app.services.live_provider_runner import ProviderRunner
 
     e = research
     staged = stage(e)
     approve_fixture(e)
     client = e["platform"][0]
-    path = f"/api/v1/cases/{e['case']}/investigation-drafts/{staged['draft_run_id']}/execute-research"
+    path = (
+        f"/api/v1/cases/{e['case']}/investigation-drafts/{staged['draft_run_id']}/execute-research"
+    )
     assert client.post(path, headers={"Idempotency-Key": "synthetic-button"}).status_code == 401
-    assert client.post(path, headers={**headers(e["platform"], "analyst"), "Idempotency-Key": "synthetic-button"}).status_code in (403, 404)
+    assert client.post(
+        path, headers={**headers(e["platform"], "analyst"), "Idempotency-Key": "synthetic-button"}
+    ).status_code in (403, 404)
     auth = {**headers(e["platform"], "admin"), "Idempotency-Key": "synthetic-button"}
     for _ in range(2):
         accepted = client.post(path, headers=auth)
@@ -709,7 +741,14 @@ def test_protected_research_button_uses_one_existing_job(research, monkeypatch, 
     with Session(e["platform"][1]) as session:
         assert session.scalar(select(func.count()).select_from(DraftAttempt)) == 1
         assert session.scalar(select(func.count()).select_from(StoredDraft)) == 1
-        assert session.scalar(select(func.count()).select_from(DraftRequest).where(DraftRequest.idempotency_key.startswith("research-ui-"))) == 1
+        assert (
+            session.scalar(
+                select(func.count())
+                .select_from(DraftRequest)
+                .where(DraftRequest.idempotency_key.startswith("research-ui-"))
+            )
+            == 1
+        )
     gateway = ResearchDraftAPIService(e["platform"][1], e["platform"][2])
     first = gateway.detail(e["actor"], e["case"], UUID(staged["draft_run_id"]))
     assert first == gateway.detail(e["actor"], e["case"], UUID(staged["draft_run_id"]))
@@ -841,7 +880,10 @@ def generate_request(e, role="admin", key="synthetic-generate-click"):
     return e["platform"][0].post(
         f"{drafts_path(e)}/research-start",
         headers={**headers(e["platform"], role), "Idempotency-Key": key},
-        json={"investigation_run_id": str(parent), "expected_packet_sha256": digest(view["packet"])},
+        json={
+            "investigation_run_id": str(parent),
+            "expected_packet_sha256": digest(view["packet"]),
+        },
     )
 
 
@@ -939,6 +981,27 @@ def test_owner_reviews_and_approves_exact_request_in_app(research, monkeypatch, 
     detail = gateway.detail(e["actor"], e["case"], UUID(run_id))
     assert detail == gateway.detail(e["actor"], e["case"], UUID(run_id))  # refresh-stable
     if ok:
+        # A resolution needs a reviewed finding: casework must accept a finding from this
+        # verified live research result, bound to its content hash, and reject a stale hash.
+        from types import SimpleNamespace
+
+        from app.services.casework import CaseworkService
+        from app.services.evidence import EvidenceConflict
+
+        casework = CaseworkService(e["platform"][1], e["platform"][2])
+        reference = detail.draft.findings[0].reference_id
+        command = SimpleNamespace(
+            draft_run_id=UUID(run_id),
+            reference_id=reference,
+            expected_draft_sha256=detail.draft.content_sha256,
+        )
+        with Session(e["platform"][1]) as session, session.begin():
+            bound = casework._finding(session, e["actor"], e["case"], command)
+        assert bound["mode"] == "claude_live"
+        assert bound["draft_sha256"] == detail.draft.content_sha256
+        stale = SimpleNamespace(**{**vars(command), "expected_draft_sha256": "0" * 64})
+        with pytest.raises(EvidenceConflict), Session(e["platform"][1]) as session:
+            casework._finding(session, e["actor"], e["case"], stale)
         assert detail.draft.regulatory_context == "research_unapproved"
         assert detail.draft.publication_approved is False
         retrieval = detail.draft.retrieval
@@ -956,9 +1019,10 @@ def test_owner_reviews_and_approves_exact_request_in_app(research, monkeypatch, 
         assert [t.section for t in detail.draft.source_texts] == [
             r.section for r in retrieval.results
         ]
-        assert all(t.chunk_sha256 == r.chunk_sha256 for t, r in zip(
-            detail.draft.source_texts, retrieval.results
-        ))
+        assert all(
+            t.chunk_sha256 == r.chunk_sha256
+            for t, r in zip(detail.draft.source_texts, retrieval.results)
+        )
         assert retrieval.query and retrieval.inputs and retrieval.results
         assert {str(p.reference_id) for p in detail.draft.regulatory_citations} <= {
             str(r.reference_id) for r in retrieval.results if r.sent
@@ -1073,7 +1137,9 @@ def test_approval_is_bound_to_the_exact_displayed_hash(research, tmp_path):
     assert e["research"].run_requested_once(e["token"]) is None and attempts(e) == 0
 
 
-def test_expired_request_is_not_approved_and_refresh_builds_a_new_one(research, monkeypatch, tmp_path):
+def test_expired_request_is_not_approved_and_refresh_builds_a_new_one(
+    research, monkeypatch, tmp_path
+):
     e = research
     approver_policy(e, tmp_path)
     run_id, shown = prepared(e)
@@ -1150,4 +1216,6 @@ def test_approval_audit_history_is_immutable(research, tmp_path):
     assert approve(e, run_id, shown["request_sha256"]).status_code == 202
     with pytest.raises(Exception):
         with e["platform"][1].begin() as c:
-            c.execute(text("UPDATE audit_events SET details='{}' WHERE resource_id=:r"), {"r": run_id})
+            c.execute(
+                text("UPDATE audit_events SET details='{}' WHERE resource_id=:r"), {"r": run_id}
+            )

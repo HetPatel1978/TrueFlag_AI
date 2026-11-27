@@ -21,6 +21,7 @@ from app.models import AuditEvent, Case, User
 from app.models.casework import CaseworkEntry
 from app.models.investigation_drafts import StoredDraft
 from app.security.auth import password_hash
+from app.services.case_workflows import CaseWorkflowService
 from app.services.casework import CaseworkService
 from app.services.snapshot_clock import ClockUnavailable
 
@@ -485,7 +486,9 @@ def test_migration_rollback_empty_and_refuse_retained_history(work):
     with engine.connect() as con:
         from app.core.schema import EXPECTED_SCHEMA_REVISION
 
-        assert con.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_SCHEMA_REVISION
+        assert (
+            con.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_SCHEMA_REVISION
+        )
 
 
 def test_changed_casework_invalidates_approval(work):
@@ -620,6 +623,10 @@ def test_interim_resolution_allows_new_verified_review_without_erasing_history(w
         confirmed=True,
     )
     assert first.status_code == 201, first.text
+    workflows = CaseWorkflowService(e["platform"][1])
+    # The case record carries the recorded resolution even when the case stays open.
+    shown = workflows.overview(e["users"]["supervisor"], e["case"])
+    assert (shown["status"], shown["resolution"]) == ("in_review", "additional_review_required")
     assert post(e).status_code == 201
     reviewed(e)
     escalation = post(e, "escalation").json()
@@ -641,6 +648,9 @@ def test_interim_resolution_allows_new_verified_review_without_erasing_history(w
         confirmed=True,
     )
     assert final.status_code == 201, final.text
+    assert workflows.overview(e["users"]["supervisor"], e["case"])["resolution"] == (
+        "investigation_completed"
+    )  # the latest resolution wins
     with Session(e["platform"][1]) as session:
         assert (
             session.scalar(
