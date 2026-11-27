@@ -14,13 +14,33 @@ from app.services.research_demo import ResearchEvidenceService
 
 PACKET = Path(__file__).parent / "fixtures" / "research_replay" / "packet.json"
 MODEL_FEATURES = [
-    "kycRiskScore", "income", "tenureMonths", "creditScore", "state", "nbrPurchases90d",
-    "avgTxnSize90d", "totalSpend90d", "nbrDistinctMerch90d", "nbrMerchCredits90d",
-    "nbrMerchCreditsRndDollarAmt90d", "totalMerchCred90d", "nbrMerchCreditsWoOffsettingPurch",
-    "nbrPayments90d", "totalPaymentAmt90d", "overpaymentAmt90d", "overpaymentInd90d",
-    "nbrCustReqRefunds90d", "totalRefundsToCust90d", "nbrPaymentsCashLike90d",
-    "maxRevolveLine", "indOwnsHome", "nbrInquiries1y", "nbrCollections3y", "nbrWebLogins90d",
-    "nbrPointRed90d", "PEP",
+    "kycRiskScore",
+    "income",
+    "tenureMonths",
+    "creditScore",
+    "state",
+    "nbrPurchases90d",
+    "avgTxnSize90d",
+    "totalSpend90d",
+    "nbrDistinctMerch90d",
+    "nbrMerchCredits90d",
+    "nbrMerchCreditsRndDollarAmt90d",
+    "totalMerchCred90d",
+    "nbrMerchCreditsWoOffsettingPurch",
+    "nbrPayments90d",
+    "totalPaymentAmt90d",
+    "overpaymentAmt90d",
+    "overpaymentInd90d",
+    "nbrCustReqRefunds90d",
+    "totalRefundsToCust90d",
+    "nbrPaymentsCashLike90d",
+    "maxRevolveLine",
+    "indOwnsHome",
+    "nbrInquiries1y",
+    "nbrCollections3y",
+    "nbrWebLogins90d",
+    "nbrPointRed90d",
+    "PEP",
 ]
 
 
@@ -192,7 +212,9 @@ def test_corpus_view_reports_the_verified_snapshot(monkeypatch):
 def test_test_retrieval_ranks_like_case_retrieval(monkeypatch, session, corpus):
     service = _open_service(monkeypatch)
     found = service.test_retrieval(session, "cash currency transaction")
-    expected, matched = rr.rank(session, corpus, rr.or_query(["cash", "currency", "transaction"]))
+    words = [("cash", 1), ("currency", 1), ("transaction", 1)]
+    expected, matched = rr.rank_v5(session, corpus, words)
+    expected = rr.strong_matches(expected)
     assert [(r["section"], r["score"]) for r in found["results"]] == expected
     assert [r["rank"] for r in found["results"]] == list(range(1, len(expected) + 1))
     assert found["matched_sections"] == matched and found["total_sections"] == 24
@@ -224,11 +246,15 @@ def test_strong_matches_drop_results_below_a_quarter_of_the_top_score():
 
 
 def test_wire_transfer_recordkeeping_keeps_only_the_strong_match(monkeypatch, session, corpus):
+    # The v4 rule (stored records) still keeps only the strong match for this query.
+    ranked, _ = rr.rank(session, corpus, rr.or_query(["wire", "transfer", "recordkeeping"]))
+    assert [s for s, _ in rr.strong_matches(ranked)] == ["1020.410"]
+    assert len(ranked) > 1  # the threshold, not the query, removed the weaker sections
+    # Test retrieval now ranks like new (v5) records: the section with the most query words
+    # comes first.
     found = _open_service(monkeypatch).test_retrieval(session, "wire transfer recordkeeping")
-    assert [r["section"] for r in found["results"]] == ["1020.410"]
-    assert found["strong_matches"] == 1 and found["min_relative_score"] == "0.25"
-    unfiltered, _ = rr.rank(session, corpus, rr.or_query(found["terms"]))
-    assert len(unfiltered) > 1  # the threshold, not the query, removed the weaker sections
+    assert found["results"][0]["section"] == "1020.410"
+    assert found["min_relative_score"] == "0.25"
 
 
 def test_new_case_retrieval_stores_the_threshold_and_v2_records_rerun_unchanged(

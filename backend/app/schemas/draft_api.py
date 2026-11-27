@@ -19,6 +19,7 @@ from app.schemas.research_demo import (
     ResearchRetrieval,
     ResearchRetrievalV2,
     ResearchRetrievalV3,
+    ResearchRetrievalV4,
     ResearchSourceText,
 )
 
@@ -136,7 +137,9 @@ class ResearchLiveDraft(LiveDraft):
     finding_citations: list[FindingCitation] = Field(default_factory=list, max_length=40)
     # v3 records carry the relative-score threshold; v2 records keep the original shape.
     # v4 runs add the excerpt sent per source.
-    retrieval: ResearchRetrievalV3 | ResearchRetrievalV2 | ResearchRetrieval | None = None
+    retrieval: (
+        ResearchRetrievalV4 | ResearchRetrievalV3 | ResearchRetrievalV2 | ResearchRetrieval | None
+    ) = None
     # Full hash-verified text of every retrieved section (read display only; never sent).
     source_texts: list[ResearchSourceText] = Field(default_factory=list, max_length=3)
 

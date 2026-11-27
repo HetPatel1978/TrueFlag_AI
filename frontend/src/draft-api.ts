@@ -100,6 +100,12 @@ export type ResearchRetrieval = {
   strong_matches?: number;
   /** v4 records: each source was sent as a bounded excerpt of its most relevant lines. */
   excerpt_cap_bytes?: number;
+  /** v5 records: evidence-pattern rules that fired on the case's own transactions. */
+  patterns?: { rule: string; observed: string; threshold: string }[];
+  /** v5 records: inputs present in every case, left out of the query. */
+  dropped_inputs?: string[];
+  /** v5 records: query words with their weight (evidence-pattern words count 3). */
+  weighted_terms?: { term: string; weight: number }[];
   results: {
     reference_id: string;
     rank: number;

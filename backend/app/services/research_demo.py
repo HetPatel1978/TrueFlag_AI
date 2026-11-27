@@ -17,15 +17,18 @@ from app.schemas.research_demo import (
     ResearchBindingV2,
     ResearchBindingV3,
     ResearchBindingV4,
+    ResearchBindingV5,
     ResearchCitation,
     ResearchExcerptCitation,
     ResearchProviderInput,
     ResearchRetrieval,
     ResearchRetrievalV2,
     ResearchRetrievalV3,
+    ResearchRetrievalV4,
     RetrievalResult,
     RetrievalResultV2,
 )
+from app.services import research_retrieval
 from app.services.evidence import EvidenceBlocked, atomic, audit
 from app.services.evidence_read import SnapshotStale
 from app.services.ingestion import digest
@@ -34,7 +37,6 @@ from app.services.investigation_provider import strict_json
 from app.services.investigation_verifier import VerificationFailed
 from app.services.reference_parser import extract
 from app.services.regulatory_investigation import RegulatoryInvestigationService
-from app.services import research_retrieval
 
 ROOT = Path(__file__).resolve().parents[3]
 PROPOSAL_SHA = "832f42eafdc27a1e7847a8acf21c4b0615c8ca129f3117df969ec116fefc84c1"
@@ -83,7 +85,7 @@ class ResearchEvidenceService:
             "fingerprint_verified": True,
             "raw_sha256": source["raw_sha256"],
             "extracted_sha256": source["extracted_sha256"],
-            "method": "text_match_ts_rank_cd",
+            "method": "case_term_coverage_then_ts_rank_cd",
             "top_k": research_retrieval.TOP_K,
         }
 
@@ -101,9 +103,9 @@ class ResearchEvidenceService:
                 "strong_matches": 0,
                 "results": [],
             }
-        ranked, matched = research_retrieval.rank(
-            session, chunks, research_retrieval.or_query(terms)
-        )
+        # Same ranking as new (v5) per-case records; free text has no evidence patterns, so
+        # every word weighs 1. Read-only and never stored.
+        ranked, matched = research_retrieval.rank_v5(session, chunks, [(t, 1) for t in terms])
         ranked = research_retrieval.strong_matches(ranked)  # same rule as per-case retrieval
         by_section = {c["section"]: c for c in chunks}
         return {
@@ -246,21 +248,35 @@ class ResearchEvidenceService:
             section_text_bytes=len(chunk["body_text"].encode()),
         )
 
-    def _retrieve(self, session, actor, case, run, inputs, *, relative=True, excerpts=True):
+    def _retrieve(
+        self, session, actor, case, run, inputs, *, relative=True, excerpts=True, v5=None
+    ):
         """Per-case retrieval: mapped case terms, OR query, top 3 by ts_rank_cd > 0, no padding.
 
         ``relative`` (v3+) drops results below 25% of the top score; ``excerpts`` (v4) sends
         each strong match as a bounded excerpt of its most query-relevant lines. Older records
-        are re-run with their own flags so their stored retrieval still matches exactly."""
+        are re-run with their own flags so their stored retrieval still matches exactly.
+
+        ``v5`` ({"patterns", "dropped"}) builds a v5 record: weighted case-specific and
+        evidence-pattern terms ranked by coverage, then ts_rank_cd (numeric order)."""
         self._scope(session, actor, case)
         source, chunks = self._corpus()
-        terms = research_retrieval.map_terms(inputs)
+        weighted = research_retrieval.weighted_terms_v5(inputs) if v5 is not None else None
+        terms = (
+            [t for t, _ in weighted]
+            if weighted is not None
+            else research_retrieval.map_terms(inputs)
+        )
         while terms and len(" ".join(terms)) > 256:
             terms.pop()
         if not terms:
             raise EvidenceBlocked("research_context_unavailable")
         expression = research_retrieval.or_query(terms)
-        ranked, matched = research_retrieval.rank(session, chunks, expression)
+        if weighted is not None:
+            weighted = [(t, w) for t, w in weighted if t in terms]
+            ranked, matched = research_retrieval.rank_v5(session, chunks, weighted)
+        else:
+            ranked, matched = research_retrieval.rank(session, chunks, expression)
         if relative:
             ranked = research_retrieval.strong_matches(ranked)
         if not ranked:
@@ -276,9 +292,7 @@ class ResearchEvidenceService:
             if excerpts:
                 scores = research_retrieval.score_lines(session, body, expression)
                 text_sent, spans = research_retrieval.excerpt(body, scores)
-                citation = self._excerpt_citation(
-                    source, chunk, actor, case, run, query, text_sent
-                )
+                citation = self._excerpt_citation(source, chunk, actor, case, run, query, text_sent)
                 extra = dict(
                     excerpt_sha256=citation.excerpt_sha256,
                     excerpt_bytes=len(text_sent.encode()),
@@ -315,8 +329,16 @@ class ResearchEvidenceService:
             if relative
             else {}
         )
+        if weighted is not None:
+            threshold.update(
+                dropped_inputs=list(v5["dropped"]),
+                patterns=list(v5["patterns"]),
+                weighted_terms=[dict(term=t, weight=w) for t, w in weighted],
+            )
         retrieval_cls = (
-            ResearchRetrievalV3
+            ResearchRetrievalV4
+            if weighted is not None
+            else ResearchRetrievalV3
             if excerpts
             else ResearchRetrievalV2
             if relative
@@ -337,14 +359,21 @@ class ResearchEvidenceService:
     def _research_again(self, session, actor, binding, run):
         """Re-run the binding's own retrieval; any difference invalidates the binding."""
         if isinstance(binding, ResearchBindingV2):
+            stored = binding.retrieval
             _, passages, retrieval = self._retrieve(
                 session,
                 actor,
                 binding.case_id,
                 run,
-                binding.retrieval.inputs,
+                stored.inputs,
                 relative=isinstance(binding, ResearchBindingV3),
                 excerpts=isinstance(binding, ResearchBindingV4),
+                v5=dict(
+                    patterns=[p.model_dump() for p in stored.patterns],
+                    dropped=stored.dropped_inputs,
+                )
+                if isinstance(binding, ResearchBindingV5)
+                else None,
             )
             return passages == binding.passages and retrieval == binding.retrieval
         return self._search(session, actor, binding.case_id, run, binding.query) == binding.passages
@@ -441,12 +470,19 @@ class ResearchEvidenceService:
             raise EvidenceBlocked("synthetic_evidence_required")
         observed = self.coordinator.reader.clock.observe()
         if query is None:
-            query, passages, retrieval = self._retrieve(
-                session, actor, case, run, research_retrieval.case_inputs(packet)
+            inputs, patterns, dropped = research_retrieval.case_inputs_v5(
+                packet, alert.features.get("income")
             )
-            extra, cls = {"retrieval": retrieval}, ResearchBindingV4
+            query, passages, retrieval = self._retrieve(
+                session, actor, case, run, inputs, v5=dict(patterns=patterns, dropped=dropped)
+            )
+            extra, cls = {"retrieval": retrieval}, ResearchBindingV5
         else:
-            passages, extra, cls = self._search(session, actor, case, run, query), {}, ResearchBinding
+            passages, extra, cls = (
+                self._search(session, actor, case, run, query),
+                {},
+                ResearchBinding,
+            )
         binding = cls(
             case_id=case,
             actor_id=actor,
@@ -514,6 +550,15 @@ class ResearchEvidenceService:
             or binding.expires_second - binding.prepared_second != 900
             or manifest.snapshot != binding.snapshot
             or digest(packet.model_dump(mode="json")) != binding.packet_sha256
+            or (
+                isinstance(binding, ResearchBindingV5)
+                and research_retrieval.case_inputs_v5(packet, alert.features.get("income"))
+                != (
+                    binding.retrieval.inputs,
+                    [p.model_dump() for p in binding.retrieval.patterns],
+                    binding.retrieval.dropped_inputs,
+                )
+            )
             or not self._research_again(session, actor, binding, binding.investigation_run_id)
         ):
             raise VerificationFailed("research_context_invalidated")

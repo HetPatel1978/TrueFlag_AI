@@ -86,7 +86,9 @@ def case_inputs(packet):
     facts = get("facts") or []
     if any(((f.get("result") or {}).get("concentration")) for f in facts):
         inputs.append("calculation:counterparty_concentration")
-    inputs += ["missing_evidence:" + c for c in get("missing_evidence") or [] if c in EVIDENCE_TERMS]
+    inputs += [
+        "missing_evidence:" + c for c in get("missing_evidence") or [] if c in EVIDENCE_TERMS
+    ]
     inputs += ["conflict:" + c for c in get("conflicts") or [] if c in EVIDENCE_TERMS]
     return list(dict.fromkeys(inputs))[:20]
 
@@ -246,3 +248,237 @@ def excerpt(body_text, scores, cap=EXCERPT_CAP_BYTES):
     if not ranges or len(result.encode()) > cap:
         raise ValueError("excerpt_unavailable")
     return result, ranges
+
+
+# ---- v5: case-specific terms and deterministic evidence-pattern terms ----------------------
+#
+# v1-v4 records keep the functions above unchanged (their stored inputs re-run through
+# map_terms/rank exactly as recorded). v5 changes three things for new records only:
+#  1. Inputs present in every case are dropped: the four missing-evidence codes the packet
+#     always lists, and the counterparty-concentration calculation (computed for every case
+#     with transactions). They are kept in the record as "dropped_inputs" for transparency.
+#  2. Evidence-pattern terms come from fixed rules over the case's own transactions (no AI).
+#  3. Ranking scores each section by the weighted distinct query terms it contains (pattern
+#     terms 3, other case terms 1), then ts_rank_cd, ordered numerically. (rank() above sorts
+#     its text-formatted score, so a score of 10 or more sorts below single-digit scores;
+#     it is kept as-is so v1-v4 records still re-run identically.)
+
+ALWAYS_PRESENT_INPUTS = (
+    "calculation:counterparty_concentration",
+    "missing_evidence:comparable_expected_activity",
+    "missing_evidence:curated_documents",
+    "missing_evidence:sampling_metadata",
+    "missing_evidence:settlement_status",
+)
+PATTERN_WEIGHT = 3
+CASE_TERM_WEIGHT = 1
+
+REPORTING_THRESHOLD = Decimal("10000")
+NEAR_THRESHOLD_FLOOR = Decimal("9000")  # within 10% below the USD 10,000 currency report level
+NEAR_THRESHOLD_MIN_COUNT = 3
+RAPID_HOURS = 48
+RAPID_MIN_SHARE = Decimal("0.90")
+RAPID_MIN_PAIRS = 3
+MANY_SOURCES_MIN = 10
+INCOME_MULTIPLE = Decimal("3")
+DORMANT_MIN_DAYS = 60
+DORMANT_MIN_EVENTS = 10
+
+# Rule -> (plain description with threshold, regulatory terms). Fixed, reviewed table.
+PATTERN_RULES = {
+    "cash_below_reporting_threshold": (
+        f"At least {NEAR_THRESHOLD_MIN_COUNT} cash-like deposits of USD 9,000 to 9,999.99 "
+        "(just below the USD 10,000 currency transaction report level)",
+        "structured currency reports aggregation",
+    ),
+    "rapid_in_out": (
+        f"At least {RAPID_MIN_PAIRS} incoming amounts each followed within {RAPID_HOURS} hours "
+        "by an outgoing amount of 90-100% of it",
+        "transfer transmittal originator beneficiary",
+    ),
+    "many_sources": (
+        f"Incoming amounts from at least {MANY_SOURCES_MIN} distinct counterparties",
+        "multiple sources aggregate aggregation",
+    ),
+    "activity_above_declared_income": (
+        "Outgoing amounts in the window, annualized, at least "
+        f"{INCOME_MULTIPLE}x the declared annual income",
+        "diligence beneficial ownership profile",
+    ),
+    "dormant_then_active": (
+        f"No activity for the first {DORMANT_MIN_DAYS}+ days of the window, then at least "
+        f"{DORMANT_MIN_EVENTS} transactions",
+        "ongoing monitoring update risk",
+    ),
+}
+
+
+def _get(item, name):
+    return item.get(name) if isinstance(item, dict) else getattr(item, name)
+
+
+def _moment(value):
+    from datetime import datetime
+
+    return datetime.fromisoformat(value) if isinstance(value, str) else value
+
+
+def evidence_patterns(packet, declared_income):
+    """Fired rules for this case, in fixed rule order: [{rule, observed, threshold}].
+
+    Uses only the packet's own USD transactions with a recorded time and the alert's
+    declared annual income; nothing is inferred when data is missing."""
+    if not isinstance(packet, dict):
+        packet = packet.model_dump(mode="json")
+    rows = [
+        t
+        for t in packet.get("transactions") or []
+        if _get(t, "currency") == "USD" and _get(t, "event_at") is not None
+    ]
+    rows.sort(key=lambda t: _moment(_get(t, "event_at")))
+    credits = [t for t in rows if _get(t, "direction") == "credit"]
+    debits = [t for t in rows if _get(t, "direction") == "debit"]
+
+    def amount(t):
+        return Decimal(str(_get(t, "amount")))
+
+    def when(t):
+        return _moment(_get(t, "event_at"))
+
+    fired = []
+    near = [
+        t
+        for t in credits
+        if _get(t, "channel") == "cashlike"
+        and NEAR_THRESHOLD_FLOOR <= amount(t) < REPORTING_THRESHOLD
+    ]
+    if len(near) >= NEAR_THRESHOLD_MIN_COUNT:
+        fired.append(
+            dict(
+                rule="cash_below_reporting_threshold",
+                observed=str(len(near)),
+                threshold=str(NEAR_THRESHOLD_MIN_COUNT),
+            )
+        )
+
+    used, pairs = set(), 0
+    for credit in credits:
+        for index, debit in enumerate(debits):
+            hours = (when(debit) - when(credit)).total_seconds() / 3600
+            if (
+                index not in used
+                and 0 < hours <= RAPID_HOURS
+                and amount(credit) * RAPID_MIN_SHARE <= amount(debit) <= amount(credit)
+            ):
+                used.add(index)
+                pairs += 1
+                break
+    if pairs >= RAPID_MIN_PAIRS:
+        fired.append(dict(rule="rapid_in_out", observed=str(pairs), threshold=str(RAPID_MIN_PAIRS)))
+
+    sources = {_get(t, "counterparty_handle") for t in credits} - {None}
+    if len(sources) >= MANY_SOURCES_MIN:
+        fired.append(
+            dict(rule="many_sources", observed=str(len(sources)), threshold=str(MANY_SOURCES_MIN))
+        )
+
+    window = next((_get(_get(f, "result"), "window") for f in packet.get("facts") or []), None)
+    if window is not None:
+        start, end = _moment(_get(window, "start")), _moment(_get(window, "end"))
+        days = Decimal(str((end - start).total_seconds())) / Decimal(86400)
+        if declared_income is not None and Decimal(str(declared_income)) > 0 and days > 0:
+            outgoing = sum((amount(t) for t in debits), Decimal(0))
+            annualized = (outgoing * Decimal(365) / days).quantize(Decimal("1"))
+            limit = (Decimal(str(declared_income)) * INCOME_MULTIPLE).quantize(Decimal("1"))
+            if annualized >= limit:
+                fired.append(
+                    dict(
+                        rule="activity_above_declared_income",
+                        observed=str(annualized),
+                        threshold=str(limit),
+                    )
+                )
+        if rows:
+            quiet = (when(rows[0]) - start).days
+            if quiet >= DORMANT_MIN_DAYS and len(rows) >= DORMANT_MIN_EVENTS:
+                fired.append(
+                    dict(
+                        rule="dormant_then_active",
+                        observed=f"{quiet} days quiet, {len(rows)} transactions",
+                        threshold=f"{DORMANT_MIN_DAYS} days, {DORMANT_MIN_EVENTS} transactions",
+                    )
+                )
+    return fired
+
+
+def case_inputs_v5(packet, declared_income):
+    """v5 inputs: top-3 drivers, fired evidence patterns, case-specific gaps and conflicts.
+
+    Returns (inputs, patterns, dropped); inputs present in every case are dropped."""
+    full = case_inputs(packet)
+    dropped = [i for i in full if i in ALWAYS_PRESENT_INPUTS]
+    kept = [i for i in full if i not in ALWAYS_PRESENT_INPUTS]
+    patterns = evidence_patterns(packet, declared_income)
+    drivers = [i for i in kept if i.startswith("risk_driver:")]
+    others = [i for i in kept if not i.startswith("risk_driver:")]
+    inputs = drivers + ["evidence_pattern:" + p["rule"] for p in patterns] + others
+    return list(dict.fromkeys(inputs))[:20], patterns, dropped
+
+
+def weighted_terms_v5(inputs):
+    """Unique (term, weight) pairs: evidence-pattern terms weigh 3, other case terms 1."""
+    weights = {}
+    for item in inputs:
+        kind, _, key = item.partition(":")
+        if kind == "evidence_pattern":
+            phrase, weight = PATTERN_RULES.get(key, (None, ""))[1], PATTERN_WEIGHT
+        elif kind == "risk_driver":
+            phrase, weight = FEATURE_TERMS.get(key), CASE_TERM_WEIGHT
+        else:
+            phrase, weight = EVIDENCE_TERMS.get(key), CASE_TERM_WEIGHT
+        for word in (phrase or "").split():
+            if _WORD.match(word):
+                weights[word] = max(weights.get(word, 0), weight)
+    ordered = sorted(weights.items(), key=lambda kv: -kv[1])  # stable: pattern terms first
+    return ordered[:MAX_TERMS]
+
+
+def rank_v5(session, chunks, weighted, limit=TOP_K):
+    """Sections by weighted distinct-term coverage, then ts_rank_cd; numeric ordering.
+
+    The score is coverage + r/(1+r) (r = ts_rank_cd), so coverage always decides first and
+    ts_rank_cd only breaks ties. Fewer than ``limit`` results are returned as-is."""
+    if not weighted or any(not _WORD.match(t) for t, _ in weighted):
+        raise ValueError("invalid_retrieval_terms")
+    rows = session.execute(
+        text(
+            """WITH c AS (
+                 SELECT section, to_tsvector('english', body_text) AS v
+                 FROM jsonb_to_recordset(CAST(:chunks AS jsonb)) AS c(section text, body_text text)
+               ), t AS (
+                 SELECT term, weight FROM jsonb_to_recordset(CAST(:terms AS jsonb))
+                   AS t(term text, weight int)
+               ), s AS (
+                 SELECT c.section,
+                        sum(CASE WHEN c.v @@ to_tsquery('english', t.term) THEN t.weight
+                                 ELSE 0 END) AS coverage,
+                        ts_rank_cd(c.v, to_tsquery('english', :query)) AS r
+                 FROM c CROSS JOIN t GROUP BY c.section, c.v
+               ), scored AS (
+                 SELECT section, round((coverage + r / (1 + r))::numeric, 6) AS value
+                 FROM s WHERE coverage > 0
+               )
+               SELECT section, to_char(value, 'FM999990.000000') AS score,
+                      (SELECT count(*) FROM scored) AS matched
+               FROM scored ORDER BY value DESC, section LIMIT :limit"""
+        ),
+        {
+            "chunks": json.dumps(
+                [{"section": c["section"], "body_text": c["body_text"]} for c in chunks]
+            ),
+            "terms": json.dumps([{"term": t, "weight": w} for t, w in weighted]),
+            "query": or_query([t for t, _ in weighted]),
+            "limit": limit,
+        },
+    ).all()
+    return [(r.section, r.score) for r in rows], (rows[0].matched if rows else 0)

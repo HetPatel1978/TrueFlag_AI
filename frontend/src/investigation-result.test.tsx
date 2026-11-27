@@ -511,6 +511,56 @@ describe('AI Investigation Result card', () => {
     expect(screen.queryByText(/request size limit/)).toBeNull();
   });
 
+  it('a v5 run names the evidence patterns, their rule and the inputs left out', () => {
+    renderCard({
+      ...base,
+      retrieval: {
+        ...retrieval,
+        method: 'case_term_coverage_then_ts_rank_cd_relative_excerpt_v4',
+        min_relative_score: '0.25',
+        strong_matches: 3,
+        excerpt_cap_bytes: 4000,
+        inputs: [
+          'risk_driver:nbrPaymentsCashLike90d',
+          'evidence_pattern:cash_below_reporting_threshold',
+        ],
+        patterns: [
+          {
+            rule: 'cash_below_reporting_threshold',
+            observed: '10',
+            threshold: '3',
+          },
+        ],
+        dropped_inputs: [
+          'calculation:counterparty_concentration',
+          'missing_evidence:settlement_status',
+        ],
+        weighted_terms: [
+          { term: 'structured', weight: 3 },
+          { term: 'cash', weight: 1 },
+        ],
+        results: retrieval.results.map((r) => ({ ...r, sent: true })),
+      },
+    });
+    const how = document.querySelector('details.retrieval-how')!;
+    expect(how.querySelector('summary')!.textContent).toBe(
+      'How sources were retrieved · Top 3 of 24 sections · case-term ranking',
+    );
+    expect(how.textContent).toContain(
+      'From case inputs: Cash-like payments · 90 days, Cash deposits just below the $10,000 report level',
+    );
+    expect(how.textContent).toContain(
+      'Evidence patterns found: Cash deposits just below the $10,000 report level (10; rule: 3)',
+    );
+    expect(how.textContent).toContain('pattern words count three times');
+    expect(how.textContent).toContain(
+      'Left out because every case has them: Counterparty concentration, Settlement status',
+    );
+    expect(how.textContent).not.toMatch(
+      /evidence_pattern:|cash_below_reporting_threshold/,
+    );
+  });
+
   it('ends the system summary after the figures', () => {
     const text = systemSummary(base, mergeFacts(base.findings));
     expect(text).toBe('12 transactions, $649.57, 100% with one counterparty.');

@@ -220,8 +220,19 @@ export const notUsedReason = (s: SourceRow) =>
   s.sent ? 'Not cited by the AI' : 'Not sent: request size limit';
 
 /** Human label for one retrieval input ("risk_driver:totalSpend90d" -> "Total spending · 90 days"). */
+/** Plain names of the deterministic evidence-pattern rules (retrieval v5). */
+export const PATTERN_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  cash_below_reporting_threshold:
+    'Cash deposits just below the $10,000 report level',
+  rapid_in_out: 'Money out within 48 hours of money in',
+  many_sources: 'Incoming money from many senders',
+  activity_above_declared_income: 'Outgoing activity above declared income',
+  dormant_then_active: 'Quiet account that became active',
+});
+
 export function inputLabel(input: string) {
   const [kind, key = ''] = input.split(':');
+  if (kind === 'evidence_pattern') return PATTERN_LABELS[key] ?? label(key);
   return kind === 'risk_driver' ? featureLabel(key) : label(key);
 }
 
@@ -630,7 +641,10 @@ function RetrievalNote({
       <details className="retrieval-how">
         <summary>
           How sources were retrieved · Top {retrieval.results.length} of{' '}
-          {retrieval.total_chunks} sections · text-match ranking
+          {retrieval.total_chunks} sections ·{' '}
+          {retrieval.weighted_terms
+            ? 'case-term ranking'
+            : 'text-match ranking'}
         </summary>
         <p className="hint">
           {retrieval.total_chunks} sections searched
@@ -644,6 +658,27 @@ function RetrievalNote({
         <p className="hint">
           From case inputs: {retrieval.inputs.map(inputLabel).join(', ')}
         </p>
+        {retrieval.patterns && (
+          <p className="hint">
+            Evidence patterns found:{' '}
+            {retrieval.patterns.length
+              ? retrieval.patterns
+                  .map(
+                    (p) =>
+                      `${PATTERN_LABELS[p.rule] ?? label(p.rule)} (${p.observed}; rule: ${p.threshold})`,
+                  )
+                  .join('; ')
+              : 'none'}
+            . Sections containing more of these words rank first; pattern words
+            count three times, then the text-match score breaks ties.
+          </p>
+        )}
+        {retrieval.dropped_inputs && retrieval.dropped_inputs.length > 0 && (
+          <p className="hint">
+            Left out because every case has them:{' '}
+            {retrieval.dropped_inputs.map(inputLabel).join(', ')}
+          </p>
+        )}
         {retrieval.excerpt_cap_bytes !== undefined && (
           <p className="hint">
             Each source was sent to the AI as an excerpt of its most relevant

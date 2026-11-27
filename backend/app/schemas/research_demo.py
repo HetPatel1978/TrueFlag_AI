@@ -169,9 +169,7 @@ class ResearchRetrievalV3(ResearchRetrievalV2):
     """v2 ranking and threshold, then each strong match is sent as a bounded excerpt of its
     most query-relevant lines (heading always kept) so every strong match fits the request."""
 
-    method: Literal["postgresql_english_ts_rank_cd_or_relative_excerpt_v3"] = (
-        RETRIEVAL_METHOD_V3
-    )
+    method: Literal["postgresql_english_ts_rank_cd_or_relative_excerpt_v3"] = RETRIEVAL_METHOD_V3
     excerpt_method: Literal["query_relevant_lines_v1"] = EXCERPT_METHOD
     excerpt_cap_bytes: Literal[4000] = 4000
     results: list[RetrievalResultV2] = Field(min_length=1, max_length=3)
@@ -187,6 +185,48 @@ class ResearchBindingV4(ResearchBindingV3):
     retrieval: ResearchRetrievalV3
 
 
+RETRIEVAL_METHOD_V4 = "case_term_coverage_then_ts_rank_cd_relative_excerpt_v4"
+
+
+class PatternFired(Contract):
+    """One deterministic evidence-pattern rule that fired on the case's own transactions."""
+
+    rule: Literal[
+        "cash_below_reporting_threshold",
+        "rapid_in_out",
+        "many_sources",
+        "activity_above_declared_income",
+        "dormant_then_active",
+    ]
+    observed: str = Field(min_length=1, max_length=80)
+    threshold: str = Field(min_length=1, max_length=80)
+
+
+class WeightedTerm(Contract):
+    term: str = Field(pattern=r"^[a-z]{3,24}$")
+    weight: int = Field(strict=True, ge=1, le=3)
+
+
+class ResearchRetrievalV4(ResearchRetrievalV3):
+    """v5 records: inputs present in every case are dropped (kept here for transparency),
+    deterministic evidence-pattern terms are added, and sections are ranked by weighted
+    distinct-term coverage, then ts_rank_cd (numeric order). Threshold and excerpts as v3."""
+
+    method: Literal["case_term_coverage_then_ts_rank_cd_relative_excerpt_v4"] = RETRIEVAL_METHOD_V4
+    dropped_inputs: list[str] = Field(max_length=10)
+    patterns: list[PatternFired] = Field(max_length=5)
+    weighted_terms: list[WeightedTerm] = Field(min_length=1, max_length=40)
+
+
+class ResearchBindingV5(ResearchBindingV4):
+    """Case-specific retrieval with evidence-pattern terms. v1-v4 keep their rule and hash."""
+
+    schema_version: Literal["trueflag.academic-research-binding.v5"] = (
+        "trueflag.academic-research-binding.v5"
+    )
+    retrieval: ResearchRetrievalV4
+
+
 class ResearchSourceText(Contract):
     """Full text of one retrieved section, re-read from the hash-verified snapshot."""
 
@@ -197,6 +237,10 @@ class ResearchSourceText(Contract):
 
 
 def parse_binding(value):
+    if isinstance(value, dict) and value.get("schema_version") == (
+        "trueflag.academic-research-binding.v5"
+    ):
+        return ResearchBindingV5.model_validate(value)
     if isinstance(value, dict) and value.get("schema_version") == (
         "trueflag.academic-research-binding.v4"
     ):

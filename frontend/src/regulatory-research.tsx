@@ -344,8 +344,9 @@ export function RetrievalCorpus({
           >
             fingerprint {corpus.fingerprint_verified ? '✓' : '✗'}
           </span>{' '}
-          · retrieval: text-match (PostgreSQL ts_rank_cd), top {corpus.top_k}{' '}
-          per case, results below 25% of the top score dropped
+          · retrieval: sections with the most case words first, then text-match
+          (PostgreSQL ts_rank_cd), top {corpus.top_k} per case, results below
+          25% of the top score dropped
         </p>
       )}
       {corpus && (
@@ -404,7 +405,10 @@ export function RetrievalCorpus({
                     <td className="source-title" title={row.title}>
                       {row.title}
                     </td>
-                    <td className="num" title={`ts_rank_cd ${row.score}`}>
+                    <td
+                      className="num"
+                      title={`Score ${row.score} (words matched, then text-match)`}
+                    >
                       {Number(row.score).toFixed(2)}
                     </td>
                   </tr>
