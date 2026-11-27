@@ -489,6 +489,13 @@ def test_immutable_history_audit_and_truncate_guards(platform, evidence_setup):
             connection.execute(text(statement))
 
 
+STAGED_CHAIN = (BACKEND / "alembic/versions/0023_durable_regulatory_start.py").exists()
+
+
+@pytest.mark.skipif(
+    not STAGED_CHAIN,
+    reason="Models include candidate 0020-0023 tables; run scripts/run_staged_tests.py",
+)
 def test_upgrade_empty_rollback_preserves_legacy_and_rejects_destructive_rollback(
     platform, evidence_setup, case_team
 ):
